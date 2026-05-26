@@ -1,0 +1,86 @@
+<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao.ThongKePhongDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thống Kê Theo Phòng" Height="620" Width="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="56"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#6A1B9A" Offset="0"/>
+                        <GradientStop Color="#AB47BC" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="16,0,8,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="📊" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="TxtTitle" Text="Thống Kê Doanh Thu Theo Phòng"
+                                   Foreground="White" FontSize="16" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Style="{StaticResource BtnClose}" Content="✕"
+                            Click="BtnClose_Click" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <!-- Filter -->
+            <Border Grid.Row="1" Background="#F5F7FA" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="20,12">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Tháng:" FontWeight="SemiBold" FontSize="13"
+                               Foreground="#546E7A" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="CboThang" Width="140" SelectionChanged="CboThang_Changed"/>
+                    <Rectangle Width="1" Fill="#E0E0E0" Margin="20,0"/>
+                    <TextBlock Text="Tổng doanh thu:" FontSize="13" Foreground="#546E7A"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtTong" FontSize="14" FontWeight="Bold"
+                               Foreground="#6A1B9A" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- DataGrid -->
+            <DataGrid x:Name="DgPhong" Grid.Row="2" Margin="16,12,16,0"
+                      HeadersVisibility="Column" IsReadOnly="True"
+                      AutoGenerateColumns="False"
+                      VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Số Phòng"   Binding="{Binding SoPhong}"      Width="90"/>
+                    <DataGridTextColumn Header="Loại Phòng" Binding="{Binding TenLoaiPhong}"  Width="*"/>
+                    <DataGridTextColumn Header="Số Lượt"    Binding="{Binding SoLuotDat}"     Width="80"/>
+                    <DataGridTextColumn Header="Doanh Thu"  Binding="{Binding DoanhThuText}"  Width="140"/>
+                    <DataGridTemplateColumn Header="Tỷ Lệ" Width="130" SortMemberPath="TyLe">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="4,3">
+                                    <TextBlock Text="{Binding TyLeText}" FontSize="11"
+                                               FontWeight="SemiBold" Foreground="#6A1B9A" Margin="0,0,0,3"/>
+                                    <ProgressBar Value="{Binding TyLe, Mode=OneWay}" Maximum="100"
+                                                 Height="6" Background="#F3E5F5" Foreground="#AB47BC"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Footer -->
+            <Border Grid.Row="3" Background="#F8FAFD" BorderBrush="#E0E0E0"
+                    BorderThickness="0,1,0,0" CornerRadius="0,0,12,12">
+                <Button Content="Đóng" Style="{StaticResource BtnOutline}"
+                        Width="100" HorizontalAlignment="Right" Margin="24,0"
+                        Click="BtnClose_Click"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

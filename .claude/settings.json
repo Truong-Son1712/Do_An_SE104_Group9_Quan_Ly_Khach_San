@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n\\\\bin\\\\Debug\\\\net9.0-windows\\\\D? An Qu?n Ly Kh�ch S?n.exe\")",
+      "PowerShell($db = \"$env:LOCALAPPDATA\\\\QuanLyKhachSan\\\\hotel.db\"; if \\(Test-Path $db\\) { Write-Host \"DB exists: $db\"; \\(Get-Item $db\\).Length } else { Write-Host \"DB not found\" })",
+      "PowerShell(Get-Command sqlite3 -ErrorAction SilentlyContinue)",
+      "Read(//c/Users/ADMIN/Desktop/**)",
+      "Bash(dotnet build *)",
+      "Bash(Stop-Process -Name \"Đồ Án Quản Lý Khách Sạn\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(Start-Process \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn\\\\bin\\\\Debug\\\\net9.0-windows\\\\Đồ Án Quản Lý Khách Sạn.exe\")",
+      "PowerShell(Stop-Process -Name \"D? An Qu?n Ly Kh�ch S?n\" -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 25028 -Force -ErrorAction SilentlyContinue)",
+      "Bash(cd /tmp)",
+      "Bash(csc MakeIcon.cs -r:System.Drawing.dll -out:MakeIcon.exe)",
+      "Bash(cmd.exe /c \"for %i in \\(\\\\\"C:\\\\\\\\Users\\\\\\\\ADMIN\\\\\\\\Desktop\\\\\\\\Quản Lý KS\\\\\\\\Đồ Án Quản Lý Khách Sạn\\\\\\\\Đồ Án Quản Lý Khách Sạn\\\\\"\\) do echo %~si\")",
+      "Bash(cmd.exe /c \"dir /x \\\\\"C:\\\\\\\\Users\\\\\\\\ADMIN\\\\\\\\Desktop\\\\\\\\Quản Lý KS\\\\\"\")",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(dotnet run *)",
+      "Bash(cp \"C:/Users/ADMIN/AppData/Local/Temp/hotel.ico\" \"C:/Users/ADMIN/Desktop/Quản Lý KS/Đồ Án Quản Lý Khách Sạn/Đồ Án Quản Lý Khách Sạn/Đồ Án Quản Lý Khách Sạn/hotel.ico\" && echo \"Copied OK\" *)",
+      "PowerShell([System.IO.Directory]::GetDirectories\\(\"C:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\"\\))",
+      "PowerShell(Start-Process cmd.exe -ArgumentList '/k \"C:\\\\Users\\\\ADMIN\\\\Desktop\\\\D? An Qu?n Ly Kh�ch S?n.exe\" & pause')",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\" \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n.sln\" /p:Configuration=Debug /t:Build /m /nologo /verbosity:minimal 2>&1)",
+      "PowerShell(Get-Item 'c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn.exe' | Select-Object Name, @{N='SizeMB';E={[math]::Round\\($_.Length/1MB,2\\)}}, LastWriteTime)",
+      "PowerShell(dotnet publish 'c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n.csproj' -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o 'c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n' --nologo 2>&1)",
+      "Bash(Get-ChildItem -Path \"Views\\\\HoaDon\" -Recurse)",
+      "PowerShell(Remove-Item \"$env:LOCALAPPDATA\\\\QuanLyKhachSan\\\\hotel.db\" -Force -ErrorAction SilentlyContinue; Write-Host \"DB deleted \\(or did not exist\\)\")",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\" 'c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n.sln' /p:Configuration=Debug /t:Build /nologo /verbosity:minimal 2>&1)",
+      "Bash(dotnet clean *)",
+      "Bash(Copy-Item \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn\\\\bin\\\\Release\\\\net9.0-windows\\\\Đồ Án Quản Lý Khách Sạn.exe\" -Destination \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn.exe\" -Force)",
+      "Bash(Copy-Item \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn\\\\bin\\\\Release\\\\net9.0-windows\\\\Đồ Án Quản Lý Khách Sạn.pdb\" -Destination \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Quản Lý KS\\\\Đồ Án Quản Lý Khách Sạn\\\\Đồ Án Quản Lý Khách Sạn.pdb\" -Force)",
+      "Bash(Write-Output \"Done\")",
+      "PowerShell(dotnet publish \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n\\\\D? An Qu?n Ly Kh�ch S?n.csproj\" -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -o \"c:\\\\Users\\\\ADMIN\\\\Desktop\\\\Qu?n Ly KS\\\\D? An Qu?n Ly Kh�ch S?n\\\\publish_temp\" 2>&1)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ADMIN\\AppData\\Local\\Temp",
+      "c:\\Users\\ADMIN\\Desktop\\Qu?n Ly KS\\D? An Qu?n Ly Kh�ch S?n\\D? An Qu?n Ly Kh�ch S?n\\bin\\Release\\net9.0-windows",
+      "c:\\Users\\ADMIN\\Desktop\\Qu?n Ly KS\\D? An Qu?n Ly Kh�ch S?n"
+    ]
+  }
+}

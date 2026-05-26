@@ -1,0 +1,121 @@
+<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon.HoaDonDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lập Hóa Đơn Trả Phòng" Height="540" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="64"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#2E7D32" Offset="0"/>
+                        <GradientStop Color="#43A047" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="16,0,8,0">
+                    <TextBlock Text="Lập Hóa Đơn &amp; Trả Phòng"
+                               Foreground="White" FontSize="16" FontWeight="SemiBold"
+                               VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Button Style="{StaticResource BtnClose}" Content="✕" Foreground="#A5D6A7"
+                            Click="BtnCancel_Click" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" Margin="24,16">
+                <StackPanel>
+
+                    <!-- Thông tin đặt phòng -->
+                    <Border Background="#E3F2FD" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/><ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="THÔNG TIN ĐẶT PHÒNG"
+                                           FontSize="10" FontWeight="Bold"
+                                           Foreground="#1565C0" Margin="0,0,0,6"/>
+                                <TextBlock x:Name="TxtKhachHang" FontWeight="SemiBold" FontSize="14"
+                                           Foreground="#1A237E" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="TxtPhong" Foreground="#546E7A" FontSize="12"/>
+                                <TextBlock x:Name="TxtNgay"  Foreground="#546E7A" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="TIỀN PHÒNG" FontSize="10" FontWeight="Bold"
+                                           Foreground="#1565C0" Margin="0,0,0,6"/>
+                                <TextBlock x:Name="TxtSoNgay"  Foreground="#546E7A" FontSize="12"/>
+                                <TextBlock x:Name="TxtGiaPhong" Foreground="#546E7A" FontSize="12"/>
+                                <TextBlock x:Name="TxtTienPhong" FontSize="20" FontWeight="Bold"
+                                           Foreground="#1565C0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Chi tiết thanh toán -->
+                    <Border Background="#F5F7FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="CHI TIẾT THANH TOÁN" FontSize="10" FontWeight="Bold"
+                                       Foreground="#546E7A" Margin="0,0,0,12"/>
+
+                            <!-- Tiền cọc -->
+                            <DockPanel Margin="0,0,0,10" x:Name="RowTienCoc">
+                                <TextBlock x:Name="TxtTienCocDisplay" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#1565C0" FontWeight="SemiBold"/>
+                                <TextBlock Text="Tiền cọc (đặt phòng):" FontSize="13" Foreground="#546E7A"/>
+                            </DockPanel>
+
+                            <!-- Thanh toán trả phòng -->
+                            <DockPanel Margin="0,0,0,10">
+                                <TextBlock x:Name="TxtThanhToanTraPhong" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#37474F" FontWeight="SemiBold"/>
+                                <TextBlock Text="Thanh toán lúc trả phòng:" FontSize="13" Foreground="#546E7A"/>
+                            </DockPanel>
+
+                            <Rectangle Height="1.5" Fill="#DDEEFF" Margin="0,0,0,12"/>
+
+                            <!-- Tổng -->
+                            <DockPanel>
+                                <TextBlock x:Name="TxtConLai" DockPanel.Dock="Right"
+                                           FontSize="22" FontWeight="Bold" Foreground="#1B5E20"/>
+                                <TextBlock Text="TỔNG CỘNG" FontWeight="Bold" FontSize="13"
+                                           Foreground="#2E7D32" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Ghi chú -->
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Ghi Chú" Style="{StaticResource Label}"/>
+                        <TextBox x:Name="TxtGhiChu" Height="36" AcceptsReturn="False"
+                                 VerticalContentAlignment="Center" Padding="10,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <Border x:Name="PnlError" Background="#FFEBEE" CornerRadius="6"
+                            Padding="12,8" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtError" Foreground="#C62828" FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="2" Background="#F8FAFD" BorderBrush="#E0E0E0"
+                    BorderThickness="0,1,0,0" CornerRadius="0,0,12,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Margin="24,0" VerticalAlignment="Center">
+                    <Button Content="Hủy" Style="{StaticResource BtnOutline}" Width="90"
+                            Click="BtnCancel_Click" Margin="0,0,8,0"/>
+                    <Button Content="✔  Xác Nhận Trả Phòng" Style="{StaticResource BtnSuccess}"
+                            Width="190" Click="BtnConfirm_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
