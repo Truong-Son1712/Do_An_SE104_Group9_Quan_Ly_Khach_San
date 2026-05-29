@@ -1,5 +1,4 @@
-using System.Data.SqlClient;
-
+using Microsoft.Data.SqlClient;
 namespace WpfApp1.DAL
 {
     public static class DatabaseConnection
