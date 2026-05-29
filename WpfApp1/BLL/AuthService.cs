@@ -1,4 +1,5 @@
-﻿using WpfApp1.DAL;
+﻿using System;
+using WpfApp1.DAL;
 using WpfApp1.DTO;
 using WpfApp1.Helpers;
 
@@ -13,7 +14,7 @@ namespace WpfApp1.BLL
 
         // -------------------------------------------------------
         // ĐĂNG NHẬP
-        // Trả về (success, message, userDto)
+        // Trả về tuple: (success, message, userDto)
         // -------------------------------------------------------
         public (bool Success, string Message, UserDto? User) Login(LoginDto dto)
         {
@@ -24,7 +25,7 @@ namespace WpfApp1.BLL
             if (string.IsNullOrWhiteSpace(dto.Password))
                 return (false, "Vui lòng nhập mật khẩu.", null);
 
-            // 2. Tìm tài khoản trong DB
+            // 2. Tìm tài khoản trong DB (Sử dụng hàm GetByUsername chuẩn của DAL)
             UserAccount? account = _userAccess.GetByUsername(dto.Username.Trim());
 
             if (account == null)
@@ -34,13 +35,13 @@ namespace WpfApp1.BLL
             if (!account.IsActive)
                 return (false, "Tài khoản đã bị vô hiệu hóa. Liên hệ Admin.", null);
 
-            // 4. Xác minh mật khẩu bằng BCrypt
+            // 4. Xác minh mật khẩu bằng BCrypt (gọi qua BCryptHelper của bạn)
             if (!BCryptHelper.VerifyPassword(dto.Password, account.PasswordHash))
                 return (false, "Mật khẩu không đúng.", null);
 
-            // 5. Cập nhật LastLogin
+            // 5. Cập nhật LastLogin (Không throw exception nếu lỗi để không chặn luồng đăng nhập)
             try { _userAccess.UpdateLastLogin(account.AccountID); }
-            catch { /* không block login */ }
+            catch { /* Ignore error */ }
 
             // 6. Map sang UserDto và lưu Session
             var userDto = new UserDto
@@ -55,6 +56,7 @@ namespace WpfApp1.BLL
                 LastLogin = account.LastLogin,
             };
 
+            // Lưu người dùng vào Session hiện tại
             SessionManager.Current.SetUser(userDto);
 
             return (true, $"Chào mừng, {userDto.FullName}!", userDto);

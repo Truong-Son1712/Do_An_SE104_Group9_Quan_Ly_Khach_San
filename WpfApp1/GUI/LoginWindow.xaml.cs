@@ -13,26 +13,13 @@ namespace WpfApp1.GUI
         {
             InitializeComponent();
             DataContext = _vm;
-
             _vm.LoginSucceeded += OnLoginSucceeded;
 
             // Kéo cửa sổ
-            MouseDown += (s, e) =>
-            {
-                if (e.ChangedButton == MouseButton.Left) DragMove();
-            };
-
-            // Enter = Đăng nhập
-            KeyDown += (s, e) =>
-            {
-                if (e.Key == Key.Enter && _vm.LoginCommand.CanExecute(null))
-                    _vm.LoginCommand.Execute(null);
-            };
-
+            MouseDown += (s, e) => { if (e.ChangedButton == MouseButton.Left) DragMove(); };
             TxtUsername.Focus();
         }
 
-        // PasswordBox không binding được → truyền thủ công
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
             => _vm.SetPassword(PwdPassword.Password);
 
@@ -43,7 +30,7 @@ namespace WpfApp1.GUI
             Close();
         }
 
-        private void BtnClose_Click(object sender, RoutedEventArgs e)
-            => Application.Current.Shutdown();
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void BtnClose_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
     }
 }
