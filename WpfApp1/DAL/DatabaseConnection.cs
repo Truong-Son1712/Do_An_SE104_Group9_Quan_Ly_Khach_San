@@ -1,11 +1,11 @@
 using Microsoft.Data.SqlClient;
+
 namespace WpfApp1.DAL
 {
     public static class DatabaseConnection
     {
-        // Sửa lại chuỗi kết nối cho phù hợp với máy của bạn
-        private const string ConnectionString =
-            "Server=localhost;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;";
+        // Chữ @ nằm ngoài dấu ngoặc kép, và chỉ dùng 1 dấu \ cho SQLEXPRESS
+        private const string ConnectionString = @"Data Source=3XTER\SQLEXPRESS;Initial Catalog=QuanLyKhachSan;Integrated Security=True;TrustServerCertificate=True;";
 
         public static SqlConnection GetConnection()
             => new SqlConnection(ConnectionString);

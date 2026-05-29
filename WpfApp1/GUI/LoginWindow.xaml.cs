@@ -12,6 +12,7 @@ namespace WpfApp1.GUI
         public LoginWindow()
         {
             InitializeComponent();
+
             DataContext = _vm;
             _vm.LoginSucceeded += OnLoginSucceeded;
 
