@@ -1,0 +1,95 @@
+USE QuanLyKhachSan;
+GO
+
+-- 1. Create independent tables
+CREATE TABLE CUSTOMER (
+    CustomerID VARCHAR(20) PRIMARY KEY,
+    FullName NVARCHAR(MAX) NOT NULL,
+    IdentityCard VARCHAR(20) NOT NULL,
+    Nationality NVARCHAR(50) NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    Address NVARCHAR(MAX) NOT NULL
+);
+
+CREATE TABLE STAFF (
+    StaffID VARCHAR(20) PRIMARY KEY,
+    FullName NVARCHAR(MAX) NOT NULL,
+    Position NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE ROOM (
+    RoomID VARCHAR(20) PRIMARY KEY,
+    RoomNumber VARCHAR(10) NOT NULL,
+    RoomType VARCHAR(50) NOT NULL,
+    PricePerHour DECIMAL(18,2) NOT NULL,
+    PricePerDay DECIMAL(18,2) NOT NULL,
+    PricePerNight DECIMAL(18,2) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    Notes NVARCHAR(255) NULL
+);
+
+CREATE TABLE USER_ROLE (
+    RoleID INT PRIMARY KEY,
+    RoleName NVARCHAR(50) NOT NULL
+);
+
+-- 2. Create dependent tables
+CREATE TABLE USER_ACCOUNT (
+    AccountID VARCHAR(20) PRIMARY KEY,
+    Username VARCHAR(50) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    StaffID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES STAFF(StaffID),
+    RoleID INT NOT NULL FOREIGN KEY REFERENCES USER_ROLE(RoleID),
+    AvatarURL VARCHAR(255) NULL
+);
+
+CREATE TABLE BOOKING (
+    BookingID VARCHAR(20) PRIMARY KEY,
+    BookerID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES CUSTOMER(CustomerID),
+    RoomID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES ROOM(RoomID),
+    StaffID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES STAFF(StaffID),
+    CheckInDate SMALLDATETIME NOT NULL,
+    ExpectedCheckOutDate SMALLDATETIME NOT NULL,
+    NumberOfGuests INT NOT NULL
+);
+
+CREATE TABLE BOOKING_GUEST (
+    BookingID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES BOOKING(BookingID),
+    CustomerID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES CUSTOMER(CustomerID),
+    PRIMARY KEY (BookingID, CustomerID)
+);
+
+CREATE TABLE INVOICE (
+    InvoiceID VARCHAR(20) PRIMARY KEY,
+    BookingID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES BOOKING(BookingID),
+    StaffID VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES STAFF(StaffID),
+    IssuedDate SMALLDATETIME NOT NULL,
+    RoomCharge DECIMAL(18,2) NOT NULL,
+    SurchargeAmount DECIMAL(18,2) NOT NULL,
+    ServiceCharge DECIMAL(18,2) NOT NULL,
+    TotalAmount DECIMAL(18,2) NOT NULL,
+    PaymentMethod NVARCHAR(50) NOT NULL
+);
+GO
+
+-- 3. Insert initial mock data
+INSERT INTO USER_ROLE (RoleID, RoleName) VALUES
+(1, N'Quản trị viên'),
+(2, N'Giám đốc'),
+(3, N'Kế toán'),
+(4, N'Nhân viên');
+
+INSERT INTO STAFF (StaffID, FullName, Position) VALUES
+('NV001', N'Admin Tổng', N'Quản trị hệ thống'),
+('NV002', N'Tống Xuân Vũ', N'Nhân viên lễ tân');
+
+-- Password for both is '123456' hashed by BCrypt
+INSERT INTO USER_ACCOUNT (AccountID, Username, PasswordHash, StaffID, RoleID) VALUES
+('ACC001', 'admin', '$2a$11$G7V.Q58sXgK2Lq5C1/3ZPeZ1Q5rJ95Q/q.c5r/Q5/Q5/Q5/Q5/Q5.', 'NV001', 1),
+('ACC002', 'xuanvu', '$2a$11$G7V.Q58sXgK2Lq5C1/3ZPeZ1Q5rJ95Q/q.c5r/Q5/Q5/Q5/Q5/Q5.', 'NV002', 4);
+
+INSERT INTO ROOM (RoomID, RoomNumber, RoomType, PricePerHour, PricePerDay, PricePerNight, Status, Notes) VALUES
+('R001', '101', 'A', 50000, 150000, 100000, N'Trống', NULL),
+('R002', '102', 'B', 70000, 170000, 120000, N'Trống', NULL),
+('R003', '201', 'C', 100000, 200000, 150000, N'Trống', NULL);
+GO

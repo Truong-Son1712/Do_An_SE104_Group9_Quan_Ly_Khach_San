@@ -1,0 +1,82 @@
+<Window x:Class="WpfApp1.GUI.CheckoutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thanh Toán Hóa Đơn" Height="500" Width="500" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="CHI TIẾT HÓA ĐƠN" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Khách hàng:" Grid.Row="0" Grid.Column="0" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtCustomer" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0"/>
+
+            <TextBlock Text="Phòng:" Grid.Row="1" Grid.Column="0" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtRoom" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0"/>
+
+            <TextBlock Text="Ngày nhận:" Grid.Row="2" Grid.Column="0" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtCheckIn" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0"/>
+
+            <TextBlock Text="Số ngày ở:" Grid.Row="3" Grid.Column="0" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtTotalDays" Grid.Row="3" Grid.Column="1" Margin="10,0,0,0"/>
+            
+            <TextBlock Text="Phụ thu (lý do):" Grid.Row="4" Grid.Column="0" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtSurchargeReason" Grid.Row="4" Grid.Column="1" Margin="10,0,0,0" Foreground="Red" TextWrapping="Wrap"/>
+        </Grid>
+
+        <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="0,1,0,1" Margin="0,15">
+            <Grid Margin="0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Tiền phòng:" Grid.Row="0" Grid.Column="0" FontSize="14"/>
+                <TextBlock x:Name="TxtRoomCharge" Grid.Row="0" Grid.Column="1" TextAlignment="Right" FontSize="14"/>
+
+                <TextBlock Text="Phụ thu:" Grid.Row="1" Grid.Column="0" FontSize="14"/>
+                <TextBlock x:Name="TxtSurcharge" Grid.Row="1" Grid.Column="1" TextAlignment="Right" FontSize="14"/>
+
+                <TextBlock Text="TỔNG CỘNG:" Grid.Row="2" Grid.Column="0" FontWeight="Bold" FontSize="18" VerticalAlignment="Bottom"/>
+                <TextBlock x:Name="TxtTotal" Grid.Row="2" Grid.Column="1" FontWeight="Bold" FontSize="18" TextAlignment="Right" Foreground="#007BFF" VerticalAlignment="Bottom"/>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="3">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15" HorizontalAlignment="Center">
+                <TextBlock Text="Hình thức thanh toán:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox x:Name="CboPaymentMethod" Width="150">
+                    <ComboBoxItem Content="Tiền mặt" IsSelected="True"/>
+                    <ComboBoxItem Content="Chuyển khoản"/>
+                    <ComboBoxItem Content="Thẻ tín dụng"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnCancel" Content="Hủy bỏ" Width="100" Height="35" Margin="0,0,10,0" Background="#DC3545" Foreground="White" BorderThickness="0" Click="BtnCancel_Click"/>
+                <Button x:Name="BtnConfirm" Content="Xác nhận &amp; Xuất PDF" Width="150" Height="35" Background="#28A745" Foreground="White" BorderThickness="0" FontWeight="Bold" Click="BtnConfirm_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
