@@ -1,6 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using WpfApp1.BLL;
 using WpfApp1.DTO;
 using WpfApp1.GUI;
@@ -31,36 +32,58 @@ namespace WpfApp1
             InitializeComponent();
             DataContext = this;
 
-            // Kéo cửa sổ
-            MouseDown += (s, e) =>
-            {
-                if (e.ChangedButton == MouseButton.Left) DragMove();
-            };
+            // Đồng hồ thời gian thực
+            var timer = new DispatcherTimer { Interval = System.TimeSpan.FromSeconds(1) };
+            timer.Tick += (s, e) => TxtClock.Text = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+            timer.Start();
+            TxtClock.Text = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
 
             // Trang mặc định theo role
             LoadDefaultPage();
         }
 
+        // -------------------------------------------------------
+        // Window Control Handlers (TopBar)
+        // -------------------------------------------------------
+        private void TopBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
+        }
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized 
+                ? WindowState.Normal 
+                : WindowState.Maximized;
+        }
+
+        private void BtnCloseWindow_Click(object sender, RoutedEventArgs e)
+            => Application.Current.Shutdown();
+
+        // -------------------------------------------------------
         private void LoadDefaultPage()
         {
             if (_session.IsNhanVien)
                 ShowContent(new TextBlock { Text = "Trang Quản lý Phòng (TV2 thực hiện)" }, "Quản lý Phòng");
-            else if (_session.IsKeToan)
-                ShowContent(new TextBlock { Text = "Trang Báo cáo tháng (TV5 thực hiện)" }, "Báo cáo tháng");
             else
-                ShowContent(new TextBlock
-                {
-                    Text = "Chào mừng! Bấm 'Phân Quyền' ở thanh bên để quản lý tài khoản.",
-                    FontSize = 16,
-                    Margin = new Thickness(10)
-                }, "Trang chủ");
+                ShowContent(new DashboardView(), "Tổng Quan (Dashboard)");
         }
 
         // -------------------------------------------------------
         // Nav handlers
         // -------------------------------------------------------
         private void BtnPhong_Click(object s, RoutedEventArgs e)
-            => ShowContent(new TextBlock { Text = "Trang Quản lý Phòng (TV2 thực hiện)" }, "Quản lý Phòng");
+            => ShowContent(new TextBlock { Text = "Trang quản lý phòng (TV2 thực hiện)" }, "Quản Lý Phòng");
+
+        private void BtnLoaiPhong_Click(object s, RoutedEventArgs e)
+            => ShowContent(new TextBlock { Text = "Trang Loại Phòng (TV2 thực hiện)" }, "Loại Phòng");
+
+        private void BtnKhachHang_Click(object s, RoutedEventArgs e)
+            => ShowContent(new TextBlock { Text = "Trang Khách Hàng (TV3 thực hiện)" }, "Danh Sách Khách Hàng");
 
         private void BtnBooking_Click(object s, RoutedEventArgs e)
             => ShowContent(new TextBlock { Text = "Trang Phiếu Thuê (TV3 thực hiện)" }, "Phiếu Thuê Phòng");
@@ -69,7 +92,13 @@ namespace WpfApp1
             => ShowContent(new TextBlock { Text = "Trang Hóa đơn (TV4 thực hiện)" }, "Hóa đơn Thanh toán");
 
         private void BtnBaoCao_Click(object s, RoutedEventArgs e)
-            => ShowContent(new TextBlock { Text = "Trang Báo cáo (TV5 thực hiện)" }, "Báo cáo tháng");
+            => ShowContent(new BaoCaoView(), "Báo cáo Doanh thu tháng");
+
+        private void BtnDashboard_Click(object s, RoutedEventArgs e)
+            => ShowContent(new DashboardView(), "Tổng Quan (Dashboard)");
+
+        private void BtnCaiDat_Click(object s, RoutedEventArgs e)
+            => ShowContent(new SettingView(), "Cài đặt Quy Định Khách Sạn");
 
         private void BtnPhanQuyen_Click(object s, RoutedEventArgs e)
         {

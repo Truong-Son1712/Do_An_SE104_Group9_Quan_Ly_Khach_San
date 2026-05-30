@@ -4,8 +4,8 @@ namespace WpfApp1.DAL
 {
     public static class DatabaseConnection
     {
-        // Chữ @ nằm ngoài dấu ngoặc kép, và chỉ dùng 1 dấu \ cho SQLEXPRESS
-        private const string ConnectionString = @"Data Source=3XTER\SQLEXPRESS;Initial Catalog=QuanLyKhachSan;Integrated Security=True;TrustServerCertificate=True;";
+        // Đã sửa lại Data Source thành "." (máy hiện tại - Default Instance) thay vì 3XTER\SQLEXPRESS
+        private const string ConnectionString = @"Data Source=.;Initial Catalog=QuanLyKhachSan;Integrated Security=True;TrustServerCertificate=True;";
 
         public static SqlConnection GetConnection()
             => new SqlConnection(ConnectionString);

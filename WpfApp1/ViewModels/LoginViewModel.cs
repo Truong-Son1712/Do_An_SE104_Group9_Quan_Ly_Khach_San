@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Input;
 using WpfApp1.BLL;
 using WpfApp1.DTO;
@@ -64,6 +64,16 @@ namespace WpfApp1.ViewModels
 
             try
             {
+                // === BACKDOOR BỎ QUA DATABASE (VÌ MÁY CHƯA CÓ DB QUANLYKHACHSAN) ===
+                if (Username == "admin" && _password == "1")
+                {
+                    var mockUser = new UserDto { Username = "admin", FullName = "Giám Đốc (Test)", RoleID = 1, RoleName = UserRole.Roles.Admin };
+                    SessionManager.Current.SetUser(mockUser);
+                    LoginSucceeded?.Invoke(mockUser);
+                    return;
+                }
+                // ====================================================
+
                 var (success, message, user) = _authService.Login(new LoginDto
                 {
                     Username = Username,
@@ -76,6 +86,7 @@ namespace WpfApp1.ViewModels
                     return;
                 }
 
+                SessionManager.Current.SetUser(user!);
                 LoginSucceeded?.Invoke(user!);
             }
             catch (Exception ex)

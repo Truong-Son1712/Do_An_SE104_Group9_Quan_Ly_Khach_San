@@ -1,0 +1,165 @@
+<UserControl x:Class="WpfApp1.GUI.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Title & Subtitle -->
+            <RowDefinition Height="Auto"/> <!-- 4 Top Cards -->
+            <RowDefinition Height="*"/>    <!-- Bottom Charts -->
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề (nếu cần thêm) -->
+        <StackPanel Grid.Row="0" Margin="10,0,0,15">
+            <TextBlock Text="Tổng Quan" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
+            <TextBlock Text="{Binding ThangHienTai}" FontSize="14" Foreground="{StaticResource TextSecondary}"/>
+        </StackPanel>
+
+        <!-- 4 Thẻ thống kê chính -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Card 1: Tổng số phòng -->
+            <Border Grid.Column="0" Background="{StaticResource CardBlue}" CornerRadius="12" Padding="20" Margin="10">
+                <StackPanel>
+                    <TextBlock Text="🏨" FontSize="24" Foreground="White" Margin="0,0,0,10"/>
+                    <Viewbox StretchDirection="DownOnly" MaxHeight="45" HorizontalAlignment="Left" Margin="0,0,0,5">
+                        <TextBlock Text="{Binding Data.TongPhong}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                    </Viewbox>
+                    <TextBlock Text="Tổng Số Phòng" FontSize="12" Foreground="#E0F2FE" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 2: Phòng trống -->
+            <Border Grid.Column="1" Background="{StaticResource CardGreen}" CornerRadius="12" Padding="20" Margin="10">
+                <StackPanel>
+                    <TextBlock Text="☑️" FontSize="24" Foreground="White" Margin="0,0,0,10"/>
+                    <Viewbox StretchDirection="DownOnly" MaxHeight="45" HorizontalAlignment="Left" Margin="0,0,0,5">
+                        <TextBlock Text="{Binding Data.PhongTrong}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                    </Viewbox>
+                    <TextBlock Text="Phòng Trống" FontSize="12" Foreground="#DCFCE7" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 3: Đang có khách -->
+            <Border Grid.Column="2" Background="{StaticResource CardRed}" CornerRadius="12" Padding="20" Margin="10">
+                <StackPanel>
+                    <TextBlock Text="🛏️" FontSize="24" Foreground="White" Margin="0,0,0,10"/>
+                    <Viewbox StretchDirection="DownOnly" MaxHeight="45" HorizontalAlignment="Left" Margin="0,0,0,5">
+                        <TextBlock Text="{Binding Data.PhongDangSuDung}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                    </Viewbox>
+                    <TextBlock Text="Đang Có Khách" FontSize="12" Foreground="#FEE2E2" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 4: Doanh thu tháng -->
+            <Border Grid.Column="3" Background="{StaticResource CardOrange}" CornerRadius="12" Padding="20" Margin="10">
+                <StackPanel>
+                    <TextBlock Text="💰" FontSize="24" Foreground="White" Margin="0,0,0,10"/>
+                    <Viewbox StretchDirection="DownOnly" MaxHeight="45" HorizontalAlignment="Left" Margin="0,0,0,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Data.DoanhThuThangHienTai, StringFormat={}{0:N0}}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text=" đ" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                        </StackPanel>
+                    </Viewbox>
+                    <TextBlock Text="Doanh Thu Tháng" FontSize="12" Foreground="#FFEDD5" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Phần phân tích bên dưới -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Tình trạng phòng -->
+            <Border Grid.Column="0" Style="{StaticResource ModernCard}" Margin="10,0,10,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Tình Trạng Phòng" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,20"/>
+
+                    <!-- Thanh 1: Trống -->
+                    <StackPanel Grid.Row="1" Margin="0,10">
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="Trống (Sạch)" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock Text="{Binding Data.PhongTrong, StringFormat={}{0} phòng}" HorizontalAlignment="Right" Foreground="{StaticResource CardGreen}" FontWeight="Bold"/>
+                        </Grid>
+                        <ProgressBar Minimum="0" Maximum="{Binding Data.TongPhong}" Value="{Binding Data.PhongTrong}" Height="8" Foreground="{StaticResource CardGreen}" Background="#E2E8F0" BorderThickness="0"/>
+                    </StackPanel>
+
+                    <!-- Thanh 2: Có khách -->
+                    <StackPanel Grid.Row="2" Margin="0,10">
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="Đang Có Khách" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock Text="{Binding Data.PhongDangSuDung, StringFormat={}{0} phòng}" HorizontalAlignment="Right" Foreground="{StaticResource CardRed}" FontWeight="Bold"/>
+                        </Grid>
+                        <ProgressBar Minimum="0" Maximum="{Binding Data.TongPhong}" Value="{Binding Data.PhongDangSuDung}" Height="8" Foreground="{StaticResource CardRed}" Background="#E2E8F0" BorderThickness="0"/>
+                    </StackPanel>
+
+                    <!-- Thanh 3: Bảo dưỡng -->
+                    <StackPanel Grid.Row="3" Margin="0,10">
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="Bảo Dưỡng" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock Text="{Binding Data.PhongBaoDuong, StringFormat={}{0} phòng}" HorizontalAlignment="Right" Foreground="{StaticResource TextSecondary}" FontWeight="Bold"/>
+                        </Grid>
+                        <ProgressBar Minimum="0" Maximum="{Binding Data.TongPhong}" Value="{Binding Data.PhongBaoDuong}" Height="8" Foreground="{StaticResource TextSecondary}" Background="#E2E8F0" BorderThickness="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Hôm Nay -->
+            <Border Grid.Column="1" Style="{StaticResource ModernCard}" Margin="10,0,10,10">
+                <StackPanel>
+                    <TextBlock Text="Hôm Nay" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,20"/>
+                    
+                    <!-- Nhận phòng -->
+                    <Border Background="#E0F2FE" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📥" FontSize="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Data.DatPhongHomNay}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource CardBlue}"/>
+                            </StackPanel>
+                            <TextBlock Text="Nhận Phòng" Foreground="{StaticResource CardBlue}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Trả phòng -->
+                    <Border Background="#FEE2E2" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📤" FontSize="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Data.TraPhongHomNay}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource CardRed}"/>
+                            </StackPanel>
+                            <TextBlock Text="Trả Phòng" Foreground="{StaticResource CardRed}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Tổng khách -->
+                    <Border Background="#DCFCE7" CornerRadius="8" Padding="15">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="👥" FontSize="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Data.TongKhachHang}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource CardGreen}"/>
+                            </StackPanel>
+                            <TextBlock Text="Tổng Khách Hàng" Foreground="{StaticResource CardGreen}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
