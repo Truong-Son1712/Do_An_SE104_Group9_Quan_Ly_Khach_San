@@ -1,0 +1,167 @@
+<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong.DatPhongDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Đặt Phòng" Height="580" Width="540"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="64"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" CornerRadius="12,12,0,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#1565C0" Offset="0"/>
+                        <GradientStop Color="#1E88E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="16,0,8,0">
+                    <TextBlock x:Name="TxtTitle" Text="Tạo Đặt Phòng"
+                               Foreground="White" FontSize="16" FontWeight="SemiBold"
+                               VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Button Style="{StaticResource BtnClose}" Content="✕"
+                            Click="BtnCancel_Click" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" Margin="24,16">
+                <StackPanel>
+                    <!-- Khách hàng – multi-select -->
+                    <StackPanel>
+                        <TextBlock Text="Khách Hàng *" Style="{StaticResource Label}"/>
+                        <Border BorderBrush="#BDBDBD" BorderThickness="1" CornerRadius="4">
+                            <StackPanel>
+                                <TextBox x:Name="TxtTimKiem" Tag="Tìm tên khách..."
+                                         BorderThickness="0,0,0,1" BorderBrush="#E0E0E0"
+                                         Padding="8,6" Margin="0"
+                                         TextChanged="TxtTimKiem_Changed"/>
+                                <ListBox x:Name="LstKhachHang" MaxHeight="110" BorderThickness="0"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         VirtualizingPanel.IsVirtualizing="False">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <ContentPresenter/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                      Padding="8,5" Margin="0"
+                                                      VerticalContentAlignment="Center"
+                                                      Checked="KhachHang_CheckChanged"
+                                                      Unchecked="KhachHang_CheckChanged">
+                                                <TextBlock>
+                                                    <Run Text="{Binding HoTen, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    <Run Text="  "/>
+                                                    <Run Text="{Binding LoaiText, Mode=OneWay}" Foreground="#78909C" FontSize="11"/>
+                                                </TextBlock>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <Border Background="#F5F7FA" BorderThickness="0,1,0,0"
+                                        BorderBrush="#E0E0E0" Padding="8,5">
+                                    <TextBlock x:Name="TxtKhachDaChon" Foreground="#78909C"
+                                               FontSize="11" TextWrapping="Wrap"
+                                               Text="Chưa chọn khách hàng"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Phòng -->
+                    <StackPanel>
+                        <TextBlock Text="Phòng *" Style="{StaticResource Label}"/>
+                        <ComboBox x:Name="CboPhong" SelectionChanged="CboPhong_SelectionChanged"
+                                  SelectedValuePath="MaPhong">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding SoPhong}" FontWeight="SemiBold" Padding="2,0"/>
+                                        <TextBlock Text=" – " Foreground="#90A4AE"/>
+                                        <TextBlock Text="{Binding LoaiPhong.TenLoaiPhong}"/>
+                                        <TextBlock Text="  |  " Foreground="#90A4AE"/>
+                                        <TextBlock Text="{Binding LoaiPhong.GiaPhong, StringFormat='{}{0:N0} ₫/đêm'}"
+                                                   Foreground="#1565C0"/>
+                                        <TextBlock Text="  |  " Foreground="#90A4AE"/>
+                                        <TextBlock Text="{Binding LoaiPhong.SucChua, StringFormat='{}SC: {0}'}"
+                                                   Foreground="#546E7A"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Ngày -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Ngày Nhận Phòng *" Style="{StaticResource Label}"/>
+                            <DatePicker x:Name="DpNhan" SelectedDateChanged="DpNhan_Changed"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Ngày Trả Phòng *" Style="{StaticResource Label}"/>
+                            <DatePicker x:Name="DpTra" SelectedDateChanged="DpTra_Changed"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Tiền cọc + Dự tính -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Tiền Cọc (₫)" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="TxtTienCoc" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Dự Tính Tiền Phòng" Style="{StaticResource Label}"/>
+                            <Border Background="#E8F5E9" CornerRadius="6" Padding="10,0" Height="36">
+                                <TextBlock x:Name="TxtDuTinh" VerticalAlignment="Center"
+                                           Foreground="#2E7D32" FontWeight="Bold" FontSize="13"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Ghi chú -->
+                    <StackPanel>
+                        <TextBlock Text="Ghi Chú" Style="{StaticResource Label}"/>
+                        <TextBox x:Name="TxtGhiChu" Height="55" AcceptsReturn="True"
+                                 VerticalContentAlignment="Top" Padding="10,8" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <Border x:Name="PnlError" Background="#FFEBEE" CornerRadius="6"
+                            Padding="12,8" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtError" Foreground="#C62828" FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="2" Background="#F8FAFD" BorderBrush="#E0E0E0"
+                    BorderThickness="0,1,0,0" CornerRadius="0,0,12,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Margin="24,0" VerticalAlignment="Center">
+                    <Button Content="Hủy" Style="{StaticResource BtnOutline}" Width="90" Click="BtnCancel_Click" Margin="0,0,8,0"/>
+                    <Button x:Name="BtnSave" Content="📅  Đặt Phòng" Style="{StaticResource BtnPrimary}"
+                            Width="130" Click="BtnSave_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

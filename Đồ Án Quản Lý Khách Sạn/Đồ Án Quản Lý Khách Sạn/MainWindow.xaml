@@ -1,0 +1,231 @@
+﻿<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels"
+        xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
+        Title="Hệ Thống Quản Lý Khách Sạn"
+        Height="760" Width="1280"
+        MinHeight="600" MinWidth="1000"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+    </Window.Resources>
+
+    <Border CornerRadius="12" ClipToBounds="True">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== SIDEBAR ===== -->
+            <Border Grid.Column="0" CornerRadius="12,0,0,12">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#1A237E" Offset="0"/>
+                        <GradientStop Color="#0D1B6E" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <DockPanel>
+                    <!-- Logo -->
+                    <StackPanel DockPanel.Dock="Top" Margin="0,24,0,16">
+                        <Border Width="56" Height="56" CornerRadius="28"
+                                Background="#18FFFFFF" HorizontalAlignment="Center"
+                                Margin="0,0,0,10">
+                            <TextBlock Text="🏨" FontSize="28"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="GRAND HOTEL"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="White" TextAlignment="Center"/>
+                        <TextBlock Text="Quản Lý Khách Sạn"
+                                   FontSize="10" Foreground="#7986CB"
+                                   TextAlignment="Center" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Separator DockPanel.Dock="Top"/>
+
+                    <!-- User info box -->
+                    <Border DockPanel.Dock="Top" Margin="12,4,12,8"
+                            Background="#2C3E9E" CornerRadius="8" Padding="12,10">
+                        <StackPanel>
+                            <TextBlock Text="{Binding TenNhanVien}"
+                                       Foreground="White" FontWeight="SemiBold"
+                                       FontSize="13" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding TenVaiTro}"
+                                       Foreground="#90CAF9" FontSize="11"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Logout at bottom -->
+                    <Button DockPanel.Dock="Bottom"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding LogoutCommand}"
+                            Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏻" FontSize="15" Foreground="#EF9A9A"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Đăng Xuất" Foreground="#EF9A9A" FontSize="13"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator DockPanel.Dock="Bottom" Margin="16,4"/>
+
+                    <!-- NAV ITEMS -->
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <StackPanel Margin="0,4,0,0">
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavDashboardCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📊" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Tổng Quan" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Separator/>
+
+                            <TextBlock Text="DANH MỤC PHÒNG"
+                                       Foreground="#90CAF9" FontSize="10"
+                                       FontWeight="Bold" Margin="24,8,0,4"/>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavPhongCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🛏" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Quản Lý Phòng" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavLoaiPhongCommand}"
+                                    IsEnabled="{Binding IsQuanLy}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📋" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Loại Phòng" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Separator/>
+
+                            <TextBlock Text="NGHIỆP VỤ"
+                                       Foreground="#90CAF9" FontSize="10"
+                                       FontWeight="Bold" Margin="24,8,0,4"/>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavKhachHangCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="👥" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Khách Hàng" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavDatPhongCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📅" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Đặt Phòng" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavHoaDonCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🧾" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Hóa Đơn" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Separator/>
+
+                            <TextBlock Text="QUẢN LÝ"
+                                       Foreground="#90CAF9" FontSize="10"
+                                       FontWeight="Bold" Margin="24,8,0,4"/>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavBaoCaoCommand}"
+                                    IsEnabled="{Binding IsQuanLy}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📈" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Báo Cáo" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavNhanVienCommand}"
+                                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="👤" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Nhân Viên" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Separator/>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavCaiDatCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚙" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Tài Khoản" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ===== MAIN CONTENT ===== -->
+            <Grid Grid.Column="1" Background="#F0F4F8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="56"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header bar -->
+                <Border Grid.Row="0" Background="White"
+                        BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <DockPanel Margin="24,0">
+                        <!-- Drag region -->
+                        <Rectangle Width="0" MouseLeftButtonDown="Header_MouseDown"/>
+
+                        <!-- Title -->
+                        <TextBlock Text="{Binding CurrentPageTitle}"
+                                   Style="{StaticResource H2}"
+                                   VerticalAlignment="Center"
+                                   FontSize="17"/>
+
+                        <!-- Right side: date + window controls -->
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtDate"
+                                       Foreground="#90A4AE" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                            <Button Content="—" Style="{StaticResource BtnIcon}"
+                                    Click="BtnMinimize_Click" ToolTip="Thu nhỏ"/>
+                            <Button Content="□" Style="{StaticResource BtnIcon}"
+                                    Click="BtnMaximize_Click" ToolTip="Phóng to"/>
+                            <Button Content="✕" Style="{StaticResource BtnIcon}"
+                                    Foreground="#E53935"
+                                    Click="BtnClose_Click" ToolTip="Đóng"/>
+                        </StackPanel>
+
+                        <Rectangle Fill="Transparent" DockPanel.Dock="Left"
+                                   MouseLeftButtonDown="Header_MouseDown"/>
+                    </DockPanel>
+                </Border>
+
+                <!-- Page content -->
+                <ContentControl Grid.Row="1"
+                                Content="{Binding CurrentViewModel}"
+                                Margin="0"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

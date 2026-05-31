@@ -1,0 +1,187 @@
+﻿<UserControl x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.Dashboard.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
+             Background="{StaticResource BgBrush}">
+    <UserControl.Resources>
+        <conv:CurrencyConverter x:Key="Currency"/>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28,24,28,28" >
+
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Style="{StaticResource H1}" Text="Tổng Quan"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="{Binding ThangNam, StringFormat='Thống kê {0}'}"/>
+            </StackPanel>
+
+            <!-- STAT CARDS ROW 1 -->
+            <UniformGrid Rows="1" Columns="4" Margin="0,0,0,20">
+
+                <!-- Tổng phòng -->
+                <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1565C0" Offset="0"/>
+                            <GradientStop Color="#1E88E5" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackPanel>
+                        <TextBlock Text="🏨" FontSize="28" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding TongPhong}" FontSize="34" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Tổng Số Phòng" Foreground="#BBDEFB" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Phòng trống -->
+                <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#2E7D32" Offset="0"/>
+                            <GradientStop Color="#43A047" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackPanel>
+                        <TextBlock Text="✅" FontSize="28" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding PhongTrong}" FontSize="34" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Phòng Trống" Foreground="#C8E6C9" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Phòng đang dùng -->
+                <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#C62828" Offset="0"/>
+                            <GradientStop Color="#EF5350" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackPanel>
+                        <TextBlock Text="🔴" FontSize="28" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding PhongDangSuDung}" FontSize="34" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Đang Có Khách" Foreground="#FFCDD2" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Doanh thu tháng -->
+                <Border Style="{StaticResource StatCard}">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#E65100" Offset="0"/>
+                            <GradientStop Color="#FF8F00" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackPanel>
+                        <TextBlock Text="💰" FontSize="28" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding DoanhThuThang, Converter={StaticResource Currency}}"
+                                   FontSize="20" FontWeight="Bold" Foreground="White" TextWrapping="Wrap"/>
+                        <TextBlock Text="Doanh Thu Tháng" Foreground="#FFE0B2" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ROW 2: Tỉ lệ + Hôm nay + Khách hàng -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Tỉ lệ phòng -->
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Tình Trạng Phòng" Style="{StaticResource H3}" Margin="0,0,0,20"/>
+
+                        <StackPanel>
+                            <!-- Trống sạch -->
+                            <StackPanel Margin="0,0,0,16">
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock DockPanel.Dock="Right"
+                                               Text="{Binding PhongTrong, StringFormat='{}{0} phòng'}"
+                                               Foreground="#2E7D32" FontWeight="SemiBold" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Trống (Sạch)" Foreground="#546E7A" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ProgressBar Value="{Binding TyLePhongTrong, Mode=OneWay}" Maximum="100"
+                                             Foreground="#4CAF50" Height="8"/>
+                            </StackPanel>
+
+                            <!-- Đang dùng -->
+                            <StackPanel Margin="0,0,0,16">
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock DockPanel.Dock="Right"
+                                               Text="{Binding PhongDangSuDung, StringFormat='{}{0} phòng'}"
+                                               Foreground="#C62828" FontWeight="SemiBold" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Đang Có Khách" Foreground="#546E7A" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ProgressBar Value="{Binding TyLePhongSuDung, Mode=OneWay}" Maximum="100"
+                                             Foreground="#F44336" Height="8"/>
+                            </StackPanel>
+
+                            <!-- Bảo dưỡng -->
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock DockPanel.Dock="Right"
+                                               Text="{Binding PhongBaoDuong, StringFormat='{}{0} phòng'}"
+                                               Foreground="#78909C" FontWeight="SemiBold" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Bảo Dưỡng" Foreground="#546E7A" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ProgressBar Value="{Binding PhongBaoDuong, Mode=OneWay}" Maximum="{Binding TongPhong}"
+                                             Foreground="#90A4AE" Height="8"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Hoạt động hôm nay -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Hôm Nay" Style="{StaticResource H3}" Margin="0,0,0,20"/>
+
+                        <Border Background="#E3F2FD" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="📥" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding DatPhongHomNay}"
+                                               FontSize="28" FontWeight="Bold" Foreground="#1565C0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="Nhận Phòng" Foreground="#1976D2" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#FCE4EC" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="📤" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding TraPhongHomNay}"
+                                               FontSize="28" FontWeight="Bold" Foreground="#C62828" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="Trả Phòng" Foreground="#E53935" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#E8F5E9" CornerRadius="8" Padding="16,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="👥" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding TongKhachHang}"
+                                               FontSize="28" FontWeight="Bold" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="Tổng Khách Hàng" Foreground="#388E3C" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

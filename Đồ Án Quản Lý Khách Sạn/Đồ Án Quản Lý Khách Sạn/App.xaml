@@ -1,0 +1,51 @@
+<Application x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels"
+             xmlns:v="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views"
+             xmlns:vphong="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.Phong"
+             xmlns:vkh="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang"
+             xmlns:vdat="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong"
+             xmlns:vhd="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon"
+             xmlns:vbc="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao"
+             xmlns:vnv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien"
+             xmlns:vcd="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.CaiDat"
+             xmlns:vdb="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.Dashboard"
+             ShutdownMode="OnLastWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ViewModel → View DataTemplates (MVVM navigation) -->
+            <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                <vdb:DashboardView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PhongViewModel}">
+                <vphong:PhongView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LoaiPhongViewModel}">
+                <vphong:LoaiPhongView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:KhachHangViewModel}">
+                <vkh:KhachHangView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DatPhongViewModel}">
+                <vdat:DatPhongView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:HoaDonViewModel}">
+                <vhd:HoaDonView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:BaoCaoViewModel}">
+                <vbc:BaoCaoView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:NhanVienViewModel}">
+                <vnv:NhanVienView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CaiDatViewModel}">
+                <vcd:CaiDatView/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

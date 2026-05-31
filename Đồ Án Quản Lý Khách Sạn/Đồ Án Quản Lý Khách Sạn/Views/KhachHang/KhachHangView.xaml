@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang.KhachHangView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
+             Background="{StaticResource BgBrush}">
+    <UserControl.Resources>
+        <conv:LoaiKhachTextConverter  x:Key="LoaiKhach"/>
+        <conv:GioiTinhTextConverter   x:Key="GioiTinh"/>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource BtnPrimary}" Command="{Binding ThemCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="+" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Thêm Khách" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource BtnWarning}" Command="{Binding SuaCommand}" Margin="8,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✎" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Sửa" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource BtnDanger}" Command="{Binding XoaCommand}" Margin="8,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Xóa" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Style="{StaticResource H1}" Text="Khách Hàng"/>
+                <TextBlock Style="{StaticResource Body}" Text="Quản lý thông tin khách hàng"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Filters -->
+        <Border Grid.Row="1" Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+            <WrapPanel>
+                <StackPanel Width="240" Margin="0,0,16,0">
+                    <TextBlock Text="Tìm kiếm" Style="{StaticResource Label}"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="Tên, CMND/CCCD, SĐT…"/>
+                </StackPanel>
+                <StackPanel Width="160">
+                    <TextBlock Text="Loại khách" Style="{StaticResource Label}"/>
+                    <ComboBox SelectedValue="{Binding FilterLoai}" SelectedValuePath="Tag">
+                        <ComboBoxItem Content="Tất cả"      Tag="TatCa" IsSelected="True"/>
+                        <ComboBoxItem Content="Nội Địa"     Tag="NoiDia"/>
+                        <ComboBoxItem Content="Nước Ngoài"  Tag="NuocNgoai"/>
+                    </ComboBox>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!-- Grid -->
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+            <DataGrid ItemsSource="{Binding KhachHangs}" SelectedItem="{Binding Selected}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã KH"  Binding="{Binding MaKH}"    Width="70"/>
+                    <DataGridTextColumn Header="Họ Tên" Binding="{Binding HoTen}"   Width="*"/>
+                    <DataGridTextColumn Header="CMND/CCCD" Binding="{Binding CMND}" Width="130"/>
+                    <DataGridTextColumn Header="Giới Tính" Binding="{Binding GioiTinh, Converter={StaticResource GioiTinh}}" Width="90"/>
+                    <DataGridTextColumn Header="SĐT"    Binding="{Binding SDT}"     Width="120"/>
+                    <DataGridTextColumn Header="Quốc Tịch" Binding="{Binding QuocTich}" Width="100"/>
+                    <DataGridTemplateColumn Header="Loại Khách" Width="120" SortMemberPath="LoaiKhach">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Left"
+                                        Background="{Binding LoaiKhach, Converter={StaticResource LoaiKhach},
+                                                     ConverterParameter=Color}">
+                                    <TextBlock Text="{Binding LoaiKhach, Converter={StaticResource LoaiKhach}}"
+                                               FontSize="11" FontWeight="SemiBold" Foreground="#1565C0"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Địa Chỉ" Binding="{Binding DiaChi}"  Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>
