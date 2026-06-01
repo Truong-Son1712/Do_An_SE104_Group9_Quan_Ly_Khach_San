@@ -178,9 +178,8 @@ INSERT INTO LoaiKhachHangs (MaCode, TenLoai, HeSoGia) VALUES
 
 -- Cấu hình hệ thống
 INSERT INTO CauHinhs (ConfigKey, ConfigValue) VALUES
-('HeSoNuocNgoai', '1.2'),   -- Hệ số giá khách nước ngoài
-('SucChuaToiDa',  '4'),     -- Số khách tối đa tuyệt đối 1 phòng
-('TiLePhuThu',    '0.25');  -- Phụ thu khi vượt sức chứa phòng (25%)
+('SucChuaToiDa', '4'),    -- Số khách tối đa tuyệt đối 1 phòng
+('TiLePhuThu',   '0.25'); -- Phụ thu khi vượt sức chứa phòng (25%)
 
 -- Nhân viên (BCrypt cost=11 | admin/admin123, quanly/quanly123, letan/letan123)
 SET IDENTITY_INSERT NhanViens ON;
