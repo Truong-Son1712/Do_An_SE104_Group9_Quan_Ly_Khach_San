@@ -4,8 +4,7 @@
              xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
              Background="{StaticResource BgBrush}">
     <UserControl.Resources>
-        <conv:LoaiKhachTextConverter  x:Key="LoaiKhach"/>
-        <conv:GioiTinhTextConverter   x:Key="GioiTinh"/>
+        <conv:GioiTinhTextConverter x:Key="GioiTinh"/>
     </UserControl.Resources>
 
     <Grid Margin="24">

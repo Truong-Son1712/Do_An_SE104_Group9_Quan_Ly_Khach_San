@@ -132,39 +132,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             throw new NotImplementedException();
     }
 
-    public class LoaiKhachTextConverter : IValueConverter
-    {
-        private static Dictionary<string, string>? _cache;
-
-        // Gọi sau khi thêm/sửa/xóa loại khách để cập nhật cache
-        public static void ClearCache() => _cache = null;
-
-        private static Dictionary<string, string> GetCache()
-        {
-            if (_cache != null) return _cache;
-            try
-            {
-                using var ctx = new Data.HotelDbContext();
-                _cache = ctx.LoaiKhachHangs.ToDictionary(l => l.MaCode, l => l.TenLoai);
-            }
-            catch
-            {
-                _cache = new() { ["NoiDia"] = "Nội Địa", ["NuocNgoai"] = "Nước Ngoài" };
-            }
-            return _cache;
-        }
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var maCode = value?.ToString() ?? "";
-            if (parameter?.ToString() == "Color") return "#E3F2FD";
-            return GetCache().TryGetValue(maCode, out var ten) ? ten : maCode;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-            throw new NotImplementedException();
-    }
-
     public class GioiTinhTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>

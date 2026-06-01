@@ -74,7 +74,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
                 }
 
                 ctx.SaveChanges();
-                LoaiKhachTextConverter.ClearCache();
                 DialogResult = true;
             }
             catch (Exception ex) { ShowError(ex.Message); }
