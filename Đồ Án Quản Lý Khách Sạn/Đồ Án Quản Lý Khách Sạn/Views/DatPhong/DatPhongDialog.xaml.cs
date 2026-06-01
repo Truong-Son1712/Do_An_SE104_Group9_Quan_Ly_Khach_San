@@ -21,11 +21,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private class KhachHangItem : INotifyPropertyChanged
         {
             private bool _isChecked;
-            public int    MaKH           { get; set; }
-            public string HoTen          { get; set; } = "";
-            public string LoaiKhach      { get; set; } = ""; // MaCode
-            public string TenLoaiKhach   { get; set; } = ""; // TenLoai từ DB
-            public string LoaiText       => TenLoaiKhach;
+            public int    MaKH         { get; set; }
+            public string HoTen        { get; set; } = "";
+            public int    MaLoaiKH     { get; set; }   // FK int → LoaiKhachHangs.MaLKH
+            public string TenLoaiKhach { get; set; } = ""; // tên hiển thị
+            public string LoaiText     => TenLoaiKhach;
 
             public bool IsChecked
             {
@@ -72,20 +72,20 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 busyIds.ExceptWith(thisIds);
             }
 
-            // Load TenLoai để hiện thị đúng tên loại khách thay vì MaCode
+            // Load TenLoai theo MaLKH (int FK)
             var loaiDict = ctx.LoaiKhachHangs
-                .ToDictionary(l => l.MaCode, l => l.TenLoai);
+                .ToDictionary(l => l.MaLKH, l => l.TenLoai);
 
             _allKhachHangItems = ctx.KhachHangs.OrderBy(k => k.HoTen)
-                .Select(k => new { k.MaKH, k.HoTen, k.LoaiKhach })
+                .Select(k => new { k.MaKH, k.HoTen, k.MaLoaiKH })
                 .ToList()
                 .Where(k => !busyIds.Contains(k.MaKH))
                 .Select(k => new KhachHangItem
                 {
                     MaKH         = k.MaKH,
                     HoTen        = k.HoTen,
-                    LoaiKhach    = k.LoaiKhach ?? "",
-                    TenLoaiKhach = loaiDict.TryGetValue(k.LoaiKhach ?? "", out var t) ? t : (k.LoaiKhach ?? "")
+                    MaLoaiKH     = k.MaLoaiKH,
+                    TenLoaiKhach = loaiDict.TryGetValue(k.MaLoaiKH, out var t) ? t : k.MaLoaiKH.ToString()
                 })
                 .ToList();
             LstKhachHang.ItemsSource = _allKhachHangItems;
@@ -201,10 +201,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             _giaPhong   = p.LoaiPhong.GiaPhong;
             int soKhach = _allKhachHangItems.Count(k => k.IsChecked);
 
-            // Hệ số: nhân tất cả hệ số của các loại khách khác nhau được chọn
-            var selectedItems = _allKhachHangItems.Where(k => k.IsChecked).ToList();
-            var distinctCodes = selectedItems.Select(k => k.LoaiKhach).Distinct().ToList();
-            decimal heSo  = AppConfig.GetCombinedHeSo(distinctCodes);
+            // Hệ số: nhân tất cả hệ số của các loại khách khác nhau được chọn (dùng MaLoaiKH int)
+            var selectedItems  = _allKhachHangItems.Where(k => k.IsChecked).ToList();
+            var distinctMaLKHs = selectedItems.Select(k => k.MaLoaiKH).Distinct().ToList();
+            decimal heSo  = AppConfig.GetCombinedHeSo(distinctMaLKHs);
             bool    hasHeSo = heSo > 1m;
 
             bool    hasPhuThu   = soKhach > 0 && soKhach > p.LoaiPhong.SucChua;
@@ -215,8 +215,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             if (hasHeSo)
             {
-                // Liệt kê từng loại và hệ số của nó
-                var breakdown = GetHeSoBreakdown(distinctCodes);
+                var breakdown = GetHeSoBreakdown(distinctMaLKHs);
                 TxtNuocNgoai.Text = $"ℹ  Hệ số giá: {breakdown}  →  ×{heSo:0.####}" +
                                     $"  (giá gốc: {_giaPhong * soNgay:N0} ₫ / {soNgay} đêm).";
                 PnlNuocNgoai.Visibility = Visibility.Visible;
@@ -230,11 +229,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             }
         }
 
-        private static string GetHeSoBreakdown(List<string> maCodes)
+        private static string GetHeSoBreakdown(List<int> maLKHs)
         {
             using var ctx = new HotelDbContext();
             var items = ctx.LoaiKhachHangs
-                .Where(l => maCodes.Contains(l.MaCode) && l.HeSoGia > 1m)
+                .Where(l => maLKHs.Contains(l.MaLKH) && l.HeSoGia > 1m)
                 .Select(l => new { l.TenLoai, l.HeSoGia })
                 .ToList();
             return items.Any()

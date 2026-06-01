@@ -73,11 +73,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             m.Entity<KhachHang>(e =>
             {
                 e.HasKey(x => x.MaKH);
-                // KhachHang.LoaiKhach (string) tham chiếu LoaiKhachHang.MaCode (UNIQUE)
-                e.HasOne<LoaiKhachHang>()
-                 .WithMany()
-                 .HasForeignKey(x => x.LoaiKhach)
-                 .HasPrincipalKey(l => l.MaCode)
+                // KhachHang.MaLoaiKH (int) FK → LoaiKhachHangs.MaLKH (PK int)
+                e.HasOne(x => x.LoaiKhachHang)
+                 .WithMany(l => l.KhachHangs)
+                 .HasForeignKey(x => x.MaLoaiKH)
                  .OnDelete(DeleteBehavior.Restrict);
             });
 

@@ -103,7 +103,7 @@ CREATE TABLE Phongs (
         REFERENCES LoaiPhongs(MaLoaiPhong) ON DELETE NO ACTION
 );
 
--- 6. Khách hàng → LoaiKhachHangs
+-- 6. Khách hàng → LoaiKhachHangs (FK qua MaLKH int)
 CREATE TABLE KhachHangs (
     MaKH      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     HoTen     NVARCHAR(100) NOT NULL,
@@ -112,12 +112,12 @@ CREATE TABLE KhachHangs (
     Email     NVARCHAR(200) NULL,
     DiaChi    NVARCHAR(500) NULL,
     QuocTich  NVARCHAR(100) NOT NULL DEFAULT N'Việt Nam',
-    LoaiKhach NVARCHAR(100) NOT NULL DEFAULT 'NoiDia',
+    MaLoaiKH  INT           NOT NULL DEFAULT 1,  -- FK → LoaiKhachHangs.MaLKH
     NgaySinh  DATETIME2     NULL,
     GioiTinh  NVARCHAR(10)  NOT NULL DEFAULT 'Nam',
     NgayTao   DATETIME2     NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_KhachHang_LoaiKhach FOREIGN KEY (LoaiKhach)
-        REFERENCES LoaiKhachHangs(MaCode) ON DELETE NO ACTION
+    CONSTRAINT FK_KhachHang_LoaiKhach FOREIGN KEY (MaLoaiKH)
+        REFERENCES LoaiKhachHangs(MaLKH) ON DELETE NO ACTION
 );
 
 -- 7. Đặt phòng → KhachHangs, Phongs
@@ -212,19 +212,20 @@ INSERT INTO Phongs (MaPhong, SoPhong, MaLoaiPhong, Tang, TrangThai) VALUES
 (17,'401',5,4,0),(18,'402',5,4,0);
 SET IDENTITY_INSERT Phongs OFF;
 
--- Khách hàng (LoaiKhach phải tồn tại trong LoaiKhachHangs)
+-- Khách hàng: MaLoaiKH=1 (Nội địa), MaLoaiKH=2 (Nước ngoài)
+-- (khớp với MaLKH được IDENTITY sinh ra khi insert LoaiKhachHangs ở trên)
 SET IDENTITY_INSERT KhachHangs ON;
-INSERT INTO KhachHangs (MaKH, HoTen, CMND, SDT, Email, DiaChi, QuocTich, LoaiKhach, NgaySinh, GioiTinh, NgayTao) VALUES
-( 1, N'Nguyễn Văn An',   '001085012345', '0901111001', 'an.nguyen@gmail.com',      N'12 Lý Thường Kiệt, Hà Nội',  N'Việt Nam',   'NoiDia',    '1990-03-15', 'Nam', '2026-05-25'),
-( 2, N'Trần Thị Bình',   '079085067890', '0902222002', 'binh.tran@gmail.com',      N'45 Nguyễn Huệ, TP.HCM',      N'Việt Nam',   'NoiDia',    '1995-07-22', 'Nu',  '2026-05-25'),
-( 3, N'Lê Minh Châu',    '048085034567', '0903333003', 'chau.le@gmail.com',        N'78 Trần Phú, Đà Nẵng',       N'Việt Nam',   'NoiDia',    '1988-11-05', 'Nam', '2026-05-25'),
-( 4, N'Phạm Thu Hà',     '036085089012', '0904444004', 'ha.pham@gmail.com',        N'23 Hoàng Diệu, Huế',         N'Việt Nam',   'NoiDia',    '1993-05-18', 'Nu',  '2026-05-25'),
-( 5, N'Võ Quốc Hùng',   '092085056789', '0905555005', 'hung.vo@gmail.com',        N'56 Pasteur, Cần Thơ',        N'Việt Nam',   'NoiDia',    '1985-09-30', 'Nam', '2026-05-25'),
-( 6, N'John Smith',       'A12345678',   '+1-202-555-0101',   'john.smith@gmail.com', 'New York, USA',             N'Hoa Kỳ',     'NuocNgoai', '1982-04-12', 'Nam', '2026-05-25'),
-( 7, N'Wang Fang',        'G87654321',   '+86-138-0000-1234', 'wang.fang@qq.com',     'Beijing, China',            N'Trung Quốc', 'NuocNgoai', '1991-08-20', 'Nu',  '2026-05-25'),
-( 8, N'Nguyễn Thị Lan',  '001090023456', '0908888008', 'lan.nguyen@yahoo.com',     N'99 Đinh Tiên Hoàng, Hà Nội', N'Việt Nam',   'NoiDia',    '1997-01-08', 'Nu',  '2026-05-25'),
-( 9, N'Đặng Văn Đức',    '025090045678', '0909999009', 'duc.dang@gmail.com',       N'34 Lê Lợi, Hải Phòng',      N'Việt Nam',   'NoiDia',    '1989-06-25', 'Nam', '2026-05-25'),
-(10, N'Tanaka Yuki',      'TK9876543',   '+81-90-1234-5678',  'tanaka.y@mail.jp',     'Tokyo, Japan',              N'Nhật Bản',   'NuocNgoai', '1994-03-03', 'Nu',  '2026-05-25');
+INSERT INTO KhachHangs (MaKH, HoTen, CMND, SDT, Email, DiaChi, QuocTich, MaLoaiKH, NgaySinh, GioiTinh, NgayTao) VALUES
+( 1, N'Nguyễn Văn An',   '001085012345', '0901111001', 'an.nguyen@gmail.com',      N'12 Lý Thường Kiệt, Hà Nội',  N'Việt Nam',   1, '1990-03-15', 'Nam', '2026-05-25'),
+( 2, N'Trần Thị Bình',   '079085067890', '0902222002', 'binh.tran@gmail.com',      N'45 Nguyễn Huệ, TP.HCM',      N'Việt Nam',   1, '1995-07-22', 'Nu',  '2026-05-25'),
+( 3, N'Lê Minh Châu',    '048085034567', '0903333003', 'chau.le@gmail.com',        N'78 Trần Phú, Đà Nẵng',       N'Việt Nam',   1, '1988-11-05', 'Nam', '2026-05-25'),
+( 4, N'Phạm Thu Hà',     '036085089012', '0904444004', 'ha.pham@gmail.com',        N'23 Hoàng Diệu, Huế',         N'Việt Nam',   1, '1993-05-18', 'Nu',  '2026-05-25'),
+( 5, N'Võ Quốc Hùng',   '092085056789', '0905555005', 'hung.vo@gmail.com',        N'56 Pasteur, Cần Thơ',        N'Việt Nam',   1, '1985-09-30', 'Nam', '2026-05-25'),
+( 6, N'John Smith',       'A12345678',   '+1-202-555-0101',   'john.smith@gmail.com', 'New York, USA',             N'Hoa Kỳ',     2, '1982-04-12', 'Nam', '2026-05-25'),
+( 7, N'Wang Fang',        'G87654321',   '+86-138-0000-1234', 'wang.fang@qq.com',     'Beijing, China',            N'Trung Quốc', 2, '1991-08-20', 'Nu',  '2026-05-25'),
+( 8, N'Nguyễn Thị Lan',  '001090023456', '0908888008', 'lan.nguyen@yahoo.com',     N'99 Đinh Tiên Hoàng, Hà Nội', N'Việt Nam',   1, '1997-01-08', 'Nu',  '2026-05-25'),
+( 9, N'Đặng Văn Đức',    '025090045678', '0909999009', 'duc.dang@gmail.com',       N'34 Lê Lợi, Hải Phòng',      N'Việt Nam',   1, '1989-06-25', 'Nam', '2026-05-25'),
+(10, N'Tanaka Yuki',      'TK9876543',   '+81-90-1234-5678',  'tanaka.y@mail.jp',     'Tokyo, Japan',              N'Nhật Bản',   2, '1994-03-03', 'Nu',  '2026-05-25');
 SET IDENTITY_INSERT KhachHangs OFF;
 GO
 

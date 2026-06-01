@@ -42,13 +42,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             decimal gia = dp.Phong?.LoaiPhong?.GiaPhong ?? 0;
 
             // ── Nhân tất cả hệ số của các loại khách khác nhau trong booking ─
-            var allCodes = dp.DatPhongKhachHangs
-                .Select(x => x.KhachHang?.LoaiKhach ?? "")
-                .Append(dp.KhachHang?.LoaiKhach ?? "")
-                .Where(c => !string.IsNullOrEmpty(c))
+            var allMaLKHs = dp.DatPhongKhachHangs
+                .Select(x => x.KhachHang?.MaLoaiKH ?? 0)
+                .Append(dp.KhachHang?.MaLoaiKH ?? 0)
+                .Where(id => id > 0)
                 .Distinct()
                 .ToList();
-            decimal heSo    = AppConfig.GetCombinedHeSo(allCodes);
+            decimal heSo    = AppConfig.GetCombinedHeSo(allMaLKHs);
             bool    hasHeSo = heSo > 1m;
 
             // ── Phụ thu khi số khách vượt sức chứa phòng ───────────────────
@@ -72,7 +72,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             {
                 using var hCtx = new HotelDbContext();
                 var parts = hCtx.LoaiKhachHangs
-                    .Where(l => allCodes.Contains(l.MaCode) && l.HeSoGia > 1m)
+                    .Where(l => allMaLKHs.Contains(l.MaLKH) && l.HeSoGia > 1m)
                     .Select(l => new { l.TenLoai, l.HeSoGia })
                     .ToList();
                 heSoText = parts.Any()

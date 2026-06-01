@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Data;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Helpers;
+using Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
 {
@@ -22,20 +23,18 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
                 using var ctx = new HotelDbContext();
                 var types = ctx.LoaiKhachHangs.OrderBy(l => l.TenLoai).ToList();
 
-                // Lưu lại Tag đang chọn để restore sau khi reload
-                var currentTag = (CboLoaiFilter.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "TatCa";
+                var currentTag = (CboLoaiFilter.SelectedItem as ComboBoxItem)?.Tag;
+                int currentMaLKH = currentTag is int t ? t : 0;
 
                 CboLoaiFilter.Items.Clear();
-                CboLoaiFilter.Items.Add(new ComboBoxItem { Content = "Tất cả", Tag = "TatCa" });
-                foreach (var t in types)
-                    CboLoaiFilter.Items.Add(new ComboBoxItem { Content = t.TenLoai, Tag = t.MaCode });
+                CboLoaiFilter.Items.Add(new ComboBoxItem { Content = "Tất cả", Tag = 0 });
+                foreach (var loai in types)
+                    CboLoaiFilter.Items.Add(new ComboBoxItem { Content = loai.TenLoai, Tag = loai.MaLKH });
 
-                // Restore selection
                 foreach (ComboBoxItem item in CboLoaiFilter.Items)
-                    if (item.Tag?.ToString() == currentTag) { item.IsSelected = true; break; }
+                    if (item.Tag is int id && id == currentMaLKH) { item.IsSelected = true; break; }
 
-                if (CboLoaiFilter.SelectedIndex < 0)
-                    CboLoaiFilter.SelectedIndex = 0;
+                if (CboLoaiFilter.SelectedIndex < 0) CboLoaiFilter.SelectedIndex = 0;
             }
             catch { /* silent */ }
         }

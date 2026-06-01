@@ -74,8 +74,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 .OrderByDescending(k => k.MaKH == dp.MaKH)
                 .ToList();
 
-            // Tra cứu tên loại khách từ DB
-            var loaiDict = ctx.LoaiKhachHangs.ToDictionary(l => l.MaCode, l => l.TenLoai);
+            // Tra cứu tên loại khách từ DB theo MaLKH (int)
+            var loaiDict = ctx.LoaiKhachHangs.ToDictionary(l => l.MaLKH, l => l.TenLoai);
 
             int soThuTu = 1;
             IcKhachHang.ItemsSource = khachList.Select(k =>
@@ -96,7 +96,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     NgaySinh  = k.NgaySinh.HasValue ? k.NgaySinh.Value.ToString("dd/MM/yyyy") : "—",
                     SDT       = k.SDT ?? "—",
                     QuocTich  = k.QuocTich,
-                    LoaiKhach = loaiDict.TryGetValue(k.LoaiKhach ?? "", out var ten) ? ten : (k.LoaiKhach ?? "—"),
+                    LoaiKhach = loaiDict.TryGetValue(k.MaLoaiKH, out var ten) ? ten : "—",
                     DiaChi    = k.DiaChi ?? "—"
                 };
             }).ToList();

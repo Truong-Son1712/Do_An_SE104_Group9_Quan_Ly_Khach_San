@@ -23,9 +23,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             var list = ctx.LoaiKhachHangs.OrderBy(l => l.TenLoai).ToList();
             CboLoaiKhach.ItemsSource = list;
 
-            // Mặc định chọn "NoiDia" khi tạo mới
-            if (!_maKH.HasValue)
-                CboLoaiKhach.SelectedValue = "NoiDia";
+            // Mặc định chọn loại đầu tiên khi tạo mới
+            if (!_maKH.HasValue && list.Any())
+                CboLoaiKhach.SelectedValue = list.First().MaLKH;
         }
 
         private void LoadData(int id)
@@ -34,15 +34,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             var kh = ctx.KhachHangs.Find(id);
             if (kh == null) return;
 
-            TxtTitle.Text              = "Chỉnh Sửa Khách Hàng";
-            TxtHoTen.Text              = kh.HoTen;
-            TxtCMND.Text               = kh.CMND;
-            TxtSDT.Text                = kh.SDT;
-            TxtEmail.Text              = kh.Email;
-            TxtQuocTich.Text           = kh.QuocTich;
-            TxtDiaChi.Text             = kh.DiaChi;
-            DpNgaySinh.SelectedDate    = kh.NgaySinh;
-            CboLoaiKhach.SelectedValue = kh.LoaiKhach;
+            TxtTitle.Text           = "Chỉnh Sửa Khách Hàng";
+            TxtHoTen.Text           = kh.HoTen;
+            TxtCMND.Text            = kh.CMND;
+            TxtSDT.Text             = kh.SDT;
+            TxtEmail.Text           = kh.Email;
+            TxtQuocTich.Text        = kh.QuocTich;
+            TxtDiaChi.Text          = kh.DiaChi;
+            DpNgaySinh.SelectedDate = kh.NgaySinh;
+            CboLoaiKhach.SelectedValue = kh.MaLoaiKH;
 
             foreach (ComboBoxItem item in CboGioiTinh.Items)
                 if (item.Tag?.ToString() == kh.GioiTinh) { item.IsSelected = true; break; }
@@ -56,8 +56,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             if (string.IsNullOrWhiteSpace(TxtCMND.Text))
             { ShowError("Vui lòng nhập CMND/CCCD."); return; }
 
-            string gioiTinh  = (CboGioiTinh.SelectedItem  as ComboBoxItem)?.Tag?.ToString() ?? "Nam";
-            string loaiKhach = CboLoaiKhach.SelectedValue?.ToString() ?? "NoiDia";
+            string gioiTinh = (CboGioiTinh.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Nam";
+            int    maLoaiKH = CboLoaiKhach.SelectedValue is int v ? v
+                            : (CboLoaiKhach.SelectedItem as LoaiKhachHang)?.MaLKH ?? 1;
 
             try
             {
@@ -66,12 +67,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
                 {
                     var kh = ctx.KhachHangs.Find(_maKH.Value);
                     if (kh == null) return;
-                    Map(kh, gioiTinh, loaiKhach);
+                    Map(kh, gioiTinh, maLoaiKH);
                 }
                 else
                 {
                     var kh = new Models.KhachHang();
-                    Map(kh, gioiTinh, loaiKhach);
+                    Map(kh, gioiTinh, maLoaiKH);
                     ctx.KhachHangs.Add(kh);
                 }
                 ctx.SaveChanges();
@@ -80,7 +81,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             catch (Exception ex) { ShowError(ex.Message); }
         }
 
-        private void Map(Models.KhachHang kh, string gioiTinh, string loaiKhach)
+        private void Map(Models.KhachHang kh, string gioiTinh, int maLoaiKH)
         {
             kh.HoTen     = TxtHoTen.Text.Trim();
             kh.CMND      = TxtCMND.Text.Trim();
@@ -89,7 +90,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             kh.QuocTich  = string.IsNullOrWhiteSpace(TxtQuocTich.Text) ? "Việt Nam" : TxtQuocTich.Text.Trim();
             kh.DiaChi    = TxtDiaChi.Text.Trim();
             kh.GioiTinh  = gioiTinh;
-            kh.LoaiKhach = loaiKhach;
+            kh.MaLoaiKH  = maLoaiKH;
             kh.NgaySinh  = DpNgaySinh.SelectedDate;
         }
 

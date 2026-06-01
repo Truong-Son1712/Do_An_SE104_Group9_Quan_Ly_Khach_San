@@ -79,7 +79,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     return;
                 }
 
-                int soKhach = ctx.KhachHangs.Count(k => k.LoaiKhach == Selected.MaCode);
+                int soKhach = ctx.KhachHangs.Count(k => k.MaLoaiKH == Selected.MaLKH);
                 if (soKhach > 0)
                 {
                     MessageBox.Show($"Không thể xóa loại khách \"{Selected.TenLoai}\" vì có {soKhach} khách hàng đang sử dụng.",

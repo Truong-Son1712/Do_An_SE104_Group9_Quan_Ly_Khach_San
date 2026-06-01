@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Data;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Helpers;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 {
@@ -12,7 +13,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private ObservableCollection<KhachHang> _khachHangs = new();
         private KhachHang? _selected;
         private string _searchText = string.Empty;
-        private string _filterLoai = "TatCa";
+        private int    _filterLoai = 0; // 0 = tất cả
 
         public ObservableCollection<KhachHang> KhachHangs
         {
@@ -32,7 +33,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             set { Set(ref _searchText, value); LoadData(); }
         }
 
-        public string FilterLoai
+        public int FilterLoai
         {
             get => _filterLoai;
             set { Set(ref _filterLoai, value); LoadData(); }
@@ -57,15 +58,17 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             try
             {
                 using var ctx = new HotelDbContext();
-                var q = ctx.KhachHangs.AsQueryable();
+                var q = ctx.KhachHangs
+                    .Include(k => k.LoaiKhachHang)
+                    .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(SearchText))
                     q = q.Where(k => k.HoTen.Contains(SearchText) ||
                                      k.CMND.Contains(SearchText) ||
                                      (k.SDT != null && k.SDT.Contains(SearchText)));
 
-                if (FilterLoai != "TatCa")
-                    q = q.Where(k => k.LoaiKhach == FilterLoai);
+                if (FilterLoai > 0)
+                    q = q.Where(k => k.MaLoaiKH == FilterLoai);
 
                 KhachHangs = new ObservableCollection<KhachHang>(
                     q.OrderByDescending(k => k.NgayTao).ToList());

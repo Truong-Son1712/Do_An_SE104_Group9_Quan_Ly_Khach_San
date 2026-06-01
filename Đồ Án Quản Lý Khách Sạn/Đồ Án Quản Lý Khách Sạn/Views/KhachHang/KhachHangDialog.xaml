@@ -85,8 +85,7 @@
                             <TextBlock Text="Loại Khách" Style="{StaticResource Label}"/>
                             <ComboBox x:Name="CboLoaiKhach"
                                       DisplayMemberPath="TenLoai"
-                                      SelectedValuePath="MaCode"
-                                      SelectedValue="{Binding LoaiKhachSelected}"/>
+                                      SelectedValuePath="MaLKH"/>
                         </StackPanel>
                     </Grid>
 

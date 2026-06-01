@@ -70,13 +70,12 @@
                     <DataGridTextColumn Header="Giới Tính" Binding="{Binding GioiTinh, Converter={StaticResource GioiTinh}}" Width="90"/>
                     <DataGridTextColumn Header="SĐT"    Binding="{Binding SDT}"     Width="120"/>
                     <DataGridTextColumn Header="Quốc Tịch" Binding="{Binding QuocTich}" Width="100"/>
-                    <DataGridTemplateColumn Header="Loại Khách" Width="120" SortMemberPath="LoaiKhach">
+                    <DataGridTemplateColumn Header="Loại Khách" Width="130" SortMemberPath="MaLoaiKH">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Left"
-                                        Background="{Binding LoaiKhach, Converter={StaticResource LoaiKhach},
-                                                     ConverterParameter=Color}">
-                                    <TextBlock Text="{Binding LoaiKhach, Converter={StaticResource LoaiKhach}}"
+                                        Background="#E3F2FD">
+                                    <TextBlock Text="{Binding LoaiKhachHang.TenLoai}"
                                                FontSize="11" FontWeight="SemiBold" Foreground="#1565C0"/>
                                 </Border>
                             </DataTemplate>

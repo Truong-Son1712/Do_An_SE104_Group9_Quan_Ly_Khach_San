@@ -29,33 +29,30 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             ctx.SaveChanges();
         }
 
-        // ── Hệ số giá khách nước ngoài (legacy – giữ để tương thích) ──────
+        // ── Hệ số giá khách nước ngoài (legacy) ───────────────────────────
         public static decimal GetHeSoNuocNgoai() => GetDecimal(KEY_HE_SO, 1.5m);
         public static void    SetHeSoNuocNgoai(decimal v) =>
             SetValue(KEY_HE_SO, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-        // ── Hệ số theo mã loại khách ────────────────────────────────────────
-        public static decimal GetHeSoByCode(string maCode)
+        // ── Hệ số theo MaLKH (int PK của LoaiKhachHang) ───────────────────
+        public static decimal GetHeSoByMaLKH(int maLKH)
         {
-            if (string.IsNullOrEmpty(maCode)) return 1m;
             using var ctx = new HotelDbContext();
-            return ctx.LoaiKhachHangs.FirstOrDefault(l => l.MaCode == maCode)?.HeSoGia ?? 1m;
+            return ctx.LoaiKhachHangs.Find(maLKH)?.HeSoGia ?? 1m;
         }
 
-        // Nhân tất cả hệ số của các loại khách trong booking lại với nhau
-        public static decimal GetCombinedHeSo(IEnumerable<string> maCodes)
+        // Nhân tất cả hệ số của các loại khách (theo MaLKH) trong booking
+        public static decimal GetCombinedHeSo(IEnumerable<int> maLKHs)
         {
-            var codes = maCodes.Where(c => !string.IsNullOrEmpty(c)).Distinct().ToList();
-            if (!codes.Any()) return 1m;
+            var ids = maLKHs.Where(id => id > 0).Distinct().ToList();
+            if (!ids.Any()) return 1m;
             using var ctx = new HotelDbContext();
             var heSos = ctx.LoaiKhachHangs
-                .Where(l => codes.Contains(l.MaCode))
+                .Where(l => ids.Contains(l.MaLKH))
                 .Select(l => l.HeSoGia)
                 .ToList();
             return heSos.Any() ? heSos.Aggregate(1m, (acc, h) => acc * h) : 1m;
         }
-
-        public static decimal GetMaxHeSo(IEnumerable<string> maCodes) => GetCombinedHeSo(maCodes);
 
         // ── Sức chứa tối đa ────────────────────────────────────────────────
         public static int GetSucChuaToiDa()

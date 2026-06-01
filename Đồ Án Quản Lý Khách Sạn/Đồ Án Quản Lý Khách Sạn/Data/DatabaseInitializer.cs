@@ -69,17 +69,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
 
         private static void SeedKhachHang(HotelDbContext ctx)
         {
+            // Lấy MaLKH của từng loại để gán đúng FK
+            int ndId = ctx.LoaiKhachHangs.FirstOrDefault(l => l.MaCode == "NoiDia")?.MaLKH    ?? 1;
+            int nnId = ctx.LoaiKhachHangs.FirstOrDefault(l => l.MaCode == "NuocNgoai")?.MaLKH ?? 2;
+
             ctx.KhachHangs.AddRange(
-                new KhachHang { HoTen = "Nguyễn Văn An",   CMND = "001085012345", SDT = "0901111001", Email = "an.nguyen@gmail.com",   DiaChi = "12 Lý Thường Kiệt, Hà Nội",  QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nam", NgaySinh = new DateTime(1990, 3, 15) },
-                new KhachHang { HoTen = "Trần Thị Bình",   CMND = "079085067890", SDT = "0902222002", Email = "binh.tran@gmail.com",   DiaChi = "45 Nguyễn Huệ, TP.HCM",      QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nu",  NgaySinh = new DateTime(1995, 7, 22) },
-                new KhachHang { HoTen = "Lê Minh Châu",    CMND = "048085034567", SDT = "0903333003", Email = "chau.le@gmail.com",     DiaChi = "78 Trần Phú, Đà Nẵng",       QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nam", NgaySinh = new DateTime(1988, 11, 5) },
-                new KhachHang { HoTen = "Phạm Thu Hà",     CMND = "036085089012", SDT = "0904444004", Email = "ha.pham@gmail.com",     DiaChi = "23 Hoàng Diệu, Huế",         QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nu",  NgaySinh = new DateTime(1993, 5, 18) },
-                new KhachHang { HoTen = "Võ Quốc Hùng",   CMND = "092085056789", SDT = "0905555005", Email = "hung.vo@gmail.com",     DiaChi = "56 Pasteur, Cần Thơ",        QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nam", NgaySinh = new DateTime(1985, 9, 30) },
-                new KhachHang { HoTen = "John Smith",      CMND = "A12345678",    SDT = "+1-202-555-0101", Email = "john.smith@gmail.com", DiaChi = "New York, USA",           QuocTich = "Hoa Kỳ",     LoaiKhach = "NuocNgoai", GioiTinh = "Nam", NgaySinh = new DateTime(1982, 4, 12) },
-                new KhachHang { HoTen = "Wang Fang",       CMND = "G87654321",    SDT = "+86-138-0000-1234", Email = "wang.fang@qq.com", DiaChi = "Beijing, China",           QuocTich = "Trung Quốc", LoaiKhach = "NuocNgoai", GioiTinh = "Nu",  NgaySinh = new DateTime(1991, 8, 20) },
-                new KhachHang { HoTen = "Nguyễn Thị Lan", CMND = "001090023456", SDT = "0908888008", Email = "lan.nguyen@yahoo.com",  DiaChi = "99 Đinh Tiên Hoàng, Hà Nội", QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nu",  NgaySinh = new DateTime(1997, 1, 8) },
-                new KhachHang { HoTen = "Đặng Văn Đức",   CMND = "025090045678", SDT = "0909999009", Email = "duc.dang@gmail.com",    DiaChi = "34 Lê Lợi, Hải Phòng",      QuocTich = "Việt Nam",   LoaiKhach = "NoiDia",    GioiTinh = "Nam", NgaySinh = new DateTime(1989, 6, 25) },
-                new KhachHang { HoTen = "Tanaka Yuki",     CMND = "TK9876543",    SDT = "+81-90-1234-5678", Email = "tanaka.y@mail.jp", DiaChi = "Tokyo, Japan",             QuocTich = "Nhật Bản",   LoaiKhach = "NuocNgoai", GioiTinh = "Nu",  NgaySinh = new DateTime(1994, 3, 3) }
+                new KhachHang { HoTen = "Nguyễn Văn An",   CMND = "001085012345", SDT = "0901111001", Email = "an.nguyen@gmail.com",   DiaChi = "12 Lý Thường Kiệt, Hà Nội",  QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nam", NgaySinh = new DateTime(1990, 3, 15) },
+                new KhachHang { HoTen = "Trần Thị Bình",   CMND = "079085067890", SDT = "0902222002", Email = "binh.tran@gmail.com",   DiaChi = "45 Nguyễn Huệ, TP.HCM",      QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nu",  NgaySinh = new DateTime(1995, 7, 22) },
+                new KhachHang { HoTen = "Lê Minh Châu",    CMND = "048085034567", SDT = "0903333003", Email = "chau.le@gmail.com",     DiaChi = "78 Trần Phú, Đà Nẵng",       QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nam", NgaySinh = new DateTime(1988, 11, 5) },
+                new KhachHang { HoTen = "Phạm Thu Hà",     CMND = "036085089012", SDT = "0904444004", Email = "ha.pham@gmail.com",     DiaChi = "23 Hoàng Diệu, Huế",         QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nu",  NgaySinh = new DateTime(1993, 5, 18) },
+                new KhachHang { HoTen = "Võ Quốc Hùng",   CMND = "092085056789", SDT = "0905555005", Email = "hung.vo@gmail.com",     DiaChi = "56 Pasteur, Cần Thơ",        QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nam", NgaySinh = new DateTime(1985, 9, 30) },
+                new KhachHang { HoTen = "John Smith",      CMND = "A12345678",    SDT = "+1-202-555-0101", Email = "john.smith@gmail.com", DiaChi = "New York, USA",           QuocTich = "Hoa Kỳ",     MaLoaiKH = nnId, GioiTinh = "Nam", NgaySinh = new DateTime(1982, 4, 12) },
+                new KhachHang { HoTen = "Wang Fang",       CMND = "G87654321",    SDT = "+86-138-0000-1234", Email = "wang.fang@qq.com", DiaChi = "Beijing, China",           QuocTich = "Trung Quốc", MaLoaiKH = nnId, GioiTinh = "Nu",  NgaySinh = new DateTime(1991, 8, 20) },
+                new KhachHang { HoTen = "Nguyễn Thị Lan", CMND = "001090023456", SDT = "0908888008", Email = "lan.nguyen@yahoo.com",  DiaChi = "99 Đinh Tiên Hoàng, Hà Nội", QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nu",  NgaySinh = new DateTime(1997, 1, 8) },
+                new KhachHang { HoTen = "Đặng Văn Đức",   CMND = "025090045678", SDT = "0909999009", Email = "duc.dang@gmail.com",    DiaChi = "34 Lê Lợi, Hải Phòng",      QuocTich = "Việt Nam",   MaLoaiKH = ndId, GioiTinh = "Nam", NgaySinh = new DateTime(1989, 6, 25) },
+                new KhachHang { HoTen = "Tanaka Yuki",     CMND = "TK9876543",    SDT = "+81-90-1234-5678", Email = "tanaka.y@mail.jp", DiaChi = "Tokyo, Japan",             QuocTich = "Nhật Bản",   MaLoaiKH = nnId, GioiTinh = "Nu",  NgaySinh = new DateTime(1994, 3, 3) }
             );
         }
     }

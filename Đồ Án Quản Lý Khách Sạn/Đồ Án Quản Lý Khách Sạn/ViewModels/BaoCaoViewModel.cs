@@ -109,12 +109,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     : 0;
 
                 var allKhach = ctx.DatPhongs
-                    .Include(d => d.KhachHang)
+                    .Include(d => d.KhachHang).ThenInclude(k => k!.LoaiKhachHang)
                     .Where(d => d.NgayNhanPhong.Year == SelectedYear && d.TrangThai != TrangThaiDatPhong.HuyDat)
                     .Select(d => d.KhachHang)
                     .ToList();
-                int nd  = allKhach.Count(k => k?.LoaiKhach == "NoiDia");
-                int nn  = allKhach.Count(k => k?.LoaiKhach == "NuocNgoai");
+                // Phân loại: HeSoGia == 1.0 = nội địa, > 1.0 = khách có phụ thu
+                int nd  = allKhach.Count(k => k?.LoaiKhachHang?.HeSoGia == 1m);
+                int nn  = allKhach.Count(k => k?.LoaiKhachHang?.HeSoGia > 1m);
                 int all = nd + nn;
                 LoaiKhachNoiDia    = all > 0 ? $"{nd} ({nd * 100 / all}%)" : "0";
                 LoaiKhachNuocNgoai = all > 0 ? $"{nn} ({nn * 100 / all}%)" : "0";
