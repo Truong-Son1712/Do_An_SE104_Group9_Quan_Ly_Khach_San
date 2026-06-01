@@ -3,3 +3,18 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Claude Code - chứa quyền cục bộ, không cần commit
+.claude/
+
+# Build output
+Release/
+build_output/
+
+# Debug symbols
+*.pdb
