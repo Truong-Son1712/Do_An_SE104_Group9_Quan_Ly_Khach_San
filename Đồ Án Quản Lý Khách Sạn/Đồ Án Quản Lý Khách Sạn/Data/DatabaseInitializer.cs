@@ -15,9 +15,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             if (!ctx.KhachHangs.Any())  SeedKhachHang(ctx);
 
             // Seed cấu hình mặc định
-            if (ctx.CauHinhs.Find("HeSoNuocNgoai") == null)
-                ctx.CauHinhs.Add(new CauHinh { ConfigKey = "HeSoNuocNgoai", ConfigValue = "1.2" });
-            if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
+if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
                 ctx.CauHinhs.Add(new CauHinh { ConfigKey = "SucChuaToiDa",  ConfigValue = "4"   });
             if (ctx.CauHinhs.Find("TiLePhuThu") == null)
                 ctx.CauHinhs.Add(new CauHinh { ConfigKey = "TiLePhuThu",    ConfigValue = "0.25" });

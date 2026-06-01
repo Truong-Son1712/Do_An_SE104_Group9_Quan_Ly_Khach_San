@@ -98,10 +98,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.Phong
             entity.HeSoGia = heSo;
             ctx.SaveChanges();
 
-            // Đồng bộ legacy config nếu là NuocNgoai
-            if (loai.MaCode == "NuocNgoai")
-                AppConfig.SetHeSoNuocNgoai(heSo);
-
             // Cập nhật lại combo
             LoadLoaiKhachCombo();
             var updated = (CboLoaiKhach.ItemsSource as List<LoaiKhachHang>)

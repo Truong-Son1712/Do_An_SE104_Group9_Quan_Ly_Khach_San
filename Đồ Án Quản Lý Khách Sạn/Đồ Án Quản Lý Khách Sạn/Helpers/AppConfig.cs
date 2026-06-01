@@ -5,7 +5,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
 {
     public static class AppConfig
     {
-        private const string KEY_HE_SO         = "HeSoNuocNgoai";
         private const string KEY_SUC_CHUA_MAX  = "SucChuaToiDa";
         private const string KEY_TI_LE_PHU_THU = "TiLePhuThu";
 
@@ -28,11 +27,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
                 cfg.ConfigValue = value;
             ctx.SaveChanges();
         }
-
-        // ── Hệ số giá khách nước ngoài (legacy) ───────────────────────────
-        public static decimal GetHeSoNuocNgoai() => GetDecimal(KEY_HE_SO, 1.5m);
-        public static void    SetHeSoNuocNgoai(decimal v) =>
-            SetValue(KEY_HE_SO, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         // ── Hệ số theo MaLKH (int PK của LoaiKhachHang) ───────────────────
         public static decimal GetHeSoByMaLKH(int maLKH)
