@@ -1,30 +1,49 @@
-using System.IO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
 {
     public class HotelDbContext : DbContext
     {
-        private static readonly string DbPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "QuanLyKhachSan", "hotel.db");
+        // ── Chuỗi kết nối – đọc từ appsettings.json (nằm cùng thư mục .exe) ──
+        // Người dùng chỉnh sửa file appsettings.json để thay đổi kết nối,
+        // không cần recompile lại code.
+        private static string? _connectionString;
+        public static string ConnectionString
+        {
+            get
+            {
+                if (_connectionString != null) return _connectionString;
+                try
+                {
+                    var config = new ConfigurationBuilder()
+                        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                        .Build();
+                    _connectionString = config.GetConnectionString("DefaultConnection");
+                }
+                catch { /* fallback nếu không đọc được file */ }
 
-        public DbSet<NhanVien> NhanViens { get; set; }
-        public DbSet<LoaiPhong> LoaiPhongs { get; set; }
-        public DbSet<Phong> Phongs { get; set; }
-        public DbSet<KhachHang> KhachHangs { get; set; }
-        public DbSet<DatPhong> DatPhongs { get; set; }
+                // Fallback mặc định nếu appsettings.json không tồn tại
+                return _connectionString
+                    ?? "Server=.;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;";
+            }
+            set => _connectionString = value;
+        }
+
+        public DbSet<NhanVien>          NhanViens          { get; set; }
+        public DbSet<LoaiPhong>         LoaiPhongs         { get; set; }
+        public DbSet<Phong>             Phongs             { get; set; }
+        public DbSet<KhachHang>         KhachHangs         { get; set; }
+        public DbSet<DatPhong>          DatPhongs          { get; set; }
         public DbSet<DatPhongKhachHang> DatPhongKhachHangs { get; set; }
-        public DbSet<HoaDon> HoaDons { get; set; }
-        public DbSet<CauHinh> CauHinhs { get; set; }
-        public DbSet<LoaiKhachHang> LoaiKhachHangs { get; set; }
+        public DbSet<HoaDon>            HoaDons            { get; set; }
+        public DbSet<CauHinh>           CauHinhs           { get; set; }
+        public DbSet<LoaiKhachHang>     LoaiKhachHangs     { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(DbPath)!);
-            options.UseSqlite($"Data Source={DbPath}");
-        }
+            => options.UseSqlServer(ConnectionString);
 
         protected override void OnModelCreating(ModelBuilder m)
         {
@@ -51,11 +70,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                  .OnDelete(DeleteBehavior.Restrict);
             });
 
-            m.Entity<KhachHang>(e => e.HasKey(x => x.MaKH));
+            m.Entity<KhachHang>(e =>
+            {
+                e.HasKey(x => x.MaKH);
+                // KhachHang.LoaiKhach (string) tham chiếu LoaiKhachHang.MaCode (UNIQUE)
+                e.HasOne<LoaiKhachHang>()
+                 .WithMany()
+                 .HasForeignKey(x => x.LoaiKhach)
+                 .HasPrincipalKey(l => l.MaCode)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
 
             m.Entity<DatPhong>(e =>
             {
                 e.HasKey(x => x.MaDatPhong);
+                e.Property(x => x.TienCoc).HasColumnType("decimal(18,2)");
                 e.HasOne(x => x.KhachHang).WithMany(x => x.DatPhongs)
                  .HasForeignKey(x => x.MaKH).OnDelete(DeleteBehavior.Restrict);
                 e.HasOne(x => x.Phong).WithMany(x => x.DatPhongs)
@@ -71,12 +100,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                  .HasForeignKey(x => x.MaKH).OnDelete(DeleteBehavior.Restrict);
             });
 
-            m.Entity<CauHinh>(e => e.HasKey(x => x.Khoa));
-
-            m.Entity<LoaiKhachHang>(e =>
+            m.Entity<CauHinh>(e =>
             {
-                e.HasKey(x => x.MaCode);
-                e.Property(x => x.HeSoGia).HasColumnType("decimal(10,4)");
+                e.HasKey(x => x.ConfigKey);
+                e.Property(x => x.ConfigKey).HasMaxLength(100);
+                e.Property(x => x.ConfigValue).HasMaxLength(500).HasDefaultValue("");
             });
 
             m.Entity<HoaDon>(e =>
@@ -89,6 +117,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                  .HasForeignKey<HoaDon>(x => x.MaDatPhong).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(x => x.NhanVien).WithMany(x => x.HoaDons)
                  .HasForeignKey(x => x.MaNV).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            m.Entity<LoaiKhachHang>(e =>
+            {
+                e.HasKey(x => x.MaLKH);
+                e.Property(x => x.MaCode).HasMaxLength(100).IsRequired();
+                e.HasIndex(x => x.MaCode).IsUnique();
+                e.Property(x => x.HeSoGia).HasColumnType("decimal(10,4)");
             });
         }
     }

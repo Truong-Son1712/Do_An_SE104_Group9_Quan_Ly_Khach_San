@@ -10,15 +10,18 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
     {
         private class KhachDisplay
         {
-            public string TieuDe   { get; set; } = "";
-            public string MaKH     { get; set; } = "";
-            public string CMND     { get; set; } = "";
-            public string GioiTinh { get; set; } = "";
-            public string NgaySinh { get; set; } = "";
-            public string SDT      { get; set; } = "";
-            public string QuocTich { get; set; } = "";
-            public string LoaiKhach{ get; set; } = "";
-            public string DiaChi   { get; set; } = "";
+            public string TieuDe      { get; set; } = "";
+            public string MaKH        { get; set; } = "";
+            public string CMND        { get; set; } = "";
+            public string GioiTinh    { get; set; } = "";
+            public string NgaySinh    { get; set; } = "";
+            public string SDT         { get; set; } = "";
+            public string QuocTich    { get; set; } = "";
+            public string LoaiKhach   { get; set; } = "";
+            public string DiaChi      { get; set; } = "";
+            public bool   IsPrimary   { get; set; }
+            // Màu header: vàng-cam cho khách đặt chính, xanh cho khách kèm
+            public string HeaderColor => IsPrimary ? "#E65100" : "#1565C0";
         }
 
         public ChiTietDatPhongDialog(int maDatPhong)
@@ -62,21 +65,40 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             TxtTienCoc.Text = dp.TienCoc > 0 ? $"{dp.TienCoc:N0} ₫" : "Không có";
             TxtGhiChu.Text  = string.IsNullOrWhiteSpace(dp.GhiChu) ? "—" : dp.GhiChu;
 
-            var khachList = dp.DatPhongKhachHangs.Any()
+            var rawList = dp.DatPhongKhachHangs.Any()
                 ? dp.DatPhongKhachHangs.Select(x => x.KhachHang).Where(k => k != null).Cast<KhachHangModel>().ToList()
                 : dp.KhachHang != null ? new List<KhachHangModel> { dp.KhachHang } : new List<KhachHangModel>();
 
-            IcKhachHang.ItemsSource = khachList.Select((k, i) => new KhachDisplay
+            // Khách đặt chính lên đầu danh sách
+            var khachList = rawList
+                .OrderByDescending(k => k.MaKH == dp.MaKH)
+                .ToList();
+
+            // Tra cứu tên loại khách từ DB
+            var loaiDict = ctx.LoaiKhachHangs.ToDictionary(l => l.MaCode, l => l.TenLoai);
+
+            int soThuTu = 1;
+            IcKhachHang.ItemsSource = khachList.Select(k =>
             {
-                TieuDe    = $"Khách {i + 1}:  {k.HoTen}",
-                MaKH      = $"KH{k.MaKH:D4}",
-                CMND      = string.IsNullOrWhiteSpace(k.CMND) ? "—" : k.CMND,
-                GioiTinh  = k.GioiTinh == "Nu" ? "Nữ" : "Nam",
-                NgaySinh  = k.NgaySinh.HasValue ? k.NgaySinh.Value.ToString("dd/MM/yyyy") : "—",
-                SDT       = k.SDT ?? "—",
-                QuocTich  = k.QuocTich,
-                LoaiKhach = k.LoaiKhach == "NuocNgoai" ? "Nước ngoài" : "Nội địa",
-                DiaChi    = k.DiaChi ?? "—"
+                bool isPrimary = k.MaKH == dp.MaKH;
+                string tieuDe  = isPrimary
+                    ? $"★ Đặt Chính:  {k.HoTen}"
+                    : $"Khách {soThuTu++}:  {k.HoTen}";
+                if (isPrimary) soThuTu = 2; // khách kèm bắt đầu từ số 2
+
+                return new KhachDisplay
+                {
+                    TieuDe    = tieuDe,
+                    IsPrimary = isPrimary,
+                    MaKH      = $"KH{k.MaKH:D4}",
+                    CMND      = string.IsNullOrWhiteSpace(k.CMND) ? "—" : k.CMND,
+                    GioiTinh  = k.GioiTinh == "Nu" ? "Nữ" : "Nam",
+                    NgaySinh  = k.NgaySinh.HasValue ? k.NgaySinh.Value.ToString("dd/MM/yyyy") : "—",
+                    SDT       = k.SDT ?? "—",
+                    QuocTich  = k.QuocTich,
+                    LoaiKhach = loaiDict.TryGetValue(k.LoaiKhach ?? "", out var ten) ? ten : (k.LoaiKhach ?? "—"),
+                    DiaChi    = k.DiaChi ?? "—"
+                };
             }).ToList();
         }
 

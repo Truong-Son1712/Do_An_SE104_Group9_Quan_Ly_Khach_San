@@ -9,36 +9,40 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         private const string KEY_SUC_CHUA_MAX  = "SucChuaToiDa";
         private const string KEY_TI_LE_PHU_THU = "TiLePhuThu";
 
-        // ── Hệ số giá khách nước ngoài (legacy – vẫn giữ để tương thích) ──
-        public static decimal GetHeSoNuocNgoai()
+        // ── Helpers ────────────────────────────────────────────────────────
+        private static decimal GetDecimal(string key, decimal defaultVal)
         {
             using var ctx = new HotelDbContext();
-            var val = ctx.CauHinhs.Find(KEY_HE_SO)?.GiaTri;
+            var val = ctx.CauHinhs.Find(key)?.ConfigValue;
             return decimal.TryParse(val, System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 1.5m;
+                System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : defaultVal;
         }
 
-        public static void SetHeSoNuocNgoai(decimal value)
+        private static void SetValue(string key, string value)
         {
             using var ctx = new HotelDbContext();
-            var cfg = ctx.CauHinhs.Find(KEY_HE_SO);
+            var cfg = ctx.CauHinhs.Find(key);
             if (cfg == null)
-                ctx.CauHinhs.Add(new CauHinh { Khoa = KEY_HE_SO, GiaTri = value.ToString(System.Globalization.CultureInfo.InvariantCulture) });
+                ctx.CauHinhs.Add(new CauHinh { ConfigKey = key, ConfigValue = value });
             else
-                cfg.GiaTri = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                cfg.ConfigValue = value;
             ctx.SaveChanges();
         }
 
-        // ── Hệ số giá theo mã loại khách ────────────────────────────────────
+        // ── Hệ số giá khách nước ngoài (legacy – giữ để tương thích) ──────
+        public static decimal GetHeSoNuocNgoai() => GetDecimal(KEY_HE_SO, 1.5m);
+        public static void    SetHeSoNuocNgoai(decimal v) =>
+            SetValue(KEY_HE_SO, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        // ── Hệ số theo mã loại khách ────────────────────────────────────────
         public static decimal GetHeSoByCode(string maCode)
         {
             if (string.IsNullOrEmpty(maCode)) return 1m;
             using var ctx = new HotelDbContext();
-            return ctx.LoaiKhachHangs.Find(maCode)?.HeSoGia ?? 1m;
+            return ctx.LoaiKhachHangs.FirstOrDefault(l => l.MaCode == maCode)?.HeSoGia ?? 1m;
         }
 
-        // Nhân tất cả hệ số của các loại khách trong booking lại với nhau.
-        // Ví dụ: NuocNgoai(×1.2) và KhachDuLich(×1.3) → ×1.56
+        // Nhân tất cả hệ số của các loại khách trong booking lại với nhau
         public static decimal GetCombinedHeSo(IEnumerable<string> maCodes)
         {
             var codes = maCodes.Where(c => !string.IsNullOrEmpty(c)).Distinct().ToList();
@@ -51,46 +55,20 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             return heSos.Any() ? heSos.Aggregate(1m, (acc, h) => acc * h) : 1m;
         }
 
-        // Kept for backward compatibility
         public static decimal GetMaxHeSo(IEnumerable<string> maCodes) => GetCombinedHeSo(maCodes);
 
         // ── Sức chứa tối đa ────────────────────────────────────────────────
         public static int GetSucChuaToiDa()
         {
             using var ctx = new HotelDbContext();
-            var val = ctx.CauHinhs.Find(KEY_SUC_CHUA_MAX)?.GiaTri;
+            var val = ctx.CauHinhs.Find(KEY_SUC_CHUA_MAX)?.ConfigValue;
             return int.TryParse(val, out var d) ? d : 4;
         }
+        public static void SetSucChuaToiDa(int v) => SetValue(KEY_SUC_CHUA_MAX, v.ToString());
 
-        public static void SetSucChuaToiDa(int value)
-        {
-            using var ctx = new HotelDbContext();
-            var cfg = ctx.CauHinhs.Find(KEY_SUC_CHUA_MAX);
-            if (cfg == null)
-                ctx.CauHinhs.Add(new CauHinh { Khoa = KEY_SUC_CHUA_MAX, GiaTri = value.ToString() });
-            else
-                cfg.GiaTri = value.ToString();
-            ctx.SaveChanges();
-        }
-
-        // ── Tỷ lệ phụ thu khi vượt sức chứa phòng ─────────────────────────
-        public static decimal GetTiLePhuThu()
-        {
-            using var ctx = new HotelDbContext();
-            var val = ctx.CauHinhs.Find(KEY_TI_LE_PHU_THU)?.GiaTri;
-            return decimal.TryParse(val, System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 0.25m;
-        }
-
-        public static void SetTiLePhuThu(decimal value)
-        {
-            using var ctx = new HotelDbContext();
-            var cfg = ctx.CauHinhs.Find(KEY_TI_LE_PHU_THU);
-            if (cfg == null)
-                ctx.CauHinhs.Add(new CauHinh { Khoa = KEY_TI_LE_PHU_THU, GiaTri = value.ToString(System.Globalization.CultureInfo.InvariantCulture) });
-            else
-                cfg.GiaTri = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            ctx.SaveChanges();
-        }
+        // ── Tỷ lệ phụ thu vượt sức chứa ────────────────────────────────────
+        public static decimal GetTiLePhuThu() => GetDecimal(KEY_TI_LE_PHU_THU, 0.25m);
+        public static void    SetTiLePhuThu(decimal v) =>
+            SetValue(KEY_TI_LE_PHU_THU, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 }

@@ -104,8 +104,8 @@
                                 <Border Background="#F5F7FA" CornerRadius="8" Padding="14,12" Margin="0,0,0,10"
                                         BorderBrush="#E0E0E0" BorderThickness="1">
                                     <StackPanel>
-                                        <!-- Customer header -->
-                                        <Border Background="#1565C0" CornerRadius="4" Padding="10,5" Margin="0,0,0,12">
+                                        <!-- Cam = đặt chính ★ | Xanh = khách kèm -->
+                                        <Border Background="{Binding HeaderColor}" CornerRadius="4" Padding="10,5" Margin="0,0,0,12">
                                             <TextBlock Text="{Binding TieuDe}" FontSize="13" FontWeight="SemiBold"
                                                        Foreground="White"/>
                                         </Border>

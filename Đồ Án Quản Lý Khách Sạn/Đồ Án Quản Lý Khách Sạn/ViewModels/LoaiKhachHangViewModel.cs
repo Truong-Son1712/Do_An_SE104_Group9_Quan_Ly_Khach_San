@@ -60,7 +60,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private void Sua()
         {
             if (Selected == null) return;
-            var dlg = new Views.KhachHang.LoaiKhachHangDialog(Selected.MaCode);
+            var dlg = new Views.KhachHang.LoaiKhachHangDialog(Selected.MaLKH);
             if (dlg.ShowDialog() == true) LoadData();
         }
 
@@ -72,7 +72,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             {
                 using var ctx = new HotelDbContext();
 
-                // Không cho xóa nếu chỉ còn 1 loại
                 if (ctx.LoaiKhachHangs.Count() <= 1)
                 {
                     MessageBox.Show("Phải có ít nhất 1 loại khách hàng. Không thể xóa.",
@@ -80,7 +79,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     return;
                 }
 
-                // Không xóa nếu còn khách hàng đang dùng loại này
                 int soKhach = ctx.KhachHangs.Count(k => k.LoaiKhach == Selected.MaCode);
                 if (soKhach > 0)
                 {
@@ -94,7 +92,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirm != MessageBoxResult.Yes) return;
 
-                var entity = ctx.LoaiKhachHangs.Find(Selected.MaCode);
+                var entity = ctx.LoaiKhachHangs.Find(Selected.MaLKH);
                 if (entity != null) ctx.LoaiKhachHangs.Remove(entity);
                 ctx.SaveChanges();
                 LoadData();

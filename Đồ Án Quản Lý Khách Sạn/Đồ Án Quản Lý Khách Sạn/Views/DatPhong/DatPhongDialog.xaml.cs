@@ -120,6 +120,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             UpdateKhachSummary();
 
+            // Chọn đúng khách đặt chính (MaKH của DatPhong)
+            var primary = _allKhachHangItems.FirstOrDefault(k => k.MaKH == dp.MaKH);
+            if (primary != null) CboKhachChinh.SelectedItem = primary;
+
             using var ctx2 = new HotelDbContext();
             var phongs = ctx2.Phongs.Include(p => p.LoaiPhong).OrderBy(p => p.SoPhong).ToList();
             CboPhong.ItemsSource  = phongs;
@@ -164,9 +168,20 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private void UpdateKhachSummary()
         {
             var selected = _allKhachHangItems.Where(k => k.IsChecked).ToList();
+
             TxtKhachDaChon.Text = selected.Count == 0
                 ? "Chưa chọn khách hàng"
                 : string.Join(", ", selected.Select(k => k.HoTen));
+
+            // Lưu khách đang được chọn làm đặt chính (nếu có)
+            var currentPrimary = CboKhachChinh.SelectedValue as int? ?? (CboKhachChinh.SelectedItem as KhachHangItem)?.MaKH;
+
+            CboKhachChinh.ItemsSource = selected;
+
+            // Giữ lại khách đặt chính nếu vẫn còn trong danh sách; không thì chọn người đầu
+            var restore = selected.FirstOrDefault(k => k.MaKH == currentPrimary)
+                          ?? selected.FirstOrDefault();
+            CboKhachChinh.SelectedItem = restore;
         }
 
         // ── Tính tiền dự tính: hệ số cao nhất theo loại khách + phụ thu sức chứa
@@ -236,6 +251,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (!selectedKhach.Any())
             { ShowError("Vui lòng chọn ít nhất một khách hàng."); return; }
 
+            // Khách đặt chính do user chọn; fallback về người đầu nếu chưa chọn
+            var khachChinh = CboKhachChinh.SelectedItem as KhachHangItem
+                             ?? selectedKhach.First();
+            if (!selectedKhach.Contains(khachChinh))
+                khachChinh = selectedKhach.First();
+
             if (!_maDatPhong.HasValue && CboPhong.SelectedItem is not Models.Phong)
             { ShowError("Vui lòng chọn phòng."); return; }
             var phong = CboPhong.SelectedItem as Models.Phong;
@@ -268,7 +289,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     var dp = ctx.DatPhongs.FirstOrDefault(d => d.MaDatPhong == _maDatPhong.Value);
                     if (dp == null) return;
 
-                    dp.MaKH          = selectedKhach.First().MaKH;
+                    dp.MaKH          = khachChinh.MaKH;
                     dp.NgayNhanPhong = DpNhan.SelectedDate.Value.Date;
                     dp.NgayTraPhong  = DpTra.SelectedDate.Value.Date;
                     dp.TienCoc       = tienCoc;
@@ -285,7 +306,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     // ── INSERT ────────────────────────────────────────────
                     var dp = new Models.DatPhong
                     {
-                        MaKH          = selectedKhach.First().MaKH,
+                        MaKH          = khachChinh.MaKH,
                         MaPhong       = phong!.MaPhong,
                         NgayNhanPhong = DpNhan.SelectedDate.Value.Date,
                         NgayTraPhong  = DpTra.SelectedDate.Value.Date,

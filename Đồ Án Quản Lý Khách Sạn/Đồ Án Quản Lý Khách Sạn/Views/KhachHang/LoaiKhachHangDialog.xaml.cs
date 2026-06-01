@@ -7,24 +7,24 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
 {
     public partial class LoaiKhachHangDialog : Window
     {
-        private readonly string? _maCode; // null = tạo mới
+        private readonly int? _maLKH; // null = tạo mới
 
-        public LoaiKhachHangDialog(string? maCode = null)
+        public LoaiKhachHangDialog(int? maLKH = null)
         {
             InitializeComponent();
-            _maCode = maCode;
+            _maLKH = maLKH;
 
-            if (maCode != null)
+            if (maLKH.HasValue)
             {
                 TxtTitle.Text = "Chỉnh Sửa Loại Khách";
-                LoadData(maCode);
+                LoadData(maLKH.Value);
             }
         }
 
-        private void LoadData(string maCode)
+        private void LoadData(int maLKH)
         {
             using var ctx = new HotelDbContext();
-            var item = ctx.LoaiKhachHangs.Find(maCode);
+            var item = ctx.LoaiKhachHangs.Find(maLKH);
             if (item == null) return;
             TxtTenLoai.Text = item.TenLoai;
             TxtHeSoGia.Text = item.HeSoGia.ToString("0.####",
@@ -49,9 +49,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             {
                 using var ctx = new HotelDbContext();
 
-                if (_maCode == null)
+                if (!_maLKH.HasValue)
                 {
-                    // Tự sinh MaCode từ tên (bỏ dấu cách, thêm timestamp để tránh trùng)
+                    // Tự sinh MaCode từ tên + timestamp (đảm bảo unique)
                     string baseCode = new string(tenLoai
                         .Where(c => char.IsLetterOrDigit(c))
                         .ToArray());
@@ -67,14 +67,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
                 }
                 else
                 {
-                    var item = ctx.LoaiKhachHangs.Find(_maCode);
+                    var item = ctx.LoaiKhachHangs.Find(_maLKH.Value);
                     if (item == null) return;
                     item.TenLoai = tenLoai;
                     item.HeSoGia = heSo;
                 }
 
                 ctx.SaveChanges();
-                LoaiKhachTextConverter.ClearCache(); // cập nhật converter sau khi lưu
+                LoaiKhachTextConverter.ClearCache();
                 DialogResult = true;
             }
             catch (Exception ex) { ShowError(ex.Message); }

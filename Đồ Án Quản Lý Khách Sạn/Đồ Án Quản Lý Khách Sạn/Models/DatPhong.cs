@@ -27,8 +27,26 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public virtual ICollection<DatPhongKhachHang> DatPhongKhachHangs { get; set; } = new List<DatPhongKhachHang>();
 
         // Hiển thị danh sách khách trong DataGrid
-        public string DanhSachKhachText => DatPhongKhachHangs.Any()
-            ? string.Join(", ", DatPhongKhachHangs.Select(x => x.KhachHang?.HoTen ?? "").Where(s => s.Length > 0))
-            : KhachHang?.HoTen ?? "";
+        // Khách đặt chính (MaKH) được đánh dấu ★ ở đầu, các khách kèm theo liệt kê sau
+        public string DanhSachKhachText
+        {
+            get
+            {
+                if (!DatPhongKhachHangs.Any())
+                    return KhachHang?.HoTen ?? "";
+
+                // Khách đặt chính lên đầu, có dấu ★
+                var primary = DatPhongKhachHangs
+                    .Where(x => x.MaKH == MaKH && (x.KhachHang?.HoTen?.Length ?? 0) > 0)
+                    .Select(x => x.KhachHang!.HoTen + " ★")
+                    .FirstOrDefault() ?? (KhachHang?.HoTen + " ★");
+
+                var others = DatPhongKhachHangs
+                    .Where(x => x.MaKH != MaKH && (x.KhachHang?.HoTen?.Length ?? 0) > 0)
+                    .Select(x => x.KhachHang!.HoTen);
+
+                return string.Join(", ", new[] { primary }.Concat(others).Where(s => s?.Length > 0));
+            }
+        }
     }
 }

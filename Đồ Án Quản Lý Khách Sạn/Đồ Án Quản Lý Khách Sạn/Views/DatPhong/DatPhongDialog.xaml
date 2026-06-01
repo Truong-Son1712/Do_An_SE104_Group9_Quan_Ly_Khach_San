@@ -83,6 +83,16 @@
                         </Border>
                     </StackPanel>
 
+                    <!-- Khách đặt chính -->
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Label}">
+                            <Run Text="Khách Đặt Chính *"/>
+                            <Run Text="  (người chịu trách nhiệm booking)" Foreground="#90A4AE" FontSize="10"/>
+                        </TextBlock>
+                        <ComboBox x:Name="CboKhachChinh" DisplayMemberPath="HoTen"
+                                  SelectedValuePath="MaKH"/>
+                    </StackPanel>
+
                     <!-- Phòng -->
                     <StackPanel>
                         <TextBlock Text="Phòng *" Style="{StaticResource Label}"/>
