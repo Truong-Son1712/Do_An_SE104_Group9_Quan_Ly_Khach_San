@@ -88,10 +88,15 @@
                                         <TextBlock Text="Nhận phòng: " FontSize="11" Foreground="#90A4AE" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtNgayNhan" FontSize="11" FontWeight="SemiBold" Foreground="#37474F"/>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                         <TextBlock Text="📤" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <TextBlock Text="Trả phòng:   " FontSize="11" Foreground="#90A4AE" VerticalAlignment="Center"/>
                                         <TextBlock x:Name="TxtNgayTra" FontSize="11" FontWeight="SemiBold" Foreground="#37474F"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🌙" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Số ngày thuê: " FontSize="11" Foreground="#90A4AE" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtSoNgayThue" FontSize="11" FontWeight="SemiBold" Foreground="#37474F"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>

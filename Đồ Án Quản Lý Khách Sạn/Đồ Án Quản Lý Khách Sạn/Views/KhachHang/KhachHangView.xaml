@@ -51,13 +51,11 @@
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Tag="Tên, CMND/CCCD, SĐT…"/>
                 </StackPanel>
-                <StackPanel Width="160">
+                <StackPanel Width="180">
                     <TextBlock Text="Loại khách" Style="{StaticResource Label}"/>
-                    <ComboBox SelectedValue="{Binding FilterLoai}" SelectedValuePath="Tag">
-                        <ComboBoxItem Content="Tất cả"      Tag="TatCa" IsSelected="True"/>
-                        <ComboBoxItem Content="Nội Địa"     Tag="NoiDia"/>
-                        <ComboBoxItem Content="Nước Ngoài"  Tag="NuocNgoai"/>
-                    </ComboBox>
+                    <ComboBox x:Name="CboLoaiFilter"
+                              SelectedValue="{Binding FilterLoai}"
+                              SelectedValuePath="Tag"/>
                 </StackPanel>
             </WrapPanel>
         </Border>

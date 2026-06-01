@@ -58,11 +58,11 @@
                 </StackPanel>
                 <StackPanel Width="140" Margin="0,0,16,0">
                     <TextBlock Text="Từ ngày" Style="{StaticResource Label}"/>
-                    <DatePicker SelectedDate="{Binding TuNgay}"/>
+                    <DatePicker SelectedDate="{Binding TuNgay}" Language="vi-VN"/>
                 </StackPanel>
                 <StackPanel Width="140">
                     <TextBlock Text="Đến ngày" Style="{StaticResource Label}"/>
-                    <DatePicker SelectedDate="{Binding DenNgay}"/>
+                    <DatePicker SelectedDate="{Binding DenNgay}" Language="vi-VN"/>
                 </StackPanel>
             </WrapPanel>
         </Border>
@@ -98,7 +98,7 @@
         <Border Grid.Row="3" Style="{StaticResource CardSmall}" Margin="0,12,0,0">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <TextBlock Text="Tổng Doanh Thu (đã TT):" FontWeight="SemiBold"
+                    <TextBlock Text="Tổng Đã Thu (HĐ + Cọc):" FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" FontSize="15"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock Text="{Binding TongDoanhThu, Converter={StaticResource Currency}}"

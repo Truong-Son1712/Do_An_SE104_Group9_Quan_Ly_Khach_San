@@ -21,11 +21,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private class KhachHangItem : INotifyPropertyChanged
         {
             private bool _isChecked;
-            public int    MaKH      { get; set; }
-            public string HoTen     { get; set; } = "";
-            public string LoaiKhach { get; set; } = "";
-            public string LoaiText  => LoaiKhach == "NuocNgoai" ? "Nước ngoài" : "Nội địa";
-            public bool   IsNuocNgoai => LoaiKhach == "NuocNgoai";
+            public int    MaKH           { get; set; }
+            public string HoTen          { get; set; } = "";
+            public string LoaiKhach      { get; set; } = ""; // MaCode
+            public string TenLoaiKhach   { get; set; } = ""; // TenLoai từ DB
+            public string LoaiText       => TenLoaiKhach;
 
             public bool IsChecked
             {
@@ -58,13 +58,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             var activeStatuses = new[] { TrangThaiDatPhong.DaDat, TrangThaiDatPhong.DaNhanPhong };
 
-            // Lấy danh sách MaKH đang có trong booking hoạt động
             var busyIds = ctx.DatPhongKhachHangs
                 .Where(x => activeStatuses.Contains(x.DatPhong!.TrangThai))
                 .Select(x => x.MaKH)
                 .ToHashSet();
 
-            // Khi chỉnh sửa: giữ lại các khách thuộc chính booking này
             if (_maDatPhong.HasValue)
             {
                 var thisIds = ctx.DatPhongKhachHangs
@@ -74,14 +72,24 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 busyIds.ExceptWith(thisIds);
             }
 
+            // Load TenLoai để hiện thị đúng tên loại khách thay vì MaCode
+            var loaiDict = ctx.LoaiKhachHangs
+                .ToDictionary(l => l.MaCode, l => l.TenLoai);
+
             _allKhachHangItems = ctx.KhachHangs.OrderBy(k => k.HoTen)
-                .Select(k => new KhachHangItem { MaKH = k.MaKH, HoTen = k.HoTen, LoaiKhach = k.LoaiKhach ?? "" })
+                .Select(k => new { k.MaKH, k.HoTen, k.LoaiKhach })
                 .ToList()
                 .Where(k => !busyIds.Contains(k.MaKH))
+                .Select(k => new KhachHangItem
+                {
+                    MaKH         = k.MaKH,
+                    HoTen        = k.HoTen,
+                    LoaiKhach    = k.LoaiKhach ?? "",
+                    TenLoaiKhach = loaiDict.TryGetValue(k.LoaiKhach ?? "", out var t) ? t : (k.LoaiKhach ?? "")
+                })
                 .ToList();
             LstKhachHang.ItemsSource = _allKhachHangItems;
 
-            // Chỉ hiện phòng đang trống sạch (1 phòng = 1 đặt phòng tại 1 thời điểm)
             CboPhong.ItemsSource = ctx.Phongs
                 .Include(p => p.LoaiPhong)
                 .Where(p => p.TrangThai == TrangThaiPhong.TrongSach)
@@ -116,12 +124,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             var phongs = ctx2.Phongs.Include(p => p.LoaiPhong).OrderBy(p => p.SoPhong).ToList();
             CboPhong.ItemsSource  = phongs;
             CboPhong.SelectedItem = phongs.FirstOrDefault(p => p.MaPhong == dp.MaPhong);
-            CboPhong.IsEnabled    = false; // phòng không đổi khi chỉnh sửa
+            CboPhong.IsEnabled    = false;
 
-            if (!_readOnly)
-            {
-                BtnSave.Content = "💾  Lưu Thay Đổi";
-            }
+            if (!_readOnly) BtnSave.Content = "💾  Lưu Thay Đổi";
         }
 
         private void SetReadOnly()
@@ -164,26 +169,62 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 : string.Join(", ", selected.Select(k => k.HoTen));
         }
 
-        // ── Price estimate: GiaPhong × SoNgay × HeSo ──────────────────────
+        // ── Tính tiền dự tính: hệ số cao nhất theo loại khách + phụ thu sức chứa
         private void UpdateDuTinh()
         {
             if (!_initialized) return;
 
-            TxtDuTinh.Text = "—";
+            TxtDuTinh.Text           = "—";
+            PnlNuocNgoai.Visibility  = Visibility.Collapsed;
+            PnlPhuThu.Visibility     = Visibility.Collapsed;
 
             if (CboPhong.SelectedItem is not Models.Phong p || p.LoaiPhong == null) return;
             if (!DpNhan.SelectedDate.HasValue || !DpTra.SelectedDate.HasValue) return;
             if (DpTra.SelectedDate.Value.Date <= DpNhan.SelectedDate.Value.Date) return;
 
-            int soNgay = Math.Max(1, (DpTra.SelectedDate.Value.Date - DpNhan.SelectedDate.Value.Date).Days);
-            _giaPhong  = p.LoaiPhong.GiaPhong;
+            int soNgay  = Math.Max(1, (DpTra.SelectedDate.Value.Date - DpNhan.SelectedDate.Value.Date).Days);
+            _giaPhong   = p.LoaiPhong.GiaPhong;
+            int soKhach = _allKhachHangItems.Count(k => k.IsChecked);
 
-            bool isNuocNgoai = _allKhachHangItems.Any(k => k.IsChecked && k.IsNuocNgoai);
-            decimal heSo     = isNuocNgoai ? AppConfig.GetHeSoNuocNgoai() : 1m;
-            decimal total    = _giaPhong * soNgay * heSo;
+            // Hệ số: nhân tất cả hệ số của các loại khách khác nhau được chọn
+            var selectedItems = _allKhachHangItems.Where(k => k.IsChecked).ToList();
+            var distinctCodes = selectedItems.Select(k => k.LoaiKhach).Distinct().ToList();
+            decimal heSo  = AppConfig.GetCombinedHeSo(distinctCodes);
+            bool    hasHeSo = heSo > 1m;
 
-            string heSoText = isNuocNgoai ? $" ×{heSo:0.##}" : "";
-            TxtDuTinh.Text  = $"{total:N0} ₫  ({soNgay} đêm{heSoText})";
+            bool    hasPhuThu   = soKhach > 0 && soKhach > p.LoaiPhong.SucChua;
+            decimal tiLePhuThu  = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
+
+            decimal total = _giaPhong * soNgay * heSo * (1m + tiLePhuThu);
+            TxtDuTinh.Text = $"{total:N0} ₫";
+
+            if (hasHeSo)
+            {
+                // Liệt kê từng loại và hệ số của nó
+                var breakdown = GetHeSoBreakdown(distinctCodes);
+                TxtNuocNgoai.Text = $"ℹ  Hệ số giá: {breakdown}  →  ×{heSo:0.####}" +
+                                    $"  (giá gốc: {_giaPhong * soNgay:N0} ₫ / {soNgay} đêm).";
+                PnlNuocNgoai.Visibility = Visibility.Visible;
+            }
+
+            if (hasPhuThu)
+            {
+                TxtPhuThu.Text = $"⚠  Số khách ({soKhach}) vượt sức chứa phòng ({p.LoaiPhong.SucChua} người). " +
+                                 $"Áp dụng phụ thu {tiLePhuThu:P0} trên tổng tiền phòng.";
+                PnlPhuThu.Visibility = Visibility.Visible;
+            }
+        }
+
+        private static string GetHeSoBreakdown(List<string> maCodes)
+        {
+            using var ctx = new HotelDbContext();
+            var items = ctx.LoaiKhachHangs
+                .Where(l => maCodes.Contains(l.MaCode) && l.HeSoGia > 1m)
+                .Select(l => new { l.TenLoai, l.HeSoGia })
+                .ToList();
+            return items.Any()
+                ? string.Join(" × ", items.Select(i => $"{i.TenLoai}(×{i.HeSoGia:0.####})"))
+                : "×1";
         }
 
         // ── Save ───────────────────────────────────────────────────────────
@@ -195,18 +236,25 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (!selectedKhach.Any())
             { ShowError("Vui lòng chọn ít nhất một khách hàng."); return; }
 
-            // Khi chỉnh sửa, phòng đã cố định — bỏ qua validation phòng
             if (!_maDatPhong.HasValue && CboPhong.SelectedItem is not Models.Phong)
             { ShowError("Vui lòng chọn phòng."); return; }
             var phong = CboPhong.SelectedItem as Models.Phong;
+
             if (!DpNhan.SelectedDate.HasValue || !DpTra.SelectedDate.HasValue)
             { ShowError("Vui lòng chọn ngày nhận và trả phòng."); return; }
             if (DpTra.SelectedDate.Value.Date <= DpNhan.SelectedDate.Value.Date)
             { ShowError("Ngày trả phòng phải sau ngày nhận phòng."); return; }
 
-            // Kiểm tra sức chứa phòng
-            if (phong?.LoaiPhong != null && selectedKhach.Count > phong.LoaiPhong.SucChua)
-            { ShowError($"Phòng này chỉ chứa tối đa {phong.LoaiPhong.SucChua} khách. Bạn đã chọn {selectedKhach.Count} người."); return; }
+            // Kiểm tra vượt sức chứa tối đa – cấm đặt phòng
+            int sucChuaToiDa = AppConfig.GetSucChuaToiDa();
+            if (selectedKhach.Count > sucChuaToiDa)
+            {
+                ShowError($"Không thể đặt phòng. Số khách ({selectedKhach.Count}) vượt quá " +
+                          $"sức chứa tối đa cho phép ({sucChuaToiDa} người).");
+                return;
+            }
+
+            // Nếu số khách > sức chứa phòng → cho phép nhưng sẽ áp phụ thu (UpdateDuTinh đã hiển thị)
 
             decimal.TryParse(TxtTienCoc.Text.Replace(",", ""), out decimal tienCoc);
 
@@ -238,7 +286,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     var dp = new Models.DatPhong
                     {
                         MaKH          = selectedKhach.First().MaKH,
-                        MaPhong       = phong.MaPhong,
+                        MaPhong       = phong!.MaPhong,
                         NgayNhanPhong = DpNhan.SelectedDate.Value.Date,
                         NgayTraPhong  = DpTra.SelectedDate.Value.Date,
                         TienCoc       = tienCoc,

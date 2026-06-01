@@ -18,6 +18,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
         public DbSet<DatPhongKhachHang> DatPhongKhachHangs { get; set; }
         public DbSet<HoaDon> HoaDons { get; set; }
         public DbSet<CauHinh> CauHinhs { get; set; }
+        public DbSet<LoaiKhachHang> LoaiKhachHangs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -71,6 +72,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             });
 
             m.Entity<CauHinh>(e => e.HasKey(x => x.Khoa));
+
+            m.Entity<LoaiKhachHang>(e =>
+            {
+                e.HasKey(x => x.MaCode);
+                e.Property(x => x.HeSoGia).HasColumnType("decimal(10,4)");
+            });
 
             m.Entity<HoaDon>(e =>
             {

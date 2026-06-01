@@ -139,6 +139,20 @@
                         </StackPanel>
                     </Grid>
 
+                    <!-- Thông báo khách nước ngoài -->
+                    <Border x:Name="PnlNuocNgoai" Background="#E3F2FD" CornerRadius="6"
+                            Padding="12,8" Margin="0,4,0,4" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtNuocNgoai" Foreground="#1565C0"
+                                   FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Cảnh báo phụ thu khi vượt sức chứa -->
+                    <Border x:Name="PnlPhuThu" Background="#FFF8E1" CornerRadius="6"
+                            Padding="12,8" Margin="0,4,0,4" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtPhuThu" Foreground="#E65100"
+                                   FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+
                     <!-- Ghi chú -->
                     <StackPanel>
                         <TextBlock Text="Ghi Chú" Style="{StaticResource Label}"/>

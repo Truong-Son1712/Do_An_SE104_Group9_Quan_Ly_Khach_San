@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -75,14 +76,14 @@
             </WrapPanel>
         </Border>
 
-        <!-- Hệ số khách nước ngoài -->
+        <!-- Hệ số giá theo loại khách -->
         <Border Grid.Row="2" Style="{StaticResource CardSmall}" Margin="0,0,0,16"
                 x:Name="PnlHeSo">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🌏" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="🏷" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <StackPanel>
-                        <TextBlock Text="Hệ Số Giá Khách Nước Ngoài"
+                        <TextBlock Text="Hệ Số Giá Theo Loại Khách"
                                    FontWeight="SemiBold" FontSize="13"
                                    Foreground="{StaticResource TextPrimaryBrush}"/>
                         <TextBlock x:Name="TxtHeSoNote" FontSize="11"
@@ -91,12 +92,17 @@
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
                             VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="Hệ số:" VerticalAlignment="Center"
+                    <TextBlock Text="Loại khách:" VerticalAlignment="Center"
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CboLoaiKhach" Width="160" Height="34"
+                              DisplayMemberPath="TenLoai"
+                              SelectionChanged="CboLoaiKhach_SelectionChanged"/>
+                    <TextBlock Text="Hệ số:" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="12,0,8,0"/>
                     <TextBox x:Name="TxtHeSo" Width="70" TextAlignment="Center"
                              FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
                              Height="34" Padding="6,0"/>
-                    <TextBlock Text="x" VerticalAlignment="Center" FontSize="14"
+                    <TextBlock Text="×" VerticalAlignment="Center" FontSize="14"
                                FontWeight="Bold" Margin="6,0,12,0"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                     <Button x:Name="BtnLuuHeSo" Content="💾  Lưu"
@@ -106,8 +112,46 @@
             </DockPanel>
         </Border>
 
+        <!-- Cài đặt sức chứa tối đa & tỷ lệ phụ thu -->
+        <Border Grid.Row="3" Style="{StaticResource CardSmall}" Margin="0,0,0,16"
+                x:Name="PnlSucChua">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="👥" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Sức Chứa Tối Đa &amp; Tỷ Lệ Phụ Thu"
+                                   FontWeight="SemiBold" FontSize="13"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock x:Name="TxtSucChuaNote" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                            VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock Text="Sức chứa tối đa:" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                    <TextBox x:Name="TxtSucChuaMax" Width="55" TextAlignment="Center"
+                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                             Height="34" Padding="6,0"/>
+                    <TextBlock Text="người" VerticalAlignment="Center" FontSize="12"
+                               Margin="6,0,20,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="Phụ thu vượt sức chứa:" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                    <TextBox x:Name="TxtTiLePhuThu" Width="55" TextAlignment="Center"
+                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                             Height="34" Padding="6,0"/>
+                    <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                               FontWeight="Bold" Margin="6,0,12,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Button x:Name="BtnLuuSucChua" Content="💾  Lưu"
+                            Style="{StaticResource BtnPrimary}" Height="34"
+                            Padding="12,0" Click="BtnLuuSucChua_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
         <!-- DataGrid -->
-        <Border Grid.Row="3" Style="{StaticResource Card}" Padding="0">
+        <Border Grid.Row="4" Style="{StaticResource Card}" Padding="0">
             <DataGrid ItemsSource="{Binding Phongs}"
                       SelectedItem="{Binding SelectedPhong}"
                       Margin="0">

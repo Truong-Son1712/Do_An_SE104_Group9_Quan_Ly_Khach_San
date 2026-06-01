@@ -43,6 +43,9 @@
             <DataTemplate DataType="{x:Type vm:NhanVienViewModel}">
                 <vnv:NhanVienView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LoaiKhachHangViewModel}">
+                <vkh:LoaiKhachHangView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vm:CaiDatViewModel}">
                 <vcd:CaiDatView/>
             </DataTemplate>

@@ -39,9 +39,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         {
             try
             {
-                var today     = DateTime.Today;
-                var firstDay  = new DateTime(today.Year, today.Month, 1);
-                ThangNam      = $"Tháng {today.Month}/{today.Year}";
+                var today    = DateTime.Today;
+                var firstDay = new DateTime(today.Year, today.Month, 1);
+                ThangNam     = $"Tháng {today.Month}/{today.Year}";
 
                 using var ctx = new HotelDbContext();
 
@@ -51,20 +51,38 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 PhongBaoDuong   = ctx.Phongs.Count(p => p.TrangThai == TrangThaiPhong.BaoDuong);
                 TongKhachHang   = ctx.KhachHangs.Count();
 
-                DatPhongHomNay  = ctx.DatPhongs.Count(d =>
+                DatPhongHomNay = ctx.DatPhongs.Count(d =>
                     d.NgayNhanPhong.Date == today &&
                     (d.TrangThai == TrangThaiDatPhong.DaDat ||
                      d.TrangThai == TrangThaiDatPhong.DaNhanPhong ||
                      d.TrangThai == TrangThaiDatPhong.DaTraPhong));
 
-                TraPhongHomNay  = ctx.DatPhongs.Count(d =>
+                TraPhongHomNay = ctx.DatPhongs.Count(d =>
                     d.NgayTraPhong.Date == today &&
                     d.TrangThai == TrangThaiDatPhong.DaTraPhong);
 
-                DoanhThuThang   = ctx.HoaDons
+                // ── Doanh thu tháng ──────────────────────────────────────────
+                // 1) Hóa đơn đã thanh toán trong tháng
+                decimal dtHoaDon = ctx.HoaDons
                     .Where(h => h.NgayLap >= firstDay && h.TrangThai == "DaThanhToan")
                     .ToList()
                     .Sum(h => h.TongTien);
+
+                // 2) Tiền cọc nhận trong tháng của các booking chưa có HoaDon DaThanhToan
+                //    (cọc được tính vào doanh thu ngay khi xác nhận đặt phòng)
+                var paidIds = ctx.HoaDons
+                    .Where(h => h.TrangThai == "DaThanhToan")
+                    .Select(h => h.MaDatPhong)
+                    .ToHashSet();
+
+                decimal dtCoc = ctx.DatPhongs
+                    .Where(d => d.NgayDat >= firstDay
+                             && d.TrangThai != TrangThaiDatPhong.HuyDat)
+                    .ToList()
+                    .Where(d => d.TienCoc > 0 && !paidIds.Contains(d.MaDatPhong))
+                    .Sum(d => d.TienCoc);
+
+                DoanhThuThang = dtHoaDon + dtCoc;
 
                 OnPropertyChanged(nameof(TyLePhongTrong));
                 OnPropertyChanged(nameof(TyLePhongSuDung));
@@ -72,7 +90,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Lỗi tải dashboard: {ex.Message}", "Lỗi", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"Lỗi tải dashboard: {ex.Message}", "Lỗi",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
     }

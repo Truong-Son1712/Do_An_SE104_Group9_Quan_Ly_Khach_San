@@ -54,7 +54,7 @@
             </StackPanel>
             <StackPanel>
                 <TextBlock Style="{StaticResource H1}" Text="Nhân Viên"/>
-                <TextBlock Style="{StaticResource Body}" Text="Quản lý tài khoản nhân viên (chỉ Admin)"/>
+                <TextBlock Style="{StaticResource Body}" Text="Quản lý tài khoản nhân viên"/>
             </StackPanel>
         </DockPanel>
 

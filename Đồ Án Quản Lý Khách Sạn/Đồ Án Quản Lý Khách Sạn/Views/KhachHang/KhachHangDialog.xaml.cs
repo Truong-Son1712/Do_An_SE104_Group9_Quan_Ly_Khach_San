@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Data;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
@@ -13,7 +13,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
         {
             InitializeComponent();
             _maKH = maKH;
+            LoadLoaiKhachCombo();
             if (maKH.HasValue) LoadData(maKH.Value);
+        }
+
+        private void LoadLoaiKhachCombo()
+        {
+            using var ctx = new HotelDbContext();
+            var list = ctx.LoaiKhachHangs.OrderBy(l => l.TenLoai).ToList();
+            CboLoaiKhach.ItemsSource = list;
+
+            // Mặc định chọn "NoiDia" khi tạo mới
+            if (!_maKH.HasValue)
+                CboLoaiKhach.SelectedValue = "NoiDia";
         }
 
         private void LoadData(int id)
@@ -21,19 +33,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             using var ctx = new HotelDbContext();
             var kh = ctx.KhachHangs.Find(id);
             if (kh == null) return;
-            TxtTitle.Text = "Chỉnh Sửa Khách Hàng";
-            TxtHoTen.Text = kh.HoTen;
-            TxtCMND.Text = kh.CMND;
-            TxtSDT.Text = kh.SDT;
-            TxtEmail.Text = kh.Email;
-            TxtQuocTich.Text = kh.QuocTich;
-            TxtDiaChi.Text = kh.DiaChi;
-            DpNgaySinh.SelectedDate = kh.NgaySinh;
+
+            TxtTitle.Text              = "Chỉnh Sửa Khách Hàng";
+            TxtHoTen.Text              = kh.HoTen;
+            TxtCMND.Text               = kh.CMND;
+            TxtSDT.Text                = kh.SDT;
+            TxtEmail.Text              = kh.Email;
+            TxtQuocTich.Text           = kh.QuocTich;
+            TxtDiaChi.Text             = kh.DiaChi;
+            DpNgaySinh.SelectedDate    = kh.NgaySinh;
+            CboLoaiKhach.SelectedValue = kh.LoaiKhach;
 
             foreach (ComboBoxItem item in CboGioiTinh.Items)
                 if (item.Tag?.ToString() == kh.GioiTinh) { item.IsSelected = true; break; }
-            foreach (ComboBoxItem item in CboLoaiKhach.Items)
-                if (item.Tag?.ToString() == kh.LoaiKhach) { item.IsSelected = true; break; }
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
@@ -44,8 +56,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
             if (string.IsNullOrWhiteSpace(TxtCMND.Text))
             { ShowError("Vui lòng nhập CMND/CCCD."); return; }
 
-            string gioiTinh = (CboGioiTinh.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Nam";
-            string loaiKhach = (CboLoaiKhach.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "NoiDia";
+            string gioiTinh  = (CboGioiTinh.SelectedItem  as ComboBoxItem)?.Tag?.ToString() ?? "Nam";
+            string loaiKhach = CboLoaiKhach.SelectedValue?.ToString() ?? "NoiDia";
 
             try
             {
@@ -70,20 +82,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.KhachHang
 
         private void Map(Models.KhachHang kh, string gioiTinh, string loaiKhach)
         {
-            kh.HoTen    = TxtHoTen.Text.Trim();
-            kh.CMND     = TxtCMND.Text.Trim();
-            kh.SDT      = TxtSDT.Text.Trim();
-            kh.Email    = TxtEmail.Text.Trim();
-            kh.QuocTich = string.IsNullOrWhiteSpace(TxtQuocTich.Text) ? "Việt Nam" : TxtQuocTich.Text.Trim();
-            kh.DiaChi   = TxtDiaChi.Text.Trim();
-            kh.GioiTinh = gioiTinh;
+            kh.HoTen     = TxtHoTen.Text.Trim();
+            kh.CMND      = TxtCMND.Text.Trim();
+            kh.SDT       = TxtSDT.Text.Trim();
+            kh.Email     = TxtEmail.Text.Trim();
+            kh.QuocTich  = string.IsNullOrWhiteSpace(TxtQuocTich.Text) ? "Việt Nam" : TxtQuocTich.Text.Trim();
+            kh.DiaChi    = TxtDiaChi.Text.Trim();
+            kh.GioiTinh  = gioiTinh;
             kh.LoaiKhach = loaiKhach;
-            kh.NgaySinh = DpNgaySinh.SelectedDate;
+            kh.NgaySinh  = DpNgaySinh.SelectedDate;
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e) => Close();
         private void ShowError(string msg) { TxtError.Text = msg; PnlError.Visibility = Visibility.Visible; }
         private void Header_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => DragMove();
-
     }
 }

@@ -14,7 +14,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private DatPhong? _selected;
         private string _searchText = string.Empty;
         private string _filterTrangThai = "TatCa";
-        private DateTime _tuNgay = DateTime.Today.AddDays(-30);
+        private DateTime _tuNgay  = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         private DateTime _denNgay = DateTime.Today;
 
         public ObservableCollection<DatPhong> DatPhongs

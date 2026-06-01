@@ -83,10 +83,10 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Loại Khách" Style="{StaticResource Label}"/>
-                            <ComboBox x:Name="CboLoaiKhach">
-                                <ComboBoxItem Content="Nội Địa"    Tag="NoiDia"    IsSelected="True"/>
-                                <ComboBoxItem Content="Nước Ngoài" Tag="NuocNgoai"/>
-                            </ComboBox>
+                            <ComboBox x:Name="CboLoaiKhach"
+                                      DisplayMemberPath="TenLoai"
+                                      SelectedValuePath="MaCode"
+                                      SelectedValue="{Binding LoaiKhachSelected}"/>
                         </StackPanel>
                     </Grid>
 

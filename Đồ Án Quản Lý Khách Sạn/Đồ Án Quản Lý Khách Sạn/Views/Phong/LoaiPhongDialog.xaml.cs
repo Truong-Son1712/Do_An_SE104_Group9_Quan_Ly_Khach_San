@@ -41,6 +41,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.Phong
             if (!int.TryParse(TxtSucChua.Text, out int sc) || sc < 1)
             { ShowError("Sức chứa phải là số nguyên dương."); return; }
 
+            // Sức chứa loại phòng không được vượt sức chứa tối đa toàn khách sạn
+            int sucChuaToiDa = Helpers.AppConfig.GetSucChuaToiDa();
+            if (sc > sucChuaToiDa)
+            {
+                ShowError($"Sức chứa ({sc} người) vượt quá sức chứa tối đa đang cài đặt " +
+                          $"({sucChuaToiDa} người). Hãy tăng sức chứa tối đa trong mục Quản Lý Phòng trước.");
+                return;
+            }
+
             try
             {
                 using var ctx = new HotelDbContext();

@@ -29,40 +29,74 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 .FirstOrDefault(d => d.MaDatPhong == _maDatPhong);
             if (dp == null) return;
 
-            // Hiển thị toàn bộ danh sách khách
+            // ── Thông tin khách ─────────────────────────────────────────────
             var allKhach = dp.DatPhongKhachHangs.Any()
                 ? dp.DatPhongKhachHangs.Select(x => x.KhachHang?.HoTen ?? "").Where(s => s.Length > 0).ToList()
                 : new List<string> { dp.KhachHang?.HoTen ?? "" };
             TxtKhachHang.Text = string.Join(", ", allKhach);
-            TxtPhong.Text = $"Phòng {dp.Phong?.SoPhong} – {dp.Phong?.LoaiPhong?.TenLoaiPhong}";
+            TxtPhong.Text     = $"Phòng {dp.Phong?.SoPhong} – {dp.Phong?.LoaiPhong?.TenLoaiPhong}";
 
-            var nhan    = dp.NgayNhanPhong;
-            var tra     = dp.NgayTraPhong;
-            int soNgay  = Math.Max(1, (tra.Date - nhan.Date).Days);
+            var nhan   = dp.NgayNhanPhong;
+            var tra    = dp.NgayTraPhong;
+            int soNgay = Math.Max(1, (tra.Date - nhan.Date).Days);
             decimal gia = dp.Phong?.LoaiPhong?.GiaPhong ?? 0;
 
-            // HeSo áp dụng nếu có bất kỳ khách nước ngoài nào trong nhóm
-            bool isNuocNgoai = dp.DatPhongKhachHangs.Any(x => x.KhachHang?.LoaiKhach == "NuocNgoai")
-                               || dp.KhachHang?.LoaiKhach == "NuocNgoai";
-            decimal heSo = isNuocNgoai ? AppConfig.GetHeSoNuocNgoai() : 1m;
+            // ── Nhân tất cả hệ số của các loại khách khác nhau trong booking ─
+            var allCodes = dp.DatPhongKhachHangs
+                .Select(x => x.KhachHang?.LoaiKhach ?? "")
+                .Append(dp.KhachHang?.LoaiKhach ?? "")
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct()
+                .ToList();
+            decimal heSo    = AppConfig.GetCombinedHeSo(allCodes);
+            bool    hasHeSo = heSo > 1m;
 
-            _tienPhong = gia * soNgay * heSo;
+            // ── Phụ thu khi số khách vượt sức chứa phòng ───────────────────
+            int soKhach  = dp.SoKhach > 0 ? dp.SoKhach : allKhach.Count;
+            int sucChua  = dp.Phong?.LoaiPhong?.SucChua ?? int.MaxValue;
+            bool hasPhuThu    = soKhach > sucChua;
+            decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
+            decimal phuThuMul  = 1m + tiLePhuThu;
+
+            _tienPhong = gia * soNgay * heSo * phuThuMul;
             _tienCoc   = dp.TienCoc;
 
+            // ── Hiển thị thông tin ──────────────────────────────────────────
             TxtNgay.Text    = $"{nhan:dd/MM/yyyy} → {tra:dd/MM/yyyy}";
             TxtSoNgay.Text  = $"{soNgay} đêm";
+            TxtSoKhach.Text = $"{soKhach} khách  (sức chứa: {sucChua})";
 
-            string heSoText = isNuocNgoai ? $" ×{heSo:0.##}" : "";
-            TxtGiaPhong.Text  = isNuocNgoai
-                ? $"{gia:N0} ₫/đêm{heSoText} = {gia * heSo:N0} ₫/đêm"
+            // Tạo chuỗi mô tả hệ số (vd: "Nước ngoài(×1.2) × Khách du lịch(×1.3) = ×1.56")
+            string heSoText = "";
+            if (hasHeSo)
+            {
+                using var hCtx = new HotelDbContext();
+                var parts = hCtx.LoaiKhachHangs
+                    .Where(l => allCodes.Contains(l.MaCode) && l.HeSoGia > 1m)
+                    .Select(l => new { l.TenLoai, l.HeSoGia })
+                    .ToList();
+                heSoText = parts.Any()
+                    ? " × " + string.Join(" × ", parts.Select(p => $"{p.TenLoai}(×{p.HeSoGia:0.####})"))
+                    + $" = ×{heSo:0.####}"
+                    : $" ×{heSo:0.####}";
+            }
+            TxtGiaPhong.Text = hasHeSo
+                ? $"{gia:N0} ₫/đêm{heSoText}"
                 : $"{gia:N0} ₫/đêm";
+
+            if (hasPhuThu)
+            {
+                TxtPhuThuInfo.Text       = $"Phụ thu {tiLePhuThu:P0} (vượt sức chứa {sucChua} người)";
+                TxtPhuThuInfo.Visibility = Visibility.Visible;
+            }
+
             TxtTienPhong.Text = $"{_tienPhong:N0} ₫";
 
-            decimal thanhToanTraPhong = Math.Max(0, _tienPhong - _tienCoc);
-            TxtTienCocDisplay.Text    = $"{_tienCoc:N0} ₫";
-            TxtThanhToanTraPhong.Text = $"{thanhToanTraPhong:N0} ₫";
-            RowTienCoc.Opacity        = _tienCoc > 0 ? 1.0 : 0.4;
-            TxtConLai.Text            = $"{_tienPhong:N0} ₫";
+            decimal thanhToanTraPhong     = Math.Max(0, _tienPhong - _tienCoc);
+            TxtTienCocDisplay.Text        = $"{_tienCoc:N0} ₫";
+            TxtThanhToanTraPhong.Text     = $"{thanhToanTraPhong:N0} ₫";
+            RowTienCoc.Opacity            = _tienCoc > 0 ? 1.0 : 0.4;
+            TxtConLai.Text                = $"{_tienPhong:N0} ₫";
         }
 
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
@@ -82,7 +116,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                     TienPhong    = _tienPhong,
                     TienCoc      = _tienCoc,
                     TongTien     = _tienPhong,
-                    PhuongThucTT = "TienMat",   // sẽ cập nhật khi thanh toán thực tế
+                    PhuongThucTT = "TienMat",
                     TrangThai    = "ChuaThanhToan",
                     GhiChu       = TxtGhiChu.Text.Trim()
                 };
@@ -91,7 +125,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 dp.TrangThai    = TrangThaiDatPhong.DaTraPhong;
                 dp.NgayTraPhong = DateTime.Now;
 
-                // Chỉ chuyển phòng sang CanDonDep khi không còn booking nào đang hoạt động
                 if (dp.Phong != null)
                 {
                     bool hasOtherActive = ctx.DatPhongs.Any(d =>
@@ -107,7 +140,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 ctx.SaveChanges();
                 DialogResult = true;
                 MessageBox.Show(
-                    $"Trả phòng thành công!\nTiền phòng: {_tienPhong:N0} ₫\nTiền cọc: {_tienCoc:N0} ₫\nCòn phải thu: {Math.Max(0, _tienPhong - _tienCoc):N0} ₫\n\nVui lòng vào tab Hóa Đơn để hoàn tất thanh toán.",
+                    $"Trả phòng thành công!\nTiền phòng: {_tienPhong:N0} ₫\nTiền cọc: {_tienCoc:N0} ₫\n" +
+                    $"Còn phải thu: {Math.Max(0, _tienPhong - _tienCoc):N0} ₫\n\n" +
+                    $"Vui lòng vào tab Hóa Đơn để hoàn tất thanh toán.",
                     "Trả Phòng Thành Công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex) { ShowError(ex.Message); }

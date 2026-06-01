@@ -33,6 +33,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             TxtPhong.Text    = $"Phòng {dp?.Phong?.SoPhong} – {dp?.Phong?.LoaiPhong?.TenLoaiPhong}";
             TxtNgayNhan.Text = dp?.NgayNhanPhong.ToString("dd/MM/yyyy HH:mm:ss") ?? "—";
             TxtNgayTra.Text  = dp?.NgayTraPhong.ToString("dd/MM/yyyy HH:mm:ss") ?? "—";
+
+            int soNgay = dp != null
+                ? Math.Max(1, (dp.NgayTraPhong.Date - dp.NgayNhanPhong.Date).Days)
+                : 1;
+            TxtSoNgayThue.Text = $"{soNgay} đêm";
             TxtNgayLap.Text  = hd.NgayThanhToan.HasValue
                 ? hd.NgayThanhToan.Value.ToString("dd/MM/yyyy HH:mm:ss")
                 : "—";

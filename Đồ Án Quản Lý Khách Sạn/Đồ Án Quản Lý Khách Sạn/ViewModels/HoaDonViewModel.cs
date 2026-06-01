@@ -12,9 +12,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     {
         private ObservableCollection<HoaDon> _hoaDons = new();
         private HoaDon? _selected;
-        private string _searchText = string.Empty;
-        private string _filterTrangThai = "TatCa";
-        private DateTime _tuNgay = DateTime.Today.AddDays(-30);
+        private string  _searchText      = string.Empty;
+        private string  _filterTrangThai = "TatCa";
+
+        // Mặc định: từ ngày đầu tháng hiện tại → hôm nay
+        private DateTime _tuNgay  = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         private DateTime _denNgay = DateTime.Today;
 
         public ObservableCollection<HoaDon> HoaDons
@@ -73,6 +75,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             try
             {
                 using var ctx = new HotelDbContext();
+
+                // ── Danh sách hóa đơn trong khoảng ngày ────────────────────
                 var q = ctx.HoaDons
                     .Include(h => h.DatPhong).ThenInclude(d => d!.KhachHang)
                     .Include(h => h.DatPhong).ThenInclude(d => d!.Phong)
@@ -93,7 +97,31 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
                 var list = q.OrderByDescending(h => h.NgayLap).ToList();
                 HoaDons = new ObservableCollection<HoaDon>(list);
-                TongDoanhThu = list.Where(h => h.TrangThai == "DaThanhToan").Sum(h => h.TongTien);
+
+                // ── Tổng đã thu = HĐ đã thanh toán + tiền cọc đặt phòng ───
+                // Tiền cọc nhận trong khoảng ngày (theo NgayDat) của các
+                // booking chưa có HoaDon DaThanhToan → cộng vào doanh thu ngay
+                decimal dtHoaDon = list
+                    .Where(h => h.TrangThai == "DaThanhToan")
+                    .Sum(h => h.TongTien);
+
+                var paidIds = ctx.HoaDons
+                    .Where(h => h.TrangThai == "DaThanhToan")
+                    .Select(h => h.MaDatPhong)
+                    .ToHashSet();
+
+                var startDate = TuNgay.Date;
+                var endDate   = DenNgay.Date.AddDays(1);
+
+                decimal dtCoc = ctx.DatPhongs
+                    .Where(d => d.NgayDat >= startDate
+                             && d.NgayDat < endDate
+                             && d.TrangThai != TrangThaiDatPhong.HuyDat)
+                    .ToList()
+                    .Where(d => d.TienCoc > 0 && !paidIds.Contains(d.MaDatPhong))
+                    .Sum(d => d.TienCoc);
+
+                TongDoanhThu = dtHoaDon + dtCoc;
             }
             catch (Exception ex)
             {

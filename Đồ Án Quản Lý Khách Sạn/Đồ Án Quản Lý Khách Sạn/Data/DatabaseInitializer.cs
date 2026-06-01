@@ -26,6 +26,29 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             if (!ctx.Phongs.Any())      SeedPhong(ctx);
             if (!ctx.KhachHangs.Any()) SeedKhachHang(ctx);
 
+            // Seed cấu hình mặc định nếu chưa có
+            if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
+                ctx.CauHinhs.Add(new CauHinh { Khoa = "SucChuaToiDa", GiaTri = "4" });
+            if (ctx.CauHinhs.Find("TiLePhuThu") == null)
+                ctx.CauHinhs.Add(new CauHinh { Khoa = "TiLePhuThu", GiaTri = "0.25" });
+
+            // Bảng LoaiKhachHangs
+            ctx.Database.ExecuteSqlRaw(
+                "CREATE TABLE IF NOT EXISTS LoaiKhachHangs " +
+                "(MaCode TEXT NOT NULL PRIMARY KEY, TenLoai TEXT NOT NULL, HeSoGia TEXT NOT NULL DEFAULT '1.0');");
+
+            // Seed loại khách mặc định (lấy HeSoNuocNgoai từ CauHinhs nếu có)
+            if (ctx.LoaiKhachHangs.Find("NoiDia") == null)
+                ctx.LoaiKhachHangs.Add(new LoaiKhachHang { MaCode = "NoiDia",    TenLoai = "Nội địa",    HeSoGia = 1.0m });
+            if (ctx.LoaiKhachHangs.Find("NuocNgoai") == null)
+            {
+                var heSoNuocNgoai = decimal.TryParse(
+                    ctx.CauHinhs.Find("HeSoNuocNgoai")?.GiaTri,
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 1.2m;
+                ctx.LoaiKhachHangs.Add(new LoaiKhachHang { MaCode = "NuocNgoai", TenLoai = "Nước ngoài", HeSoGia = heSoNuocNgoai });
+            }
+
             ctx.SaveChanges();
         }
 
