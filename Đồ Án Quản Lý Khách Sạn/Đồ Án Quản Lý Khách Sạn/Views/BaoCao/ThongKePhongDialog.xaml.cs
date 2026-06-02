@@ -5,22 +5,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao
 {
+    /// Hộp thoại hiển thị báo cáo thống kê doanh thu chi tiết theo từng Phòng
     public partial class ThongKePhongDialog : Window
     {
         private readonly int _year;
         private int _selectedMonth = 0; // 0 = cả năm
 
+        /// Lớp biểu diễn dòng thông tin thống kê của một phòng cụ thể
         private class PhongItem
         {
+            /// Số phòng
             public string  SoPhong      { get; set; } = "";
+            /// Tên loại phòng tương ứng
             public string  TenLoaiPhong { get; set; } = "";
+            /// Số lượt đặt của phòng này
             public int     SoLuotDat    { get; set; }
+            /// Tổng doanh thu thu về từ phòng này
             public decimal DoanhThu     { get; set; }
+            /// Tỉ lệ phần trăm đóng góp doanh thu
             public double  TyLe         { get; set; }
+            /// Chuỗi hiển thị tỉ lệ phần trăm đóng góp
             public string  TyLeText     => $"{TyLe:0.#}%";
+            /// Chuỗi định dạng hiển thị doanh thu bằng VNĐ
             public string  DoanhThuText => $"{DoanhThu:N0} ₫";
         }
 
+        /// Khởi tạo hộp thoại thống kê theo phòng với năm được truyền vào
         public ThongKePhongDialog(int year)
         {
             InitializeComponent();
@@ -35,6 +45,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao
             LoadData();
         }
 
+        /// Thực hiện truy xuất hóa đơn đã thanh toán để tổng hợp doanh thu theo phòng
         private void LoadData()
         {
             using var ctx = new HotelDbContext();
@@ -74,6 +85,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao
             DgPhong.ItemsSource = items;
         }
 
+        /// Xử lý sự kiện khi thay đổi bộ lọc tháng thống kê trên ComboBox
         private void CboThang_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (CboThang.SelectedItem is ComboBoxItem item && item.Tag is int month)
@@ -83,7 +95,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao
             }
         }
 
+        /// Đóng cửa sổ hộp thoại thống kê
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
+
+        /// Cho phép kéo di chuyển cửa sổ khi nhấp giữ chuột trái vào header
         private void Header_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => DragMove();
     }
 }
