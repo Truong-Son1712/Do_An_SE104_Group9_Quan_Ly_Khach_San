@@ -38,6 +38,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     /// ViewModel cho màn hình Báo cáo và Thống kê doanh thu theo năm
     public class BaoCaoViewModel : BaseViewModel
     {
+        #region 1. Private Fields - Biến thành viên
         private int     _selectedYear = DateTime.Today.Year;
         private decimal _tongDoanhThuNam;
         private int     _tongLuotKhach;
@@ -45,7 +46,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private double  _congSuatPhong;
         private string  _loaiKhachNoiDia    = "0";
         private string  _loaiKhachNuocNgoai = "0";
+        #endregion
 
+        #region 2. Public Properties - Các thuộc tính Binding
         /// Năm được chọn để thống kê và báo cáo
         public int SelectedYear
         {
@@ -74,10 +77,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         /// Danh sách các năm cho phép lựa chọn thống kê (Từ năm 2020 đến hiện tại)
         public List<int> DanhSachNam { get; } =
             Enumerable.Range(2020, DateTime.Today.Year - 2019).Reverse().ToList();
+        #endregion
 
+        #region 3. Commands - Các nút bấm hành động
         /// Lệnh thực hiện tải lại dữ liệu báo cáo
         public ICommand RefreshCommand { get; }
+        #endregion
 
+        #region 4. Constructor & Logic Methods - Hàm dựng và xử lý báo cáo
         /// Khởi tạo BaoCaoViewModel và tải dữ liệu thống kê lần đầu
         public BaoCaoViewModel()
         {
@@ -207,5 +214,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
             catch { /* silent */ }
         }
+        #endregion
     }
 }

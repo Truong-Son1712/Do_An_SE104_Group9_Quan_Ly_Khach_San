@@ -8,6 +8,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     /// Quản lý việc hiển thị thông tin hồ sơ và thực hiện lệnh đổi mật khẩu.
     public class CaiDatViewModel : BaseViewModel
     {
+        #region 1. Properties - Thông tin cá nhân hiển thị
         /// Lấy họ tên hiển thị của nhân viên đang đăng nhập.
         public string TenNhanVien    => SessionManager.CurrentUser?.HoTen ?? "";
         /// Lấy tên tài khoản đăng nhập của nhân viên hiện tại.
@@ -20,8 +21,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public string SDT            => SessionManager.CurrentUser?.SDT ?? "(chưa cập nhật)";
         /// Lấy địa chỉ nơi ở của nhân viên.
         public string DiaChi         => SessionManager.CurrentUser?.DiaChi ?? "(chưa cập nhật)";
+        #endregion
+
+        #region 2. Commands - Các nút lệnh tương tác
         /// Lệnh yêu cầu thực hiện đổi mật khẩu tài khoản.
         public ICommand DoiMatKhauCommand { get; }
+        #endregion
+
+        #region 3. Constructor & Methods - Xử lý logic
         /// Khởi tạo ViewModel Cài đặt và đăng ký các lệnh command.
         public CaiDatViewModel()
         {
@@ -34,5 +41,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             var dlg = new Views.NhanVien.DoiMatKhauDialog(SessionManager.CurrentUser.MaNV);
             dlg.ShowDialog();
         }
+        #endregion
     }
 }

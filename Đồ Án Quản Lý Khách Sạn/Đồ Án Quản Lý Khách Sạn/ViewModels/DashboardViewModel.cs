@@ -8,12 +8,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     /// ViewModel quản lý dữ liệu hiển thị trên màn hình Dashboard (Tổng quan thống kê)
     public class DashboardViewModel : BaseViewModel
     {
+        #region 1. Private Fields - Các biến thành viên
         private int _tongPhong, _phongTrong, _phongDangSuDung, _phongBaoDuong;
         private int _datPhongHomNay, _traPhongHomNay, _tongKhachHang;
         private decimal _doanhThuThang;
         private string _thangNam = string.Empty;
         private string _capNhatLuc = string.Empty;
+        #endregion
 
+        #region 2. Public Properties - Các thuộc tính Binding dữ liệu
         /// Tổng số lượng phòng hiện có trong khách sạn
         public int TongPhong         { get => _tongPhong;        set => Set(ref _tongPhong, value); }
 
@@ -49,10 +52,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
         /// Tỉ lệ phần trăm phòng đang sử dụng
         public double TyLePhongSuDung   => TongPhong > 0 ? (double)PhongDangSuDung / TongPhong * 100 : 0;
+        #endregion
 
+        #region 3. Commands - Lệnh tương tác
         /// Lệnh thực hiện tải lại (làm mới) dữ liệu thống kê
         public ICommand RefreshCommand { get; }
+        #endregion
 
+        #region 4. Constructor & Logic Methods - Hàm dựng và xử lý dữ liệu
         /// Khởi tạo DashboardViewModel và thực hiện tải dữ liệu lần đầu
         public DashboardViewModel()
         {
@@ -120,5 +127,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
+        #endregion
     }
 }
