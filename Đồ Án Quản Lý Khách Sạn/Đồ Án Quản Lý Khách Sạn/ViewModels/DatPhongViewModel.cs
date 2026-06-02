@@ -67,6 +67,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public ICommand HuyCommand        { get; }
         public ICommand XemChiTietCommand { get; }
 
+        // Khởi tạo lệnh và tải dữ liệu ban đầu
         public DatPhongViewModel()
         {
             RefreshCommand    = new RelayCommand(_ => LoadData());
@@ -79,6 +80,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             LoadData();
         }
 
+        // Tải danh sách đặt phòng theo bộ lọc và tìm kiếm
         public void LoadData()
         {
             try
@@ -111,12 +113,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
         }
 
+        // Mở form tạo đặt phòng mới
         private void TaoDatPhong()
         {
             var dlg = new Views.DatPhong.DatPhongDialog();
             if (dlg.ShowDialog() == true) LoadData();
         }
 
+        // Mở form sửa đặt phòng đã chọn
         private void SuaDatPhong()
         {
             if (Selected == null) return;
@@ -124,8 +128,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             if (dlg.ShowDialog() == true) LoadData();
         }
 
+        // Đánh dấu đặt phòng là đã nhận và chuyển phòng sang đang sử dụng
         private void NhanPhong()
         {
+            // Xác nhận và cập nhật trạng thái khi khách nhận phòng
             if (Selected == null) return;
             if (MessageBox.Show($"Xác nhận nhận phòng cho khách: {Selected.KhachHang?.HoTen}?",
                 "Nhận Phòng", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
@@ -149,6 +155,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
         }
 
+        // Mở hoá đơn và thực hiện trả phòng
         private void TraPhong()
         {
             if (Selected == null) return;
@@ -156,6 +163,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             if (dlg.ShowDialog() == true) LoadData();
         }
 
+        // Hủy đặt phòng và cập nhật trạng thái liên quan
         private void HuyDatPhong()
         {
             if (Selected == null) return;
@@ -223,6 +231,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
         }
 
+        // Hiển thị chi tiết đặt phòng đã chọn
         private void XemChiTiet()
         {
             if (Selected == null) return;
