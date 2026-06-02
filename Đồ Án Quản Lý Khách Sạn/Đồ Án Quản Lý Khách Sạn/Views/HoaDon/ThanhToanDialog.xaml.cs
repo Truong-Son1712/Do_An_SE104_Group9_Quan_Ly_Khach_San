@@ -5,10 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
 {
+    /// <summary>
+    /// Hộp thoại thực hiện thu tiền và cập nhật trạng thái thanh toán cho Hóa đơn.
+    /// Cho phép lựa chọn phương thức thanh toán linh hoạt (Tiền mặt, Chuyển khoản, Thẻ).
+    /// </summary>
     public partial class ThanhToanDialog : Window
     {
         private readonly int _maHD;
 
+        /// <summary>
+        /// Khởi tạo hộp thoại thanh toán dựa trên mã hóa đơn được chọn.
+        /// </summary>
+        /// <param name="maHD">Mã hóa đơn cần thanh toán</param>
         public ThanhToanDialog(int maHD)
         {
             InitializeComponent();
@@ -16,6 +24,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             LoadInfo();
         }
 
+        /// <summary>
+        /// Tải thông tin hóa đơn từ Database và hiển thị chi tiết số tiền cần thu.
+        /// </summary>
         private void LoadInfo()
         {
             using var ctx = new HotelDbContext();
@@ -39,12 +50,16 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             TxtConLai.Text     = $"{hd.ConLai:N0} ₫";
             RowTienCoc.Opacity = hd.TienCoc > 0 ? 1.0 : 0.4;
 
-            // Giữ phương thức cũ nếu đã chọn trước đó
+            // Giữ phương thức thanh toán cũ nếu đã chọn trước đó
             foreach (ComboBoxItem item in CboPhuongThuc.Items)
                 if (item.Tag?.ToString() == hd.PhuongThucTT)
                     item.IsSelected = true;
         }
 
+        /// <summary>
+        /// Xử lý sự kiện xác nhận thanh toán thành công hóa đơn.
+        /// Cập nhật trạng thái "DaThanhToan" và ghi nhận thời gian giao dịch thực tế.
+        /// </summary>
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
             PnlError.Visibility = Visibility.Collapsed;
@@ -56,6 +71,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 var hd = ctx.HoaDons.FirstOrDefault(h => h.MaHD == _maHD);
                 if (hd == null) return;
 
+                // Cập nhật trạng thái thanh toán và phương thức giao dịch
                 hd.TrangThai     = "DaThanhToan";
                 hd.NgayThanhToan = DateTime.Now;
                 hd.PhuongThucTT  = pt;
