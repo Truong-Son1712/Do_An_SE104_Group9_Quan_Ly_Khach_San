@@ -37,6 +37,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public ICommand DoiTrangThaiCommand   { get; }
         public ICommand DoiMatKhauCommand     { get; }
 
+        // Khởi tạo lệnh và tải dữ liệu ban đầu
         public NhanVienViewModel()
         {
             RefreshCommand      = new RelayCommand(_ => LoadData());
@@ -47,6 +48,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             LoadData();
         }
 
+        // Tải danh sách nhân viên (áp dụng tìm kiếm và sắp xếp)
         public void LoadData()
         {
             try
@@ -65,12 +67,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
         }
 
+        // Mở hộp thoại thêm nhân viên mới
         private void Them()
         {
             var dlg = new Views.NhanVien.NhanVienDialog();
             if (dlg.ShowDialog() == true) LoadData();
         }
 
+        // Mở hộp thoại chỉnh sửa nhân viên đã chọn
         private void Sua()
         {
             if (Selected == null) return;
@@ -78,6 +82,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             if (dlg.ShowDialog() == true) LoadData();
         }
 
+        // Đổi trạng thái kích hoạt/vô hiệu của nhân viên
         private void DoiTrangThai()
         {
             if (Selected == null) return;
@@ -98,6 +103,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
         }
 
+        // Mở hộp thoại đổi mật khẩu cho nhân viên đã chọn
         private void DoiMatKhau()
         {
             if (Selected == null) return;
