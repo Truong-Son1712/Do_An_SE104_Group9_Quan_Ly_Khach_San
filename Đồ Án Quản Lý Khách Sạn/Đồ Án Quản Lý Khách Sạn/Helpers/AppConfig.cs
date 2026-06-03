@@ -3,12 +3,16 @@ using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
 {
+    /// Lớp tiện ích quản lý cấu hình và quy định của hệ thống khách sạn.
+    /// Cung cấp các phương thức để đọc và ghi các tham số động từ cơ sở dữ liệu.
     public static class AppConfig
     {
+        /// Khóa cấu hình cho sức chứa tối đa trong một phòng.
         private const string KEY_SUC_CHUA_MAX  = "SucChuaToiDa";
+        /// Khóa cấu hình cho tỉ lệ phụ thu khi vượt sức chứa.
         private const string KEY_TI_LE_PHU_THU = "TiLePhuThu";
 
-        // ── Helpers ────────────────────────────────────────────────────────
+        /// Lấy giá trị cấu hình kiểu decimal từ cơ sở dữ liệu.
         private static decimal GetDecimal(string key, decimal defaultVal)
         {
             using var ctx = new HotelDbContext();
@@ -17,6 +21,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
                 System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : defaultVal;
         }
 
+        /// Cập nhật hoặc thêm mới giá trị cấu hình dạng chuỗi vào cơ sở dữ liệu.
         private static void SetValue(string key, string value)
         {
             using var ctx = new HotelDbContext();
@@ -28,14 +33,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             ctx.SaveChanges();
         }
 
-        // ── Hệ số theo MaLKH (int PK của LoaiKhachHang) ───────────────────
+        /// Lấy hệ số giá dựa theo mã loại khách hàng (MaLKH).
         public static decimal GetHeSoByMaLKH(int maLKH)
         {
             using var ctx = new HotelDbContext();
             return ctx.LoaiKhachHangs.Find(maLKH)?.HeSoGia ?? 1m;
         }
-
-        // Nhân tất cả hệ số của các loại khách (theo MaLKH) trong booking
+ 
+        /// Nhân tất cả hệ số của các loại khách (theo MaLKH) trong booking.
         public static decimal GetCombinedHeSo(IEnumerable<int> maLKHs)
         {
             var ids = maLKHs.Where(id => id > 0).Distinct().ToList();
@@ -48,18 +53,22 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             return heSos.Any() ? heSos.Aggregate(1m, (acc, h) => acc * h) : 1m;
         }
 
-        // ── Sức chứa tối đa ────────────────────────────────────────────────
+        /// Lấy số lượng khách tối đa được phép thuê trong một phòng.
         public static int GetSucChuaToiDa()
         {
             using var ctx = new HotelDbContext();
             var val = ctx.CauHinhs.Find(KEY_SUC_CHUA_MAX)?.ConfigValue;
             return int.TryParse(val, out var d) ? d : 4;
         }
+
+        /// Thiết lập số lượng khách tối đa được phép thuê trong một phòng.
         public static void SetSucChuaToiDa(int v) => SetValue(KEY_SUC_CHUA_MAX, v.ToString());
 
-        // ── Tỷ lệ phụ thu vượt sức chứa ────────────────────────────────────
+        /// Lấy tỉ lệ phụ thu khi số lượng khách vượt quá sức chứa tiêu chuẩn của phòng.
         public static decimal GetTiLePhuThu() => GetDecimal(KEY_TI_LE_PHU_THU, 0.25m);
-        public static void    SetTiLePhuThu(decimal v) =>
+
+        /// Thiết lập tỉ lệ phụ thu khi số lượng khách vượt quá sức chứa tiêu chuẩn của phòng.
+        public static void SetTiLePhuThu(decimal v) =>
             SetValue(KEY_TI_LE_PHU_THU, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 }

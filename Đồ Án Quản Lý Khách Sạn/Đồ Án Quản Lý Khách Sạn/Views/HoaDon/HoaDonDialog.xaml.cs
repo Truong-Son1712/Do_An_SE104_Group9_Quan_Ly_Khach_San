@@ -6,12 +6,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
 {
+    /// <summary>
+    /// Hộp thoại xử lý checkout phòng và lập hóa đơn thanh toán tạm tính.
+    /// Thực hiện các nghiệp vụ tính phụ thu sức chứa (25% cho khách vượt định mức)
+    /// và tính hệ số loại khách (khách nước ngoài).
+    /// </summary>
     public partial class HoaDonDialog : Window
     {
         private readonly int _maDatPhong;
         private decimal _tienPhong;
         private decimal _tienCoc;
 
+        /// <summary>
+        /// Khởi tạo màn hình lập hóa đơn dựa trên mã đặt phòng được chọn.
+        /// </summary>
+        /// <param name="maDatPhong">Mã đặt phòng cần thực hiện checkout</param>
         public HoaDonDialog(int maDatPhong)
         {
             InitializeComponent();
@@ -19,6 +28,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             LoadInfo();
         }
 
+        /// <summary>
+        /// Nạp thông tin đặt phòng, tính toán tiền thuê phòng, phụ thu sức chứa và hệ số khách hàng.
+        /// </summary>
         private void LoadInfo()
         {
             using var ctx = new HotelDbContext();
@@ -29,44 +41,50 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 .FirstOrDefault(d => d.MaDatPhong == _maDatPhong);
             if (dp == null) return;
 
-            // ── Thông tin khách ─────────────────────────────────────────────
+            // ── 1. Gom danh sách khách hàng thuê phòng ───────────────────────────
             var allKhach = dp.DatPhongKhachHangs.Any()
                 ? dp.DatPhongKhachHangs.Select(x => x.KhachHang?.HoTen ?? "").Where(s => s.Length > 0).ToList()
                 : new List<string> { dp.KhachHang?.HoTen ?? "" };
             TxtKhachHang.Text = string.Join(", ", allKhach);
             TxtPhong.Text     = $"Phòng {dp.Phong?.SoPhong} – {dp.Phong?.LoaiPhong?.TenLoaiPhong}";
 
+            // ── 2. Tính số ngày thuê phòng thực tế (tối thiểu là 1 đêm) ─────────
             var nhan   = dp.NgayNhanPhong;
             var tra    = dp.NgayTraPhong;
             int soNgay = Math.Max(1, (tra.Date - nhan.Date).Days);
             decimal gia = dp.Phong?.LoaiPhong?.GiaPhong ?? 0;
 
-            // ── Nhân tất cả hệ số của các loại khách khác nhau trong booking ─
+            // ── 3. Lấy hệ số loại khách hàng (Tính theo quy định có khách nước ngoài) ──
+            // Lấy danh sách các mã loại khách hàng không trùng lặp trong phòng
             var allMaLKHs = dp.DatPhongKhachHangs
                 .Select(x => x.KhachHang?.MaLoaiKH ?? 0)
                 .Append(dp.KhachHang?.MaLoaiKH ?? 0)
                 .Where(id => id > 0)
                 .Distinct()
                 .ToList();
+            
+            // Hàm nhân tất cả các hệ số loại khách khác nhau trong phòng (Ví dụ: Nội địa = 1.0, Nước ngoài = 1.2)
             decimal heSo    = AppConfig.GetCombinedHeSo(allMaLKHs);
             bool    hasHeSo = heSo > 1m;
 
-            // ── Phụ thu khi số khách vượt sức chứa phòng ───────────────────
+            // ── 4. Tính toán phụ thu khi số lượng khách vượt quá sức chứa phòng ───
             int soKhach  = dp.SoKhach > 0 ? dp.SoKhach : allKhach.Count;
             int sucChua  = dp.Phong?.LoaiPhong?.SucChua ?? int.MaxValue;
             bool hasPhuThu    = soKhach > sucChua;
             decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
             decimal phuThuMul  = 1m + tiLePhuThu;
 
+            // ── 5. Công thức tính tiền phòng chung cuộc ────────────────────────
+            // Tiền phòng = (Giá phòng gốc * Số ngày) * Hệ số khách * (1 + Tỉ lệ phụ thu)
             _tienPhong = gia * soNgay * heSo * phuThuMul;
             _tienCoc   = dp.TienCoc;
 
-            // ── Hiển thị thông tin ──────────────────────────────────────────
+            // ── 6. Hiển thị thông tin chi tiết lên giao diện người dùng ─────────
             TxtNgay.Text    = $"{nhan:dd/MM/yyyy} → {tra:dd/MM/yyyy}";
             TxtSoNgay.Text  = $"{soNgay} đêm";
             TxtSoKhach.Text = $"{soKhach} khách  (sức chứa: {sucChua})";
 
-            // Tạo chuỗi mô tả hệ số (vd: "Nước ngoài(×1.2) × Khách du lịch(×1.3) = ×1.56")
+            // Hiển thị chi tiết hệ số giá nếu có phụ thu loại khách nước ngoài
             string heSoText = "";
             if (hasHeSo)
             {
@@ -84,6 +102,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 ? $"{gia:N0} ₫/đêm{heSoText}"
                 : $"{gia:N0} ₫/đêm";
 
+            // Hiển thị thông tin phụ thu vượt sức chứa phòng (25%) nếu có
             if (hasPhuThu)
             {
                 TxtPhuThuInfo.Text       = $"Phụ thu {tiLePhuThu:P0} (vượt sức chứa {sucChua} người)";
@@ -92,6 +111,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
 
             TxtTienPhong.Text = $"{_tienPhong:N0} ₫";
 
+            // Trừ đi số tiền khách đã đặt cọc trước
             decimal thanhToanTraPhong     = Math.Max(0, _tienPhong - _tienCoc);
             TxtTienCocDisplay.Text        = $"{_tienCoc:N0} ₫";
             TxtThanhToanTraPhong.Text     = $"{thanhToanTraPhong:N0} ₫";
@@ -99,6 +119,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             TxtConLai.Text                = $"{_tienPhong:N0} ₫";
         }
 
+        /// <summary>
+        /// Xử lý sự kiện khi nhân viên xác nhận hoàn tất thủ tục trả phòng (Lập hóa đơn chưa thanh toán).
+        /// </summary>
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
             PnlError.Visibility = Visibility.Collapsed;
@@ -109,6 +132,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 var dp = ctx.DatPhongs.Include(d => d.Phong).FirstOrDefault(d => d.MaDatPhong == _maDatPhong);
                 if (dp == null) return;
 
+                // Tạo đối tượng hóa đơn lưu trữ thông tin tiền phòng, tiền cọc của đợt đặt phòng này
                 var hd = new Models.HoaDon
                 {
                     MaDatPhong   = _maDatPhong,
@@ -122,13 +146,16 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 };
                 ctx.HoaDons.Add(hd);
 
+                // Cập nhật trạng thái đặt phòng thành đã trả phòng
                 dp.TrangThai    = TrangThaiDatPhong.DaTraPhong;
                 dp.NgayTraPhong = DateTime.Now;
 
+                // Giải phóng phòng hoặc chuyển trạng thái dọn dẹp
                 if (dp.Phong != null)
                 {
+                    // Kiểm tra xem phòng này có bất kỳ đặt phòng active nào kế tiếp hay không
                     bool hasOtherActive = ctx.DatPhongs.Any(d =>
-                        d.MaPhong == dp.MaPhong
+                         d.MaPhong == dp.MaPhong
                         && d.MaDatPhong != dp.MaDatPhong
                         && (d.TrangThai == TrangThaiDatPhong.DaDat || d.TrangThai == TrangThaiDatPhong.DaNhanPhong));
 

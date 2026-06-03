@@ -7,25 +7,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 {
+    /// Lớp biểu diễn một dòng dữ liệu trong báo cáo doanh thu theo tháng
     public class BaoCaoDoanhThuItem
     {
+        /// Tên tháng hiển thị (Ví dụ: "T1", "T2")
         public string  Thang     { get; set; } = string.Empty;
+        /// Số tiền doanh thu đạt được trong tháng
         public decimal DoanhThu  { get; set; }
+        /// Tổng số lượng hóa đơn đã thanh toán trong tháng
         public int     SoHoaDon  { get; set; }
+        /// Tỷ lệ phần trăm đóng góp doanh thu của tháng so với tháng cao nhất
         public decimal TyLe      { get; set; }
     }
 
+    /// Lớp biểu diễn một dòng dữ liệu trong báo cáo doanh thu theo loại phòng
     public class BaoCaoLoaiPhongItem
     {
+        /// Tên loại phòng (Ví dụ: "Phòng Đơn Standard")
         public string  TenLoaiPhong { get; set; } = string.Empty;
+        /// Tổng số lượt đặt của loại phòng này trong năm
         public int     SoLuotDat    { get; set; }
+        /// Tổng doanh thu của loại phòng này thu về
         public decimal DoanhThu     { get; set; }
+        /// Tỷ lệ phần trăm doanh thu của loại phòng so với tổng doanh thu năm
         public double  TyLe         { get; set; }
+        /// Chuỗi hiển thị tỷ lệ phần trăm (Định dạng: "X.X%")
         public string  TyLeText     => $"{TyLe:0.#}%";
     }
 
+    /// ViewModel cho màn hình Báo cáo và Thống kê doanh thu theo năm
     public class BaoCaoViewModel : BaseViewModel
     {
+        #region 1. Private Fields - Biến thành viên
         private int     _selectedYear = DateTime.Today.Year;
         private decimal _tongDoanhThuNam;
         private int     _tongLuotKhach;
@@ -33,34 +46,53 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private double  _congSuatPhong;
         private string  _loaiKhachNoiDia    = "0";
         private string  _loaiKhachNuocNgoai = "0";
+        #endregion
 
+        #region 2. Public Properties - Các thuộc tính Binding
+        /// Năm được chọn để thống kê và báo cáo
         public int SelectedYear
         {
             get => _selectedYear;
             set { Set(ref _selectedYear, value); LoadData(); }
         }
 
+        /// Tổng doanh thu ghi nhận được trong năm được chọn
         public decimal TongDoanhThuNam    { get => _tongDoanhThuNam;     set => Set(ref _tongDoanhThuNam, value); }
+        /// Tổng số lượt khách đặt phòng trong năm
         public int     TongLuotKhach       { get => _tongLuotKhach;       set => Set(ref _tongLuotKhach, value); }
+        /// Tổng số hóa đơn đã thực hiện thanh toán thành công trong năm
         public int     TongHoaDon          { get => _tongHoaDon;          set => Set(ref _tongHoaDon, value); }
+        /// Công suất sử dụng phòng trung bình trong năm (%)
         public double  CongSuatPhong       { get => _congSuatPhong;       set => Set(ref _congSuatPhong, value); }
+        /// Chuỗi thống kê số lượng và tỷ lệ khách nội địa
         public string  LoaiKhachNoiDia     { get => _loaiKhachNoiDia;     set => Set(ref _loaiKhachNoiDia, value); }
+        /// Chuỗi thống kê số lượng và tỷ lệ khách nước ngoài
         public string  LoaiKhachNuocNgoai  { get => _loaiKhachNuocNgoai;  set => Set(ref _loaiKhachNuocNgoai, value); }
 
+        /// Danh sách doanh thu chi tiết theo từng tháng
         public ObservableCollection<BaoCaoDoanhThuItem>  DoanhThuTheoThang { get; } = new();
+        /// Danh sách doanh thu chi tiết theo từng loại phòng
         public ObservableCollection<BaoCaoLoaiPhongItem> DoanhThuLoaiPhong { get; } = new();
 
+        /// Danh sách các năm cho phép lựa chọn thống kê (Từ năm 2020 đến hiện tại)
         public List<int> DanhSachNam { get; } =
             Enumerable.Range(2020, DateTime.Today.Year - 2019).Reverse().ToList();
+        #endregion
 
+        #region 3. Commands - Các nút bấm hành động
+        /// Lệnh thực hiện tải lại dữ liệu báo cáo
         public ICommand RefreshCommand { get; }
+        #endregion
 
+        #region 4. Constructor & Logic Methods - Hàm dựng và xử lý báo cáo
+        /// Khởi tạo BaoCaoViewModel và tải dữ liệu thống kê lần đầu
         public BaoCaoViewModel()
         {
             RefreshCommand = new RelayCommand(_ => LoadData());
             LoadData();
         }
 
+        /// Thực hiện truy vấn dữ liệu hóa đơn và đặt phòng từ Database để tính toán báo cáo
         public void LoadData()
         {
             try
@@ -182,5 +214,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             }
             catch { /* silent */ }
         }
+        #endregion
     }
 }
