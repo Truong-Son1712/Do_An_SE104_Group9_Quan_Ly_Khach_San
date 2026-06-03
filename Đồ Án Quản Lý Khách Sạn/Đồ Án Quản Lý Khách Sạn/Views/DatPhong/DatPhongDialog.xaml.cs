@@ -295,6 +295,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     dp.SoKhach       = selectedKhach.Count;
                     dp.GhiChu        = TxtGhiChu.Text.Trim();
 
+                    // Đồng bộ HoaDon.TienCoc nếu hóa đơn đã tồn tại (tránh lệch dữ liệu)
+                    var hd = ctx.HoaDons.FirstOrDefault(h => h.MaDatPhong == dp.MaDatPhong);
+                    if (hd != null) hd.TienCoc = tienCoc;
+
                     var old = ctx.DatPhongKhachHangs.Where(x => x.MaDatPhong == _maDatPhong.Value).ToList();
                     ctx.DatPhongKhachHangs.RemoveRange(old);
                     foreach (var k in selectedKhach)

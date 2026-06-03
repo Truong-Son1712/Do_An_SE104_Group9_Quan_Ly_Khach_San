@@ -105,20 +105,24 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     .Where(h => h.TrangThai == "DaThanhToan")
                     .Sum(h => h.TongTien);
 
-                var paidIds = ctx.HoaDons
-                    .Where(h => h.TrangThai == "DaThanhToan")
-                    .Select(h => h.MaDatPhong)
-                    .ToHashSet();
-
                 var startDate = TuNgay.Date;
                 var endDate   = DenNgay.Date.AddDays(1);
+
+                // Chỉ loại trừ deposit của các booking đã paid TRONG khoảng ngày lọc
+                // (tránh mất deposit khi booking trong range nhưng thanh toán ngoài range)
+                var paidIdsInRange = ctx.HoaDons
+                    .Where(h => h.TrangThai == "DaThanhToan"
+                             && h.NgayLap >= startDate
+                             && h.NgayLap < endDate)
+                    .Select(h => h.MaDatPhong)
+                    .ToHashSet();
 
                 decimal dtCoc = ctx.DatPhongs
                     .Where(d => d.NgayDat >= startDate
                              && d.NgayDat < endDate
                              && d.TrangThai != TrangThaiDatPhong.HuyDat)
                     .ToList()
-                    .Where(d => d.TienCoc > 0 && !paidIds.Contains(d.MaDatPhong))
+                    .Where(d => d.TienCoc > 0 && !paidIdsInRange.Contains(d.MaDatPhong))
                     .Sum(d => d.TienCoc);
 
                 TongDoanhThu = dtHoaDon + dtCoc;
