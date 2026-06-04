@@ -25,5 +25,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.BaoCao
             var dlg = new ThongKePhongDialog(vm.SelectedYear) { Owner = Window.GetWindow(this) };
             dlg.ShowDialog();
         }
+
+        /// Mở hộp thoại Thống kê doanh thu theo từng ngày trong tháng
+        private void BtnThongKeNgay_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = (BaoCaoViewModel)DataContext;
+            var dlg = new ThongKeNgayDialog(vm.SelectedYear) { Owner = Window.GetWindow(this) };
+            dlg.ShowDialog();
+        }
     }
 }

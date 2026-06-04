@@ -53,6 +53,8 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="14"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Tài Khoản -->
@@ -76,8 +78,15 @@
                                            Foreground="{StaticResource TextSecondaryBrush}"/>
                             </StackPanel>
 
-                            <!-- Địa Chỉ -->
+                            <!-- CCCD -->
                             <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="CCCD / CMND" Style="{StaticResource Label}" Margin="0,0,0,3"/>
+                                <TextBlock Text="{Binding CCCD}" FontSize="13"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Địa Chỉ -->
+                            <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
                                 <TextBlock Text="Địa Chỉ" Style="{StaticResource Label}" Margin="0,0,0,3"/>
                                 <TextBlock Text="{Binding DiaChi}" FontSize="13"
                                            Foreground="{StaticResource TextSecondaryBrush}"

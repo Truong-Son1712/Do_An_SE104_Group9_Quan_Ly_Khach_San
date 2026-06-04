@@ -113,22 +113,27 @@
                                 <TextBlock Text="Tiền cọc (đặt phòng):" FontSize="13" Foreground="#546E7A"/>
                             </DockPanel>
 
-                            <!-- Thanh toán trả phòng -->
-                            <DockPanel Margin="0,0,0,10">
-                                <TextBlock x:Name="TxtThanhToanTraPhong" DockPanel.Dock="Right"
-                                           FontSize="13" Foreground="#37474F" FontWeight="SemiBold"/>
-                                <TextBlock Text="Thanh toán lúc trả phòng:" FontSize="13" Foreground="#546E7A"/>
-                            </DockPanel>
-
                             <Rectangle Height="1.5" Fill="#DDEEFF" Margin="0,0,0,12"/>
 
-                            <!-- Tổng -->
-                            <DockPanel>
+                            <!-- Tổng cộng -->
+                            <DockPanel Margin="0,0,0,10">
                                 <TextBlock x:Name="TxtConLai" DockPanel.Dock="Right"
-                                           FontSize="22" FontWeight="Bold" Foreground="#1B5E20"/>
-                                <TextBlock Text="TỔNG CỘNG" FontWeight="Bold" FontSize="13"
-                                           Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                           FontSize="15" FontWeight="SemiBold" Foreground="#37474F"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Tổng cộng:" FontSize="13"
+                                           Foreground="#546E7A" VerticalAlignment="Center"/>
                             </DockPanel>
+
+                            <!-- Còn phải thanh toán (nổi bật) -->
+                            <Border Background="#E8F5E9" CornerRadius="8" Padding="14,10">
+                                <DockPanel>
+                                    <TextBlock x:Name="TxtThanhToanTraPhong" DockPanel.Dock="Right"
+                                               FontSize="24" FontWeight="Bold" Foreground="#1B5E20"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Thanh toán lúc trả phòng:" FontWeight="SemiBold"
+                                               FontSize="13" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
                         </StackPanel>
                     </Border>
 

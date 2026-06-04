@@ -201,6 +201,15 @@
                                 </StackPanel>
                             </Button>
 
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavCauHinhCommand}"
+                                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚙" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Cấu Hình" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
                             <Separator/>
 
                             <Button Style="{StaticResource NavButton}"

@@ -58,7 +58,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             var nhan   = dp.NgayNhanPhong;
             var tra    = dp.NgayTraPhong;
             int soNgay = Math.Max(1, (tra.Date - nhan.Date).Days);
-            decimal gia = dp.Phong?.LoaiPhong?.GiaPhong ?? 0;
+            decimal gia = AppConfig.GetGiaPhongHienTai(dp.Phong?.LoaiPhong?.GiaPhong ?? 0);
 
             // ── 3. Lấy hệ số loại khách hàng (Tính theo quy định có khách nước ngoài) ──
             // Lấy danh sách các mã loại khách hàng không trùng lặp trong phòng
@@ -69,20 +69,20 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 .Distinct()
                 .ToList();
             
-            // Hàm nhân tất cả các hệ số loại khách khác nhau trong phòng (Ví dụ: Nội địa = 1.0, Nước ngoài = 1.2)
+            // Lấy hệ số cao nhất trong các loại khách trong phòng (Ví dụ: nội địa=1.0, nước ngoài=1.2 → dùng 1.2)
             decimal heSo    = AppConfig.GetCombinedHeSo(allMaLKHs);
             bool    hasHeSo = heSo > 1m;
 
             // ── 4. Tính toán phụ thu khi số lượng khách vượt quá sức chứa phòng ───
             int soKhach  = dp.SoKhach > 0 ? dp.SoKhach : allKhach.Count;
             int sucChua  = dp.Phong?.LoaiPhong?.SucChua ?? int.MaxValue;
-            bool hasPhuThu    = soKhach > sucChua;
+            bool hasPhuThu     = soKhach > sucChua;
             decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
-            decimal phuThuMul  = 1m + tiLePhuThu;
 
             // ── 5. Công thức tính tiền phòng chung cuộc ────────────────────────
-            // Tiền phòng = (Giá phòng gốc * Số ngày) * Hệ số khách * (1 + Tỉ lệ phụ thu)
-            _tienPhong = gia * soNgay * heSo * phuThuMul;
+            // Tiền phòng = Giá gốc × Số ngày × (Hệ số khách + Tỉ lệ phụ thu)
+            // Phụ thu tính trên giá gốc, độc lập với hệ số loại khách
+            _tienPhong = gia * soNgay * (heSo + tiLePhuThu);
             _tienCoc    = dp.TienCoc;
             _vatPercent = AppConfig.GetVAT();
 
@@ -103,13 +103,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             if (hasHeSo)
             {
                 using var hCtx = new HotelDbContext();
-                var parts = hCtx.LoaiKhachHangs
-                    .Where(l => allMaLKHs.Contains(l.MaLKH) && l.HeSoGia > 1m)
+                var maxPart = hCtx.LoaiKhachHangs
+                    .Where(l => allMaLKHs.Contains(l.MaLKH))
+                    .OrderByDescending(l => l.HeSoGia)
                     .Select(l => new { l.TenLoai, l.HeSoGia })
-                    .ToList();
-                heSoText = parts.Any()
-                    ? " × " + string.Join(" × ", parts.Select(p => $"{p.TenLoai}(×{p.HeSoGia:0.####})"))
-                    + $" = ×{heSo:0.####}"
+                    .FirstOrDefault();
+                heSoText = maxPart != null
+                    ? $" × {maxPart.TenLoai}(×{maxPart.HeSoGia:0.####})"
                     : $" ×{heSo:0.####}";
             }
             TxtGiaPhong.Text = hasHeSo

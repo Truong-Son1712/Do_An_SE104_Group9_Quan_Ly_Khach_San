@@ -21,6 +21,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public string SDT            => SessionManager.CurrentUser?.SDT ?? "(chưa cập nhật)";
         /// Lấy địa chỉ nơi ở của nhân viên.
         public string DiaChi         => SessionManager.CurrentUser?.DiaChi ?? "(chưa cập nhật)";
+        public string CCCD           => string.IsNullOrWhiteSpace(SessionManager.CurrentUser?.CCCD)
+                                            ? "(chưa cập nhật)" : SessionManager.CurrentUser!.CCCD;
         #endregion
 
         #region 2. Commands - Các nút lệnh tương tác

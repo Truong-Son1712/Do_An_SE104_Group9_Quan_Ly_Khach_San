@@ -20,6 +20,17 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public string  TyLeNamText => TyLeNam > 0 ? $"{TyLeNam:0.#}%" : "—";
     }
 
+    /// Lớp biểu diễn một ô thống kê loại khách trong phần Phân Loại Khách
+    public class PhanLoaiKhachItem
+    {
+        public string TenLoai       { get; set; } = "";
+        public string SoLuotVaTyLe  { get; set; } = "";
+        public string Icon          { get; set; } = "👤";
+        public string BackColorHex  { get; set; } = "#E3F2FD";
+        public string ForeColorHex  { get; set; } = "#1565C0";
+        public string LabelColorHex { get; set; } = "#1976D2";
+    }
+
     /// Lớp biểu diễn một dòng dữ liệu trong báo cáo doanh thu theo loại phòng
     public class BaoCaoLoaiPhongItem
     {
@@ -44,8 +55,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private int     _tongLuotKhach;
         private int     _tongHoaDon;
         private double  _congSuatPhong;
-        private string  _loaiKhachNoiDia    = "0";
-        private string  _loaiKhachNuocNgoai = "0";
         #endregion
 
         #region 2. Public Properties - Các thuộc tính Binding
@@ -63,11 +72,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         /// Tổng số hóa đơn đã thực hiện thanh toán thành công trong năm
         public int     TongHoaDon          { get => _tongHoaDon;          set => Set(ref _tongHoaDon, value); }
         /// Công suất sử dụng phòng trung bình trong năm (%)
-        public double  CongSuatPhong       { get => _congSuatPhong;       set => Set(ref _congSuatPhong, value); }
-        /// Chuỗi thống kê số lượng và tỷ lệ khách nội địa
-        public string  LoaiKhachNoiDia     { get => _loaiKhachNoiDia;     set => Set(ref _loaiKhachNoiDia, value); }
-        /// Chuỗi thống kê số lượng và tỷ lệ khách nước ngoài
-        public string  LoaiKhachNuocNgoai  { get => _loaiKhachNuocNgoai;  set => Set(ref _loaiKhachNuocNgoai, value); }
+        public double  CongSuatPhong { get => _congSuatPhong; set => Set(ref _congSuatPhong, value); }
+
+        /// Danh sách thống kê động theo từng loại khách hàng
+        public ObservableCollection<PhanLoaiKhachItem> PhanLoaiKhach { get; } = new();
 
         /// Danh sách doanh thu chi tiết theo từng tháng
         public ObservableCollection<BaoCaoDoanhThuItem>  DoanhThuTheoThang { get; } = new();
@@ -140,29 +148,51 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     ? Math.Round((double)tongLuotDat / (tongPhong * ngayTrongNam) * 100, 1)
                     : 0;
 
+                // ── Phân loại khách động theo LoaiKhachHang ────────────────
                 var allKhach = ctx.DatPhongs
                     .Include(d => d.KhachHang).ThenInclude(k => k!.LoaiKhachHang)
                     .Where(d => d.NgayNhanPhong.Year == SelectedYear && d.TrangThai != TrangThaiDatPhong.HuyDat)
                     .Select(d => d.KhachHang)
                     .ToList();
-                // Phân loại: HeSoGia == 1.0 = nội địa, > 1.0 = khách có phụ thu
-                int nd  = allKhach.Count(k => k?.LoaiKhachHang?.HeSoGia == 1m);
-                int nn  = allKhach.Count(k => k?.LoaiKhachHang?.HeSoGia > 1m);
-                int all = nd + nn;
-                LoaiKhachNoiDia    = all > 0 ? $"{nd} ({nd * 100 / all}%)" : "0";
-                LoaiKhachNuocNgoai = all > 0 ? $"{nn} ({nn * 100 / all}%)" : "0";
+
+                // Bảng màu luân phiên cho từng loại
+                var palette = new[]
+                {
+                    ("#E3F2FD", "#1565C0", "#1976D2"),
+                    ("#FFF3E0", "#E65100", "#EF6C00"),
+                    ("#E8F5E9", "#2E7D32", "#388E3C"),
+                    ("#F3E5F5", "#6A1B9A", "#7B1FA2"),
+                    ("#FCE4EC", "#C62828", "#E53935"),
+                    ("#E0F7FA", "#006064", "#00838F"),
+                };
+
+                int tongKhach = allKhach.Count(k => k != null);
+                var groups = allKhach
+                    .Where(k => k?.LoaiKhachHang != null)
+                    .GroupBy(k => k!.LoaiKhachHang!.TenLoai)
+                    .OrderByDescending(g => g.Count())
+                    .ToList();
+
+                PhanLoaiKhach.Clear();
+                for (int i = 0; i < groups.Count; i++)
+                {
+                    var g = groups[i];
+                    int count = g.Count();
+                    int pct   = tongKhach > 0 ? count * 100 / tongKhach : 0;
+                    var (back, fore, label) = palette[i % palette.Length];
+                    PhanLoaiKhach.Add(new PhanLoaiKhachItem
+                    {
+                        TenLoai      = g.Key,
+                        SoLuotVaTyLe = $"{count} ({pct}%)",
+                        Icon         = "👤",
+                        BackColorHex  = back,
+                        ForeColorHex  = fore,
+                        LabelColorHex = label,
+                    });
+                }
 
                 // ── Doanh thu theo tháng (HoaDon + tiền cọc tháng đó) ──────
                 DoanhThuTheoThang.Clear();
-
-                // Tính maxDT bao gồm cả cọc để scale biểu đồ đúng
-                decimal maxDt = 1;
-                for (int t = 1; t <= 12; t++)
-                {
-                    decimal dt = hdsNam.Where(h => h.NgayLap.Month == t).Sum(h => h.TongTien)
-                               + cocBookings.Where(d => d.NgayDat.Month == t).Sum(d => d.TienCoc);
-                    if (dt > maxDt) maxDt = dt;
-                }
 
                 decimal tongNam = TongDoanhThuNam; // đã tính bên trên
                 for (int thang = 1; thang <= 12; thang++)
@@ -171,13 +201,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     decimal dtHd  = dsHd.Sum(h => h.TongTien);
                     decimal dtCoc = cocBookings.Where(d => d.NgayDat.Month == thang).Sum(d => d.TienCoc);
                     decimal dt    = dtHd + dtCoc;
+                    decimal tyLeNam = tongNam > 0 ? Math.Round(dt / tongNam * 100, 1) : 0;
                     DoanhThuTheoThang.Add(new BaoCaoDoanhThuItem
                     {
                         Thang     = $"T{thang}",
                         DoanhThu  = dt,
                         SoHoaDon  = dsHd.Count,
-                        TyLe      = maxDt > 0 ? Math.Round(dt / maxDt * 100, 1) : 0,
-                        TyLeNam   = tongNam > 0 ? Math.Round(dt / tongNam * 100, 1) : 0
+                        TyLe      = tyLeNam,   // bar khớp với % hiển thị
+                        TyLeNam   = tyLeNam
                     });
                 }
 

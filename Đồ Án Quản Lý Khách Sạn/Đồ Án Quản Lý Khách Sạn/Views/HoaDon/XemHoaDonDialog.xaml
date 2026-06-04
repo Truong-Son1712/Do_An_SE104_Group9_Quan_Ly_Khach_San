@@ -112,7 +112,8 @@
                                 <TextBlock x:Name="TxtNgayLap" FontSize="12" FontWeight="SemiBold"
                                            Foreground="#1A237E" Margin="0,0,0,6"/>
                                 <TextBlock x:Name="TxtNhanVien" FontSize="12"
-                                           Foreground="#546E7A" Margin="0,0,0,10"/>
+                                           Foreground="#546E7A" Margin="0,0,0,10"
+                                           TextWrapping="Wrap"/>
                                 <Border CornerRadius="12" Background="#E3F2FD" Padding="10,4"
                                         HorizontalAlignment="Left" Margin="0,0,0,6">
                                     <TextBlock x:Name="TxtPhuongThuc" FontSize="11"

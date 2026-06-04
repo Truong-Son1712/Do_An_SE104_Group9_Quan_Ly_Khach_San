@@ -65,12 +65,12 @@
         <!-- Filter -->
         <Border Grid.Row="1" Style="{StaticResource CardSmall}" Margin="0,0,0,16">
             <WrapPanel>
-                <StackPanel Width="220" Margin="0,0,16,0">
+                <StackPanel Width="200" Margin="0,0,16,0">
                     <TextBlock Text="Tìm kiếm" Style="{StaticResource Label}"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Tag="Tên khách, số phòng…"/>
+                             Tag="Tên khách, CMND/CCCD, số phòng…"/>
                 </StackPanel>
-                <StackPanel Width="150" Margin="0,0,16,0">
+                <StackPanel Width="140" Margin="0,0,16,0">
                     <TextBlock Text="Trạng thái" Style="{StaticResource Label}"/>
                     <ComboBox SelectedValue="{Binding FilterTrangThai}" SelectedValuePath="Tag">
                         <ComboBoxItem Content="Tất cả"         Tag="TatCa" IsSelected="True"/>
@@ -80,11 +80,25 @@
                         <ComboBoxItem Content="Đã Hủy"         Tag="HuyDat"/>
                     </ComboBox>
                 </StackPanel>
-                <StackPanel Width="140" Margin="0,0,16,0">
+                <StackPanel Width="100" Margin="0,0,16,0">
+                    <TextBlock Text="Phòng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding PhongOptions}"
+                              SelectedValue="{Binding FilterMaPhong}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="160" Margin="0,0,16,0">
+                    <TextBlock Text="Loại Phòng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding LoaiPhongOptions}"
+                              SelectedValue="{Binding FilterMaLoaiPhong}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="130" Margin="0,0,16,0">
                     <TextBlock Text="Từ ngày" Style="{StaticResource Label}"/>
                     <DatePicker SelectedDate="{Binding TuNgay, Mode=TwoWay}" Language="vi-VN"/>
                 </StackPanel>
-                <StackPanel Width="140">
+                <StackPanel Width="130">
                     <TextBlock Text="Đến ngày" Style="{StaticResource Label}"/>
                     <DatePicker SelectedDate="{Binding DenNgay, Mode=TwoWay}" Language="vi-VN"/>
                 </StackPanel>

@@ -14,6 +14,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private DatPhong? _selected;
         private string _searchText = string.Empty;
         private string _filterTrangThai = "TatCa";
+        private int _filterMaPhong;
+        private int _filterMaLoaiPhong;
         private DateTime _tuNgay  = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         private DateTime _denNgay = DateTime.Today;
 
@@ -53,6 +55,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             set { Set(ref _denNgay, value); LoadData(); }
         }
 
+        public int FilterMaPhong
+        {
+            get => _filterMaPhong;
+            set { Set(ref _filterMaPhong, value); LoadData(); }
+        }
+
+        public int FilterMaLoaiPhong
+        {
+            get => _filterMaLoaiPhong;
+            set { Set(ref _filterMaLoaiPhong, value); LoadData(); }
+        }
+
+        public ObservableCollection<KeyValuePair<int, string>> PhongOptions     { get; private set; } = new();
+        public ObservableCollection<KeyValuePair<int, string>> LoaiPhongOptions { get; private set; } = new();
+
         public bool CanSua       => Selected?.TrangThai == TrangThaiDatPhong.DaDat
                                   || Selected?.TrangThai == TrangThaiDatPhong.DaNhanPhong;
         public bool CanNhanPhong => Selected?.TrangThai == TrangThaiDatPhong.DaDat;
@@ -70,14 +87,37 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         // Khởi tạo lệnh và tải dữ liệu ban đầu
         public DatPhongViewModel()
         {
-            RefreshCommand    = new RelayCommand(_ => LoadData());
+            RefreshCommand    = new RelayCommand(_ => Refresh());
             ThemCommand       = new RelayCommand(_ => TaoDatPhong());
             SuaCommand        = new RelayCommand(_ => SuaDatPhong(), _ => CanSua);
             NhanPhongCommand  = new RelayCommand(_ => NhanPhong(),   _ => CanNhanPhong);
             TraPhongCommand   = new RelayCommand(_ => TraPhong(),    _ => CanTraPhong);
             HuyCommand        = new RelayCommand(_ => HuyDatPhong(), _ => CanHuy);
             XemChiTietCommand = new RelayCommand(_ => XemChiTiet(),  _ => Selected != null);
-            LoadData();
+            Refresh();
+        }
+
+        private void Refresh() { LoadFilterOptions(); LoadData(); }
+
+        private void LoadFilterOptions()
+        {
+            using var ctx = new HotelDbContext();
+            var all = new KeyValuePair<int, string>(0, "Tất cả");
+
+            PhongOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.Phongs.OrderBy(p => p.SoPhong)
+                        .Select(p => new KeyValuePair<int, string>(p.MaPhong, p.SoPhong))
+                        .ToList()));
+
+            LoaiPhongOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.LoaiPhongs.OrderBy(l => l.TenLoaiPhong)
+                        .Select(l => new KeyValuePair<int, string>(l.MaLoaiPhong, l.TenLoaiPhong))
+                        .ToList()));
+
+            OnPropertyChanged(nameof(PhongOptions));
+            OnPropertyChanged(nameof(LoaiPhongOptions));
         }
 
         // Tải danh sách đặt phòng theo bộ lọc và tìm kiếm
@@ -97,12 +137,20 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(SearchText))
-                    q = q.Where(d => (d.KhachHang != null && d.KhachHang.HoTen.Contains(SearchText)) ||
-                                     (d.Phong != null && d.Phong.SoPhong.Contains(SearchText)) ||
-                                     d.DatPhongKhachHangs.Any(x => x.KhachHang != null && x.KhachHang.HoTen.Contains(SearchText)));
+                    q = q.Where(d =>
+                        (d.KhachHang != null && (d.KhachHang.HoTen.Contains(SearchText) || d.KhachHang.CMND.Contains(SearchText))) ||
+                        (d.Phong != null && d.Phong.SoPhong.Contains(SearchText)) ||
+                        d.DatPhongKhachHangs.Any(x => x.KhachHang != null &&
+                            (x.KhachHang.HoTen.Contains(SearchText) || x.KhachHang.CMND.Contains(SearchText))));
 
                 if (FilterTrangThai != "TatCa" && Enum.TryParse<TrangThaiDatPhong>(FilterTrangThai, out var tt))
                     q = q.Where(d => d.TrangThai == tt);
+
+                if (FilterMaPhong > 0)
+                    q = q.Where(d => d.MaPhong == FilterMaPhong);
+
+                if (FilterMaLoaiPhong > 0)
+                    q = q.Where(d => d.Phong != null && d.Phong.MaLoaiPhong == FilterMaLoaiPhong);
 
                 DatPhongs = new ObservableCollection<DatPhong>(
                     q.ToList().OrderByDescending(d => d.NgayDat));

@@ -9,8 +9,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     public class DashboardViewModel : BaseViewModel
     {
         #region 1. Private Fields - Các biến thành viên
-        private int _tongPhong, _phongTrong, _phongDangSuDung, _phongBaoDuong;
-        private int _datPhongHomNay, _traPhongHomNay, _tongKhachHang;
+        private int _tongPhong, _phongTrong, _phongDangSuDung, _phongBaoDuong, _phongCanDonDep;
+        private int _datPhongHomNay, _nhanPhongHomNay, _traPhongHomNay, _huyPhongHomNay, _tongKhachHang;
         private decimal _doanhThuThang;
         private string _thangNam = string.Empty;
         private string _capNhatLuc = string.Empty;
@@ -28,12 +28,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
         /// Số lượng phòng đang trong quá trình bảo dưỡng, sửa chữa
         public int PhongBaoDuong      { get => _phongBaoDuong;    set => Set(ref _phongBaoDuong, value); }
+        public int PhongCanDonDep     { get => _phongCanDonDep;  set => Set(ref _phongCanDonDep, value); }
 
-        /// Số lượt nhận phòng (Check-in) dự kiến hoặc thực tế trong hôm nay
         public int DatPhongHomNay     { get => _datPhongHomNay;   set => Set(ref _datPhongHomNay, value); }
-
-        /// Số lượt trả phòng (Check-out) trong hôm nay
+        public int NhanPhongHomNay    { get => _nhanPhongHomNay;  set => Set(ref _nhanPhongHomNay, value); }
         public int TraPhongHomNay     { get => _traPhongHomNay;   set => Set(ref _traPhongHomNay, value); }
+        public int HuyPhongHomNay     { get => _huyPhongHomNay;   set => Set(ref _huyPhongHomNay, value); }
 
         /// Tổng số lượng khách hàng đã lưu trong hệ thống
         public int TongKhachHang      { get => _tongKhachHang;    set => Set(ref _tongKhachHang, value); }
@@ -51,7 +51,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public double TyLePhongTrong    => TongPhong > 0 ? (double)PhongTrong / TongPhong * 100 : 0;
 
         /// Tỉ lệ phần trăm phòng đang sử dụng
-        public double TyLePhongSuDung   => TongPhong > 0 ? (double)PhongDangSuDung / TongPhong * 100 : 0;
+        public double TyLePhongSuDung   => TongPhong > 0 ? (double)PhongDangSuDung  / TongPhong * 100 : 0;
+        public double TyLePhongCanDonDep => TongPhong > 0 ? (double)PhongCanDonDep  / TongPhong * 100 : 0;
         #endregion
 
         #region 3. Commands - Lệnh tương tác
@@ -82,17 +83,23 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 PhongTrong      = ctx.Phongs.Count(p => p.TrangThai == TrangThaiPhong.TrongSach);
                 PhongDangSuDung = ctx.Phongs.Count(p => p.TrangThai == TrangThaiPhong.DangSuDung);
                 PhongBaoDuong   = ctx.Phongs.Count(p => p.TrangThai == TrangThaiPhong.BaoDuong);
+                PhongCanDonDep  = ctx.Phongs.Count(p => p.TrangThai == TrangThaiPhong.CanDonDep);
                 TongKhachHang   = ctx.KhachHangs.Count();
 
                 DatPhongHomNay = ctx.DatPhongs.Count(d =>
+                    d.NgayDat.Date == today);
+
+                NhanPhongHomNay = ctx.DatPhongs.Count(d =>
                     d.NgayNhanPhong.Date == today &&
-                    (d.TrangThai == TrangThaiDatPhong.DaDat ||
-                     d.TrangThai == TrangThaiDatPhong.DaNhanPhong ||
-                     d.TrangThai == TrangThaiDatPhong.DaTraPhong));
+                    d.TrangThai == TrangThaiDatPhong.DaNhanPhong);
 
                 TraPhongHomNay = ctx.DatPhongs.Count(d =>
                     d.NgayTraPhong.Date == today &&
                     d.TrangThai == TrangThaiDatPhong.DaTraPhong);
+
+                HuyPhongHomNay = ctx.DatPhongs.Count(d =>
+                    d.NgayDat.Date == today &&
+                    d.TrangThai == TrangThaiDatPhong.HuyDat);
 
                 // ── Doanh thu tháng ──────────────────────────────────────────
                 // 1) Hóa đơn đã thanh toán trong tháng
@@ -119,6 +126,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
                 OnPropertyChanged(nameof(TyLePhongTrong));
                 OnPropertyChanged(nameof(TyLePhongSuDung));
+                OnPropertyChanged(nameof(TyLePhongCanDonDep));
                 CapNhatLuc = $"Cập nhật lúc {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)

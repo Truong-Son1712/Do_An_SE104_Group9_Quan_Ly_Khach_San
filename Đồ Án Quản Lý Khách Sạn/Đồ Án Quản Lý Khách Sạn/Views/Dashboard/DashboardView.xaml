@@ -125,7 +125,7 @@
                             </StackPanel>
 
                             <!-- Bảo dưỡng -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,16">
                                 <DockPanel Margin="0,0,0,6">
                                     <TextBlock DockPanel.Dock="Right"
                                                Text="{Binding PhongBaoDuong, StringFormat='{}{0} phòng'}"
@@ -137,6 +137,20 @@
                                 <ProgressBar Value="{Binding PhongBaoDuong, Mode=OneWay}" Maximum="{Binding TongPhong}"
                                              Foreground="#90A4AE" Height="8"/>
                             </StackPanel>
+
+                            <!-- Cần dọn dẹp -->
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock DockPanel.Dock="Right"
+                                               Text="{Binding PhongCanDonDep, StringFormat='{}{0} phòng'}"
+                                               Foreground="#E65100" FontWeight="SemiBold" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Cần Dọn Dẹp" Foreground="#546E7A" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ProgressBar Value="{Binding TyLePhongCanDonDep, Mode=OneWay}" Maximum="100"
+                                             Foreground="#FF9800" Height="8"/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -146,36 +160,58 @@
                     <StackPanel>
                         <TextBlock Text="Hôm Nay" Style="{StaticResource H3}" Margin="0,0,0,20"/>
 
-                        <Border Background="#E3F2FD" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+                        <Border Background="#E3F2FD" CornerRadius="8" Padding="16,10" Margin="0,0,0,8">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                    <TextBlock Text="📥" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="📋" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="{Binding DatPhongHomNay}"
-                                               FontSize="28" FontWeight="Bold" Foreground="#1565C0" VerticalAlignment="Center"/>
+                                               FontSize="24" FontWeight="Bold" Foreground="#1565C0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Nhận Phòng" Foreground="#1976D2" FontSize="12"/>
+                                <TextBlock Text="Đặt Phòng" Foreground="#1976D2" FontSize="12"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#FCE4EC" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+                        <Border Background="#E8F5E9" CornerRadius="8" Padding="16,10" Margin="0,0,0,8">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                    <TextBlock Text="📤" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="📥" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding NhanPhongHomNay}"
+                                               FontSize="24" FontWeight="Bold" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="Đã Nhận Phòng" Foreground="#388E3C" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#FCE4EC" CornerRadius="8" Padding="16,10" Margin="0,0,0,8">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="📤" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="{Binding TraPhongHomNay}"
-                                               FontSize="28" FontWeight="Bold" Foreground="#C62828" VerticalAlignment="Center"/>
+                                               FontSize="24" FontWeight="Bold" Foreground="#C62828" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="Trả Phòng" Foreground="#E53935" FontSize="12"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#E8F5E9" CornerRadius="8" Padding="16,12">
+                        <Border Background="#FFF3E0" CornerRadius="8" Padding="16,10" Margin="0,0,0,8">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                    <TextBlock Text="👥" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding TongKhachHang}"
-                                               FontSize="28" FontWeight="Bold" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                    <TextBlock Text="❌" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding HuyPhongHomNay}"
+                                               FontSize="24" FontWeight="Bold" Foreground="#E65100" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Tổng Khách Hàng" Foreground="#388E3C" FontSize="12"/>
+                                <TextBlock Text="Đã Hủy Phòng" Foreground="#EF6C00" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#F3E5F5" CornerRadius="8" Padding="16,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="👥" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding TongKhachHang}"
+                                               FontSize="24" FontWeight="Bold" Foreground="#6A1B9A" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="Tổng Khách Hàng" Foreground="#7B1FA2" FontSize="12"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

@@ -4,7 +4,8 @@
              xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
              Background="{StaticResource BgBrush}">
     <UserControl.Resources>
-        <conv:CurrencyConverter x:Key="Currency"/>
+        <conv:CurrencyConverter          x:Key="Currency"/>
+        <conv:HexColorToBrushConverter   x:Key="HexBrush"/>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -171,6 +172,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -240,36 +242,70 @@
                         </Button>
                     </Border>
 
-                    <!-- Loại khách -->
-                    <Border Grid.Row="2" Style="{StaticResource Card}">
-                        <StackPanel>
-                            <TextBlock Text="Phân Loại Khách" Style="{StaticResource H3}" Margin="0,0,0,12"/>
+                    <!-- Nút Theo Ngày -->
+                    <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <Button Click="BtnThongKeNgay_Click" Background="Transparent"
+                                BorderThickness="0" Cursor="Hand" Padding="0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="56"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Background="#E3F2FD" CornerRadius="8" Padding="12" Margin="0,0,6,0">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🇻🇳" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="{Binding LoaiKhachNoiDia}"
-                                                   FontSize="16" FontWeight="Bold" Foreground="#1565C0"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,2"/>
-                                        <TextBlock Text="Nội Địa" Foreground="#1976D2" FontSize="11"
-                                                   HorizontalAlignment="Center"/>
-                                    </StackPanel>
+                                <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#2E7D32" Offset="0"/>
+                                            <GradientStop Color="#43A047" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock Text="📅" FontSize="20"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <Border Grid.Column="1" Background="#FFF3E0" CornerRadius="8" Padding="12" Margin="6,0,0,0">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🌍" FontSize="24" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="{Binding LoaiKhachNuocNgoai}"
-                                                   FontSize="16" FontWeight="Bold" Foreground="#E65100"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,2"/>
-                                        <TextBlock Text="Nước Ngoài" Foreground="#EF6C00" FontSize="11"
-                                                   HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                    <TextBlock Text="Theo Ngày Trong Tháng" FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#1A237E"/>
+                                    <TextBlock Text="Doanh thu từng ngày trong tháng" FontSize="11"
+                                               Foreground="#90A4AE" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="2" Text="›" FontSize="20" Foreground="#BDBDBD"
+                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
                             </Grid>
+                        </Button>
+                    </Border>
+
+                    <!-- Loại khách (dynamic) -->
+                    <Border Grid.Row="3" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Phân Loại Khách" Style="{StaticResource H3}" Margin="0,0,0,12"/>
+                            <ItemsControl ItemsSource="{Binding PhanLoaiKhach}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding BackColorHex, Converter={StaticResource HexBrush}}"
+                                                CornerRadius="8" Padding="12" Margin="0,0,6,6" MinWidth="110">
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding Icon}" FontSize="22"
+                                                           HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding SoLuotVaTyLe}"
+                                                           FontSize="15" FontWeight="Bold"
+                                                           Foreground="{Binding ForeColorHex, Converter={StaticResource HexBrush}}"
+                                                           HorizontalAlignment="Center" Margin="0,4,0,2"/>
+                                                <TextBlock Text="{Binding TenLoai}"
+                                                           Foreground="{Binding LabelColorHex, Converter={StaticResource HexBrush}}"
+                                                           FontSize="11" HorizontalAlignment="Center"
+                                                           TextWrapping="Wrap" TextAlignment="Center"
+                                                           MaxWidth="110"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                 </Grid>

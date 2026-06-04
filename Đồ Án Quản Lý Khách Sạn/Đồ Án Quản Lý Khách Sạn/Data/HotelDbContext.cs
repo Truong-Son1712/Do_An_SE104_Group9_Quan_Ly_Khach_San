@@ -64,6 +64,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             {
                 e.HasKey(x => x.MaLoaiPhong);
                 e.Property(x => x.GiaPhong).HasColumnType("decimal(18,2)");
+                e.Ignore(x => x.GiaPhongHienTai);
             });
 
             m.Entity<Phong>(e =>
@@ -168,6 +169,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
             {
                 e.HasKey(x => x.MaLoaiDV);
                 e.Property(x => x.DonGia).HasColumnType("decimal(18,2)");
+                e.Ignore(x => x.DonGiaHienTai);
             });
 
             m.Entity<DichVuPhong>(e =>

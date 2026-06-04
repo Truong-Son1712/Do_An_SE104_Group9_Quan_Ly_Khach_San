@@ -53,12 +53,12 @@
         <!-- Filters -->
         <Border Grid.Row="1" Style="{StaticResource CardSmall}" Margin="0,0,0,16">
             <WrapPanel>
-                <StackPanel Width="240" Margin="0,0,16,0">
+                <StackPanel Width="210" Margin="0,0,12,8">
                     <TextBlock Text="Tìm kiếm" Style="{StaticResource Label}"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Tag="Mã HĐ, tên khách, phòng…"/>
+                             Tag="Mã HĐ, tên khách, CMND/CCCD, phòng…"/>
                 </StackPanel>
-                <StackPanel Width="160" Margin="0,0,16,0">
+                <StackPanel Width="150" Margin="0,0,12,8">
                     <TextBlock Text="Trạng thái" Style="{StaticResource Label}"/>
                     <ComboBox SelectedValue="{Binding FilterTrangThai}" SelectedValuePath="Tag">
                         <ComboBoxItem Content="Tất cả"          Tag="TatCa" IsSelected="True"/>
@@ -66,11 +66,48 @@
                         <ComboBoxItem Content="Đã Thanh Toán"   Tag="DaThanhToan"/>
                     </ComboBox>
                 </StackPanel>
-                <StackPanel Width="140" Margin="0,0,16,0">
+                <StackPanel Width="160" Margin="0,0,12,8">
+                    <TextBlock Text="Nhân Viên" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding NhanVienOptions}"
+                              SelectedValue="{Binding FilterMaNV}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="100" Margin="0,0,12,8">
+                    <TextBlock Text="Phòng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding PhongOptions}"
+                              SelectedValue="{Binding FilterMaPhong}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="160" Margin="0,0,12,8">
+                    <TextBlock Text="Loại Phòng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding LoaiPhongOptions}"
+                              SelectedValue="{Binding FilterMaLoaiPhong}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="110" Margin="0,0,12,8">
+                    <TextBlock Text="Số Đêm" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding SoNgayOptions}"
+                              SelectedValue="{Binding FilterSoNgay}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="140" Margin="0,0,12,8">
+                    <TextBlock Text="Phương Thức" Style="{StaticResource Label}"/>
+                    <ComboBox SelectedIndex="{Binding FilterPhuongThucIndex}">
+                        <ComboBoxItem Content="Tất cả"/>
+                        <ComboBoxItem Content="Tiền Mặt"/>
+                        <ComboBoxItem Content="Chuyển Khoản"/>
+                        <ComboBoxItem Content="Thẻ"/>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Width="130" Margin="0,0,12,8">
                     <TextBlock Text="Từ ngày" Style="{StaticResource Label}"/>
                     <DatePicker SelectedDate="{Binding TuNgay}" Language="vi-VN"/>
                 </StackPanel>
-                <StackPanel Width="140">
+                <StackPanel Width="130" Margin="0,0,0,8">
                     <TextBlock Text="Đến ngày" Style="{StaticResource Label}"/>
                     <DatePicker SelectedDate="{Binding DenNgay}" Language="vi-VN"/>
                 </StackPanel>

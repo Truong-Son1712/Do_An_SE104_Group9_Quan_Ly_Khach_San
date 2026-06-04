@@ -11,6 +11,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         private const string KEY_SUC_CHUA_MAX  = "SucChuaToiDa";
         private const string KEY_TI_LE_PHU_THU = "TiLePhuThu";
         private const string KEY_THUE_VAT      = "ThueSuatVAT";
+        private const string KEY_TI_LE_BO_SUNG    = "TiLeBoSungGia";
+        private const string KEY_TI_LE_BO_SUNG_DV = "TiLeBoSungGiaDV";
 
         /// Lấy giá trị cấu hình kiểu decimal từ cơ sở dữ liệu.
         private static decimal GetDecimal(string key, decimal defaultVal)
@@ -40,7 +42,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             return ctx.LoaiKhachHangs.Find(maLKH)?.HeSoGia ?? 1m;
         }
  
-        /// Nhân tất cả hệ số của các loại khách (theo MaLKH) trong booking.
+        /// Lấy hệ số cao nhất trong danh sách loại khách (theo MaLKH) trong booking.
+        /// Chỉ áp dụng một hệ số duy nhất — hệ số cao nhất — không nhân dồn nhiều loại.
         public static decimal GetCombinedHeSo(IEnumerable<int> maLKHs)
         {
             var ids = maLKHs.Where(id => id > 0).Distinct().ToList();
@@ -50,7 +53,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
                 .Where(l => ids.Contains(l.MaLKH))
                 .Select(l => l.HeSoGia)
                 .ToList();
-            return heSos.Any() ? heSos.Aggregate(1m, (acc, h) => acc * h) : 1m;
+            return heSos.Any() ? heSos.Max() : 1m;
         }
 
         /// Lấy số lượng khách tối đa được phép thuê trong một phòng.
@@ -76,5 +79,31 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         /// Thiết lập thuế suất VAT (%).
         public static void SetVAT(decimal v) =>
             SetValue(KEY_THUE_VAT, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        /// Lấy tỉ lệ bổ sung giá phòng (%). 0 = không đổi, +20 = tăng 20%, -10 = giảm 10%.
+        public static decimal GetTiLeBoSungGia() => GetDecimal(KEY_TI_LE_BO_SUNG, 0m);
+
+        public static void SetTiLeBoSungGia(decimal v) =>
+            SetValue(KEY_TI_LE_BO_SUNG, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        /// Tính giá phòng hiện tại sau khi áp dụng tỉ lệ bổ sung.
+        public static decimal GetGiaPhongHienTai(decimal giaGoc)
+        {
+            decimal tiLe = GetTiLeBoSungGia();
+            return Math.Round(giaGoc * (1 + tiLe / 100), 0);
+        }
+
+        /// Lấy tỉ lệ bổ sung giá dịch vụ (%). 0 = không đổi, +20 = tăng 20%, -10 = giảm 10%.
+        public static decimal GetTiLeBoSungGiaDV() => GetDecimal(KEY_TI_LE_BO_SUNG_DV, 0m);
+
+        public static void SetTiLeBoSungGiaDV(decimal v) =>
+            SetValue(KEY_TI_LE_BO_SUNG_DV, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        /// Tính giá dịch vụ hiện tại sau khi áp dụng tỉ lệ bổ sung.
+        public static decimal GetGiaDichVuHienTai(decimal donGiaGoc)
+        {
+            decimal tiLe = GetTiLeBoSungGiaDV();
+            return Math.Round(donGiaGoc * (1 + tiLe / 100), 0);
+        }
     }
 }

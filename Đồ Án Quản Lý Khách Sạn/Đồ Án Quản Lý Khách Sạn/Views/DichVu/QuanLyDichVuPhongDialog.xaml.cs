@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Data;
+using Đồ_Án_Quản_Lý_Khách_Sạn.Helpers;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DichVu
@@ -45,7 +46,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DichVu
             {
                 MaLoaiDV   = l.MaLoaiDV,
                 TenLoaiDV  = l.TenLoaiDV,
-                DonGia     = l.DonGia,
+                DonGia     = AppConfig.GetGiaDichVuHienTai(l.DonGia),
                 DonViTinh  = l.DonViTinh,
                 SoLuong    = existing.FirstOrDefault(e => e.MaLoaiDV == l.MaLoaiDV)?.SoLuong ?? 0
             }).ToList();

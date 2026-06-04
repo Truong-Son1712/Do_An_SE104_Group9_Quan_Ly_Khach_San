@@ -45,7 +45,8 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Mã"          Binding="{Binding MaLoaiPhong}"  Width="60"/>
                     <DataGridTextColumn Header="Tên Loại Phòng" Binding="{Binding TenLoaiPhong}" Width="*"/>
-                    <DataGridTextColumn Header="Giá / Đêm"   Binding="{Binding GiaPhong, Converter={StaticResource Currency}}" Width="140"/>
+                    <DataGridTextColumn Header="Giá / Đêm (hiện tại)" Binding="{Binding GiaPhongHienTai, Converter={StaticResource Currency}}" Width="170"/>
+                    <DataGridTextColumn Header="Giá Gốc"     Binding="{Binding GiaPhong, Converter={StaticResource Currency}}" Width="130"/>
                     <DataGridTextColumn Header="Sức Chứa"    Binding="{Binding SucChua, StringFormat='{}{0} người'}" Width="110"/>
                     <DataGridTextColumn Header="Mô Tả"       Binding="{Binding MoTa}"          Width="*"/>
                     <DataGridTextColumn Header="Số Phòng"    Binding="{Binding Phongs.Count}"   Width="90"/>

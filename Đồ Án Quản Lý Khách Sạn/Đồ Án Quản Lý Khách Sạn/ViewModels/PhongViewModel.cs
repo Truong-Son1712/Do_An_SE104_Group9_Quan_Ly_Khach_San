@@ -14,6 +14,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private Phong? _selectedPhong;
         private string _searchText = string.Empty;
         private string _filterTrangThai = "TatCa";
+        private int _filterMaLoaiPhong;
+        private int _filterSucChua;
+        private int _filterTang;
 
         public ObservableCollection<Phong> Phongs
         {
@@ -39,6 +42,28 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             set { Set(ref _filterTrangThai, value); LoadData(); }
         }
 
+        public int FilterMaLoaiPhong
+        {
+            get => _filterMaLoaiPhong;
+            set { Set(ref _filterMaLoaiPhong, value); LoadData(); }
+        }
+
+        public int FilterSucChua
+        {
+            get => _filterSucChua;
+            set { Set(ref _filterSucChua, value); LoadData(); }
+        }
+
+        public int FilterTang
+        {
+            get => _filterTang;
+            set { Set(ref _filterTang, value); LoadData(); }
+        }
+
+        public ObservableCollection<KeyValuePair<int, string>> LoaiPhongOptions { get; private set; } = new();
+        public ObservableCollection<KeyValuePair<int, string>> SucChuaOptions   { get; private set; } = new();
+        public ObservableCollection<KeyValuePair<int, string>> TangOptions      { get; private set; } = new();
+
         public bool CanEdit => SessionManager.IsQuanLy;
 
         public ICommand RefreshCommand   { get; }
@@ -49,12 +74,41 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
         public PhongViewModel()
         {
-            RefreshCommand      = new RelayCommand(_ => LoadData());
+            RefreshCommand      = new RelayCommand(_ => Refresh());
             ThemCommand         = new RelayCommand(_ => ThemPhong(),   _ => CanEdit);
             SuaCommand          = new RelayCommand(_ => SuaPhong(),    _ => SelectedPhong != null && CanEdit);
             XoaCommand          = new RelayCommand(_ => XoaPhong(),    _ => SelectedPhong != null && CanEdit);
             DoiTrangThaiCommand = new RelayCommand(DoiTrangThai,       _ => SelectedPhong != null);
-            LoadData();
+            Refresh();
+        }
+
+        private void Refresh() { LoadFilterOptions(); LoadData(); }
+
+        private void LoadFilterOptions()
+        {
+            using var ctx = new HotelDbContext();
+
+            var all = new KeyValuePair<int, string>(0, "Tất cả");
+
+            LoaiPhongOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.LoaiPhongs.OrderBy(l => l.TenLoaiPhong)
+                        .Select(l => new KeyValuePair<int, string>(l.MaLoaiPhong, l.TenLoaiPhong))
+                        .ToList()));
+
+            SucChuaOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.LoaiPhongs.Select(l => l.SucChua).Distinct().OrderBy(s => s).ToList()
+                        .Select(s => new KeyValuePair<int, string>(s, $"{s} người"))));
+
+            TangOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.Phongs.Select(p => p.Tang).Distinct().OrderBy(t => t).ToList()
+                        .Select(t => new KeyValuePair<int, string>(t, $"Tầng {t}"))));
+
+            OnPropertyChanged(nameof(LoaiPhongOptions));
+            OnPropertyChanged(nameof(SucChuaOptions));
+            OnPropertyChanged(nameof(TangOptions));
         }
 
         public void LoadData()
@@ -71,6 +125,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 if (FilterTrangThai != "TatCa" && Enum.TryParse<TrangThaiPhong>(FilterTrangThai, out var tt))
                     query = query.Where(p => p.TrangThai == tt);
 
+                if (FilterMaLoaiPhong > 0)
+                    query = query.Where(p => p.MaLoaiPhong == FilterMaLoaiPhong);
+
+                if (FilterSucChua > 0)
+                    query = query.Where(p => p.LoaiPhong != null && p.LoaiPhong.SucChua == FilterSucChua);
+
+                if (FilterTang > 0)
+                    query = query.Where(p => p.Tang == FilterTang);
+
                 Phongs = new ObservableCollection<Phong>(
                     query.OrderBy(p => p.Tang).ThenBy(p => p.SoPhong).ToList());
             }
@@ -84,7 +147,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private void ThemPhong()
         {
             var dlg = new Views.Phong.PhongDialog();
-            if (dlg.ShowDialog() == true) LoadData();
+            if (dlg.ShowDialog() == true) Refresh();
         }
 
         private bool IsPhongBusy() =>
@@ -101,7 +164,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 return;
             }
             var dlg = new Views.Phong.PhongDialog(SelectedPhong.MaPhong);
-            if (dlg.ShowDialog() == true) LoadData();
+            if (dlg.ShowDialog() == true) Refresh();
         }
 
         private void XoaPhong()
@@ -121,7 +184,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 using var ctx = new HotelDbContext();
                 var phong = ctx.Phongs.Find(SelectedPhong.MaPhong);
                 if (phong != null) { ctx.Phongs.Remove(phong); ctx.SaveChanges(); }
-                LoadData();
+                Refresh();
             }
             catch (Exception ex)
             {

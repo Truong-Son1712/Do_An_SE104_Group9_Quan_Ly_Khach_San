@@ -13,6 +13,7 @@
              xmlns:vdb="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.Dashboard"
              xmlns:vdv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.DichVu"
              xmlns:vmgg="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.MaGiamGia"
+             xmlns:vcf="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh"
              ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -59,6 +60,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:MaGiamGiaViewModel}">
                 <vmgg:MaGiamGiaView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CauHinhHeThongViewModel}">
+                <vcf:CauHinhView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

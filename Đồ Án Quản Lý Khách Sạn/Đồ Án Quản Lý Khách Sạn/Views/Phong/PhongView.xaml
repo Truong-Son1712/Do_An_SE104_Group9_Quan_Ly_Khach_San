@@ -14,9 +14,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -57,131 +54,49 @@
         <!-- Filters -->
         <Border Grid.Row="1" Style="{StaticResource CardSmall}" Margin="0,0,0,16">
             <WrapPanel>
-                <StackPanel Width="220" Margin="0,0,16,0">
+                <StackPanel Width="200" Margin="0,0,16,0">
                     <TextBlock Text="Tìm kiếm" Style="{StaticResource Label}"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Tag="Số phòng, loại phòng…"/>
                 </StackPanel>
-                <StackPanel Width="180">
+                <StackPanel Width="160" Margin="0,0,16,0">
                     <TextBlock Text="Trạng thái" Style="{StaticResource Label}"/>
                     <ComboBox SelectedValue="{Binding FilterTrangThai}"
                               SelectedValuePath="Tag">
-                        <ComboBoxItem Content="Tất cả" Tag="TatCa" IsSelected="True"/>
-                        <ComboBoxItem Content="Trống (Sạch)"   Tag="TrongSach"/>
-                        <ComboBoxItem Content="Đang Sử Dụng"  Tag="DangSuDung"/>
-                        <ComboBoxItem Content="Cần Dọn Dẹp"   Tag="CanDonDep"/>
-                        <ComboBoxItem Content="Bảo Dưỡng"     Tag="BaoDuong"/>
-                        <ComboBoxItem Content="Đã Đặt"        Tag="DaDat"/>
+                        <ComboBoxItem Content="Tất cả"        Tag="TatCa" IsSelected="True"/>
+                        <ComboBoxItem Content="Trống (Sạch)"  Tag="TrongSach"/>
+                        <ComboBoxItem Content="Đang Sử Dụng" Tag="DangSuDung"/>
+                        <ComboBoxItem Content="Cần Dọn Dẹp"  Tag="CanDonDep"/>
+                        <ComboBoxItem Content="Bảo Dưỡng"    Tag="BaoDuong"/>
+                        <ComboBoxItem Content="Đã Đặt"       Tag="DaDat"/>
                     </ComboBox>
+                </StackPanel>
+                <StackPanel Width="170" Margin="0,0,16,0">
+                    <TextBlock Text="Loại Phòng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding LoaiPhongOptions}"
+                              SelectedValue="{Binding FilterMaLoaiPhong}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="120" Margin="0,0,16,0">
+                    <TextBlock Text="Sức Chứa" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding SucChuaOptions}"
+                              SelectedValue="{Binding FilterSucChua}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
+                </StackPanel>
+                <StackPanel Width="110">
+                    <TextBlock Text="Tầng" Style="{StaticResource Label}"/>
+                    <ComboBox ItemsSource="{Binding TangOptions}"
+                              SelectedValue="{Binding FilterTang}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value"/>
                 </StackPanel>
             </WrapPanel>
         </Border>
 
-        <!-- Hệ số giá theo loại khách -->
-        <Border Grid.Row="2" Style="{StaticResource CardSmall}" Margin="0,0,0,16"
-                x:Name="PnlHeSo">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🏷" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <StackPanel>
-                        <TextBlock Text="Hệ Số Giá Theo Loại Khách"
-                                   FontWeight="SemiBold" FontSize="13"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="TxtHeSoNote" FontSize="11"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
-                            VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="Loại khách:" VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
-                    <ComboBox x:Name="CboLoaiKhach" Width="160" Height="34"
-                              DisplayMemberPath="TenLoai"
-                              SelectionChanged="CboLoaiKhach_SelectionChanged"/>
-                    <TextBlock Text="Hệ số:" VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="12,0,8,0"/>
-                    <TextBox x:Name="TxtHeSo" Width="70" TextAlignment="Center"
-                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
-                             Height="34" Padding="6,0"/>
-                    <TextBlock Text="×" VerticalAlignment="Center" FontSize="14"
-                               FontWeight="Bold" Margin="6,0,12,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <Button x:Name="BtnLuuHeSo" Content="💾  Lưu"
-                            Style="{StaticResource BtnPrimary}" Height="34"
-                            Padding="12,0" Click="BtnLuuHeSo_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- Cài đặt sức chứa tối đa & tỷ lệ phụ thu -->
-        <Border Grid.Row="3" Style="{StaticResource CardSmall}" Margin="0,0,0,16"
-                x:Name="PnlSucChua">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="👥" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <StackPanel>
-                        <TextBlock Text="Sức Chứa Tối Đa &amp; Tỷ Lệ Phụ Thu"
-                                   FontWeight="SemiBold" FontSize="13"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="TxtSucChuaNote" FontSize="11"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
-                            VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="Sức chứa tối đa:" VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
-                    <TextBox x:Name="TxtSucChuaMax" Width="55" TextAlignment="Center"
-                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
-                             Height="34" Padding="6,0"/>
-                    <TextBlock Text="người" VerticalAlignment="Center" FontSize="12"
-                               Margin="6,0,20,0" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="Phụ thu vượt sức chứa:" VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
-                    <TextBox x:Name="TxtTiLePhuThu" Width="55" TextAlignment="Center"
-                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
-                             Height="34" Padding="6,0"/>
-                    <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
-                               FontWeight="Bold" Margin="6,0,12,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <Button x:Name="BtnLuuSucChua" Content="💾  Lưu"
-                            Style="{StaticResource BtnPrimary}" Height="34"
-                            Padding="12,0" Click="BtnLuuSucChua_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- Thuế VAT (Admin only) -->
-        <Border Grid.Row="4" Style="{StaticResource CardSmall}" Margin="0,0,0,16" x:Name="PnlVAT">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="💰" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <StackPanel>
-                        <TextBlock Text="Thuế VAT" FontWeight="SemiBold" FontSize="13"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="TxtVATNote" FontSize="11"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
-                            VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="Thuế suất VAT:" VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
-                    <TextBox x:Name="TxtVAT" Width="65" TextAlignment="Center"
-                             FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
-                             Height="34" Padding="6,0"/>
-                    <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
-                               FontWeight="Bold" Margin="6,0,12,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <Button x:Name="BtnLuuVAT" Content="💾  Lưu"
-                            Style="{StaticResource BtnPrimary}" Height="34"
-                            Padding="12,0" Click="BtnLuuVAT_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
         <!-- DataGrid -->
-        <Border Grid.Row="5" Style="{StaticResource Card}" Padding="0">
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
             <DataGrid ItemsSource="{Binding Phongs}"
                       SelectedItem="{Binding SelectedPhong}"
                       Margin="0">
@@ -190,7 +105,7 @@
                     <DataGridTextColumn Header="Loại Phòng" Binding="{Binding LoaiPhong.TenLoaiPhong}" Width="*"/>
                     <DataGridTextColumn Header="Tầng"       Binding="{Binding Tang}"                  Width="70"/>
                     <DataGridTextColumn Header="Sức Chứa"   Binding="{Binding LoaiPhong.SucChua, StringFormat='{}{0} người'}" Width="100"/>
-                    <DataGridTextColumn Header="Giá/Đêm"    Binding="{Binding LoaiPhong.GiaPhong, Converter={StaticResource Currency}}" Width="130"/>
+                    <DataGridTextColumn Header="Giá/Đêm"    Binding="{Binding LoaiPhong.GiaPhongHienTai, Converter={StaticResource Currency}}" Width="130"/>
                     <DataGridTemplateColumn Header="Trạng Thái" Width="160" SortMemberPath="TrangThai">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

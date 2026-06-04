@@ -12,8 +12,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     {
         private ObservableCollection<KhachHang> _khachHangs = new();
         private KhachHang? _selected;
-        private string _searchText = string.Empty;
-        private int    _filterLoai = 0; // 0 = tất cả
+        private string _searchText   = string.Empty;
+        private int    _filterLoai   = 0;   // 0 = tất cả
+        private int _filterGioiTinhIndex; // 0=Tất cả, 1=Nam, 2=Nữ
 
         public ObservableCollection<KhachHang> KhachHangs
         {
@@ -39,6 +40,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             set { Set(ref _filterLoai, value); LoadData(); }
         }
 
+        public int FilterGioiTinhIndex
+        {
+            get => _filterGioiTinhIndex;
+            set { Set(ref _filterGioiTinhIndex, value); LoadData(); }
+        }
+
+        public ObservableCollection<KeyValuePair<int, string>> LoaiKhachOptions { get; private set; } = new();
+
         public ICommand RefreshCommand { get; }
         public ICommand ThemCommand    { get; }
         public ICommand SuaCommand     { get; }
@@ -46,11 +55,27 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
 
         public KhachHangViewModel()
         {
-            RefreshCommand = new RelayCommand(_ => LoadData());
+            RefreshCommand = new RelayCommand(_ => Refresh());
             ThemCommand    = new RelayCommand(_ => Them());
             SuaCommand     = new RelayCommand(_ => Sua(), _ => Selected != null);
             XoaCommand     = new RelayCommand(_ => Xoa(), _ => Selected != null);
-            LoadData();
+            Refresh();
+        }
+
+        private void Refresh() { LoadFilterOptions(); LoadData(); }
+
+        private void LoadFilterOptions()
+        {
+            using var ctx = new HotelDbContext();
+            var all = new KeyValuePair<int, string>(0, "Tất cả");
+
+            LoaiKhachOptions = new ObservableCollection<KeyValuePair<int, string>>(
+                new[] { all }.Concat(
+                    ctx.LoaiKhachHangs.OrderBy(l => l.TenLoai)
+                        .Select(l => new KeyValuePair<int, string>(l.MaLKH, l.TenLoai))
+                        .ToList()));
+
+            OnPropertyChanged(nameof(LoaiKhachOptions));
         }
 
         public void LoadData()
@@ -70,6 +95,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 if (FilterLoai > 0)
                     q = q.Where(k => k.MaLoaiKH == FilterLoai);
 
+                if (FilterGioiTinhIndex == 1) q = q.Where(k => k.GioiTinh == "Nam");
+                else if (FilterGioiTinhIndex == 2) q = q.Where(k => k.GioiTinh == "Nu");
+
                 KhachHangs = new ObservableCollection<KhachHang>(
                     q.OrderByDescending(k => k.NgayTao).ToList());
             }
@@ -82,14 +110,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private void Them()
         {
             var dlg = new Views.KhachHang.KhachHangDialog();
-            if (dlg.ShowDialog() == true) LoadData();
+            if (dlg.ShowDialog() == true) Refresh();
         }
 
         private void Sua()
         {
             if (Selected == null) return;
             var dlg = new Views.KhachHang.KhachHangDialog(Selected.MaKH);
-            if (dlg.ShowDialog() == true) LoadData();
+            if (dlg.ShowDialog() == true) Refresh();
         }
 
         private void Xoa()
@@ -108,7 +136,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 }
                 var kh = ctx.KhachHangs.Find(Selected.MaKH);
                 if (kh != null) { ctx.KhachHangs.Remove(kh); ctx.SaveChanges(); }
-                LoadData();
+                Refresh();
             }
             catch (Exception ex)
             {

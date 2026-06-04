@@ -1,0 +1,180 @@
+<UserControl x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh.CauHinhView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgBrush}"
+             Loaded="OnLoaded">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Style="{StaticResource H1}" Text="Cấu Hình Hệ Thống"/>
+                <TextBlock Style="{StaticResource Body}" Text="Chỉ Quản Trị Viên mới được thay đổi các thông số này"/>
+            </StackPanel>
+
+            <!-- Hệ số giá theo loại khách -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🏷" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Hệ Số Giá Theo Loại Khách"
+                                       FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtHeSoNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Loại khách:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <ComboBox x:Name="CboLoaiKhach" Width="160" Height="34"
+                                  DisplayMemberPath="TenLoai"
+                                  SelectionChanged="CboLoaiKhach_SelectionChanged"/>
+                        <TextBlock Text="Hệ số:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="12,0,8,0"/>
+                        <TextBox x:Name="TxtHeSo" Width="70" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"/>
+                        <TextBlock Text="×" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuHeSo" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuHeSo_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Sức chứa & phụ thu -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="👥" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Sức Chứa Tối Đa &amp; Tỷ Lệ Phụ Thu"
+                                       FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtSucChuaNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Sức chứa tối đa:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtSucChuaMax" Width="60" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"/>
+                        <TextBlock Text="người" VerticalAlignment="Center" FontSize="12"
+                                   Margin="6,0,20,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Phụ thu vượt sức chứa:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtTiLePhuThu" Width="70" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"/>
+                        <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuSucChua" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuSucChua_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Điều chỉnh giá đồng loạt -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="📈" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Điều Chỉnh Giá Phòng Đồng Loạt"
+                                       FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtBoSungNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Tỉ lệ điều chỉnh:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtBoSungGia" Width="70" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"
+                                 ToolTip="+20 = tăng 20%, -10 = giảm 10%, 0 = giá gốc"/>
+                        <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuBoSung" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuBoSung_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Điều chỉnh giá dịch vụ đồng loạt -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🛎" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Điều Chỉnh Giá Dịch Vụ Đồng Loạt"
+                                       FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtBoSungDVNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Tỉ lệ điều chỉnh:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtBoSungDV" Width="70" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"
+                                 ToolTip="+20 = tăng 20%, -10 = giảm 10%, 0 = giá gốc"/>
+                        <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuBoSungDV" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuBoSungDV_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Thuế VAT -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="💰" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Thuế VAT" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtVATNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Thuế suất VAT:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtVAT" Width="65" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"/>
+                        <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuVAT" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuVAT_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

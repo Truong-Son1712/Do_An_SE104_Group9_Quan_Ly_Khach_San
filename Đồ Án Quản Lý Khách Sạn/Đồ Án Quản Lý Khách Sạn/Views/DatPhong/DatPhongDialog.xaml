@@ -105,7 +105,7 @@
                                         <TextBlock Text=" – " Foreground="#90A4AE"/>
                                         <TextBlock Text="{Binding LoaiPhong.TenLoaiPhong}"/>
                                         <TextBlock Text="  |  " Foreground="#90A4AE"/>
-                                        <TextBlock Text="{Binding LoaiPhong.GiaPhong, StringFormat='{}{0:N0} ₫/đêm'}"
+                                        <TextBlock Text="{Binding LoaiPhong.GiaPhongHienTai, StringFormat='{}{0:N0} ₫/đêm'}"
                                                    Foreground="#1565C0"/>
                                         <TextBlock Text="  |  " Foreground="#90A4AE"/>
                                         <TextBlock Text="{Binding LoaiPhong.SucChua, StringFormat='{}SC: {0}'}"

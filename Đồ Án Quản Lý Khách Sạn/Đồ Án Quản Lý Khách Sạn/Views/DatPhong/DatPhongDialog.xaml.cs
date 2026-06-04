@@ -56,30 +56,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         {
             using var ctx = new HotelDbContext();
 
-            var activeStatuses = new[] { TrangThaiDatPhong.DaDat, TrangThaiDatPhong.DaNhanPhong };
-
-            var busyIds = ctx.DatPhongKhachHangs
-                .Where(x => activeStatuses.Contains(x.DatPhong!.TrangThai))
-                .Select(x => x.MaKH)
-                .ToHashSet();
-
-            if (_maDatPhong.HasValue)
-            {
-                var thisIds = ctx.DatPhongKhachHangs
-                    .Where(x => x.MaDatPhong == _maDatPhong.Value)
-                    .Select(x => x.MaKH)
-                    .ToHashSet();
-                busyIds.ExceptWith(thisIds);
-            }
-
-            // Load TenLoai theo MaLKH (int FK)
             var loaiDict = ctx.LoaiKhachHangs
                 .ToDictionary(l => l.MaLKH, l => l.TenLoai);
 
             _allKhachHangItems = ctx.KhachHangs.OrderBy(k => k.HoTen)
                 .Select(k => new { k.MaKH, k.HoTen, k.MaLoaiKH })
                 .ToList()
-                .Where(k => !busyIds.Contains(k.MaKH))
                 .Select(k => new KhachHangItem
                 {
                     MaKH         = k.MaKH,
@@ -198,10 +180,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (DpTra.SelectedDate.Value.Date <= DpNhan.SelectedDate.Value.Date) return;
 
             int soNgay  = Math.Max(1, (DpTra.SelectedDate.Value.Date - DpNhan.SelectedDate.Value.Date).Days);
-            _giaPhong   = p.LoaiPhong.GiaPhong;
+            _giaPhong   = AppConfig.GetGiaPhongHienTai(p.LoaiPhong.GiaPhong);
             int soKhach = _allKhachHangItems.Count(k => k.IsChecked);
 
-            // Hệ số: nhân tất cả hệ số của các loại khách khác nhau được chọn (dùng MaLoaiKH int)
+            // Hệ số: lấy hệ số cao nhất trong các loại khách được chọn (dùng MaLoaiKH int)
             var selectedItems  = _allKhachHangItems.Where(k => k.IsChecked).ToList();
             var distinctMaLKHs = selectedItems.Select(k => k.MaLoaiKH).Distinct().ToList();
             decimal heSo  = AppConfig.GetCombinedHeSo(distinctMaLKHs);
@@ -210,7 +192,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             bool    hasPhuThu   = soKhach > 0 && soKhach > p.LoaiPhong.SucChua;
             decimal tiLePhuThu  = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
 
-            decimal total = _giaPhong * soNgay * heSo * (1m + tiLePhuThu);
+            decimal total = _giaPhong * soNgay * (heSo + tiLePhuThu);
             TxtDuTinh.Text = $"{total:N0} ₫";
 
             if (hasHeSo)
@@ -224,7 +206,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (hasPhuThu)
             {
                 TxtPhuThu.Text = $"⚠  Số khách ({soKhach}) vượt sức chứa phòng ({p.LoaiPhong.SucChua} người). " +
-                                 $"Áp dụng phụ thu {tiLePhuThu:P0} trên tổng tiền phòng.";
+                                 $"Phụ thu {tiLePhuThu:P0} tính trên giá phòng gốc (không nhân với hệ số loại khách).";
                 PnlPhuThu.Visibility = Visibility.Visible;
             }
         }
@@ -232,12 +214,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private static string GetHeSoBreakdown(List<int> maLKHs)
         {
             using var ctx = new HotelDbContext();
-            var items = ctx.LoaiKhachHangs
-                .Where(l => maLKHs.Contains(l.MaLKH) && l.HeSoGia > 1m)
+            var maxItem = ctx.LoaiKhachHangs
+                .Where(l => maLKHs.Contains(l.MaLKH))
+                .OrderByDescending(l => l.HeSoGia)
                 .Select(l => new { l.TenLoai, l.HeSoGia })
-                .ToList();
-            return items.Any()
-                ? string.Join(" × ", items.Select(i => $"{i.TenLoai}(×{i.HeSoGia:0.####})"))
+                .FirstOrDefault();
+            return maxItem != null && maxItem.HeSoGia > 1m
+                ? $"{maxItem.TenLoai}(×{maxItem.HeSoGia:0.####})"
                 : "×1";
         }
 
