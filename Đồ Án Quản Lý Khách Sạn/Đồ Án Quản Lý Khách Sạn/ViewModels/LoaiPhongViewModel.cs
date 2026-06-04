@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Data;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
@@ -44,7 +45,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             {
                 using var ctx = new HotelDbContext();
                 LoaiPhongs = new ObservableCollection<LoaiPhong>(
-                    ctx.LoaiPhongs.OrderBy(l => l.TenLoaiPhong).ToList());
+                    ctx.LoaiPhongs
+                       .Include(l => l.Phongs)
+                       .OrderBy(l => l.TenLoaiPhong)
+                       .ToList());
             }
             catch (Exception ex)
             {

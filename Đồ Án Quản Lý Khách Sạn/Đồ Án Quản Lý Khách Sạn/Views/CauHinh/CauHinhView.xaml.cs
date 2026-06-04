@@ -76,7 +76,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
             { ShowWarn("Hệ số loại khách phải trong khoảng từ 1 đến 2."); return; }
 
             using var ctx = new HotelDbContext();
-            var entity = ctx.LoaiKhachHangs.Find(loai.MaCode);
+            var entity = ctx.LoaiKhachHangs.Find(loai.MaLKH);
             if (entity == null) return;
             entity.HeSoGia = heSo;
             ctx.SaveChanges();

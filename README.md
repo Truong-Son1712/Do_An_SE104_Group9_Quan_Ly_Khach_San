@@ -4,13 +4,29 @@ Hệ thống quản lý khách sạn xây dựng bằng **WPF (.NET 9)** + **SQL
 
 ---
 
+## Tính năng chính
+
+| Module | Chức năng |
+|---|---|
+| **Đặt Phòng** | Tạo / sửa / hủy đặt phòng; tách biệt *người đặt phòng* và *khách ở phòng*; kiểm tra trùng phòng |
+| **Hóa Đơn** | Lập hóa đơn, thanh toán, hủy hóa đơn; hiển thị chi tiết breakdown giá (gốc + phụ thu loại khách + phụ thu sức chứa + VAT) |
+| **Khách Hàng** | Quản lý khách hàng, phân loại (nội địa / nước ngoài) với hệ số giá riêng |
+| **Phòng** | Quản lý phòng, loại phòng, sức chứa, trạng thái |
+| **Dịch Vụ** | Ghi nhận và tính tiền dịch vụ phòng |
+| **Mã Giảm Giá** | Tạo / quản lý mã giảm giá theo loại phòng hoặc loại dịch vụ |
+| **Nhân Viên** | Phân quyền 3 cấp: Admin / Quản Lý / Lễ Tân |
+| **Báo Cáo** | Thống kê doanh thu, công suất phòng |
+| **Cấu Hình** | Điều chỉnh hệ số giá loại khách, tỉ lệ phụ thu, VAT, sức chứa tối đa |
+
+---
+
 ## Tài khoản mặc định
 
-| Tài khoản | Mật khẩu  | Vai trò    |
-|-----------|-----------|------------|
-| `admin`   | `admin123`  | Admin      |
-| `quanly`  | `quanly123` | Quản Lý    |
-| `letan`   | `letan123`  | Lễ Tân     |
+| Tài khoản | Mật khẩu    | Vai trò  | Quyền hạn |
+|-----------|-------------|----------|-----------|
+| `admin`   | `admin123`  | Admin    | Toàn quyền |
+| `quanly`  | `quanly123` | Quản Lý  | Quản lý nghiệp vụ, hủy hóa đơn |
+| `letan`   | `letan123`  | Lễ Tân   | Đặt phòng, check-in/out, dịch vụ |
 
 ---
 
@@ -18,10 +34,11 @@ Hệ thống quản lý khách sạn xây dựng bằng **WPF (.NET 9)** + **SQL
 
 ### Yêu cầu cài đặt
 
-| Phần mềm | Phiên bản | Link tải |
+| Phần mềm | Phiên bản | Ghi chú |
 |---|---|---|
-| SQL Server | Express / Developer / Standard | [microsoft.com/sql-server](https://www.microsoft.com/sql-server/sql-server-downloads) |
-| .NET 9 Windows Desktop Runtime | 9.0 trở lên | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/9.0) |
+| SQL Server | Express / Developer / Standard | [Tải tại đây](https://www.microsoft.com/sql-server/sql-server-downloads) |
+
+> **.NET 9 không cần cài riêng** — file exe trong thư mục `Release/` đã được đóng gói self-contained (bao gồm runtime bên trong).
 
 ---
 
@@ -47,7 +64,7 @@ sqlcmd -S . -E -i database\init_sqlserver.sql
 
 ### Bước 2 – Cấu hình kết nối
 
-Mở file **`appsettings.json`** (nằm cùng thư mục với file `.exe`) và chỉnh sửa connection string cho phù hợp với máy:
+Mở file **`Release\appsettings.json`** và chỉnh connection string cho phù hợp:
 
 ```json
 {
@@ -60,25 +77,27 @@ Mở file **`appsettings.json`** (nằm cùng thư mục với file `.exe`) và 
 **Các trường hợp phổ biến:**
 
 ```
-# SQL Server mặc định trên máy local (Windows Auth) – mặc định
+# Windows Authentication (mặc định)
 Server=.;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;
 
-# Named instance (ví dụ: DESKTOP-ABC\SQLEXPRESS)
-Server=DESKTOP-ABC\SQLEXPRESS;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;
+# Named instance (ví dụ SQLEXPRESS)
+Server=.\SQLEXPRESS;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True;
 
-# SQL Server Authentication (sa/password)
+# SQL Server Authentication
 Server=.;Database=QuanLyKhachSan;User ID=sa;Password=YourPassword;TrustServerCertificate=True;
 ```
 
-> **Lưu ý:** Tên instance SQL Server có thể xem trong SSMS ở góc trên bên trái khi kết nối (ví dụ: `DESKTOP-ABC\SQLEXPRESS`).
+> Tên instance SQL Server xem trong SSMS ở góc trên bên trái khi kết nối (ví dụ: `DESKTOP-ABC\SQLEXPRESS`).
 
 ---
 
 ### Bước 3 – Chạy ứng dụng
 
-Double-click file **`Quản Lý Khách Sạn.exe`** trong thư mục gốc của repo.
+Double-click file **`Release\Quản Lý Khách Sạn.exe`**.
 
-Hoặc build từ source:
+> Lần đầu chạy sẽ mất vài giây do giải nén runtime vào thư mục temp.
+
+Hoặc build từ source (cần cài .NET 9 SDK):
 ```bash
 cd "Đồ Án Quản Lý Khách Sạn\Đồ Án Quản Lý Khách Sạn"
 dotnet run
@@ -90,22 +109,28 @@ dotnet run
 
 ```
 📁 database/
-   └── init_sqlserver.sql     # Script khởi tạo SQL Server
+   └── init_sqlserver.sql          # Script khởi tạo database (chạy 1 lần)
+📁 Release/
+   ├── Quản Lý Khách Sạn.exe       # File thực thi (self-contained, ~179 MB)
+   └── appsettings.json            # Cấu hình kết nối database
 📁 Đồ Án Quản Lý Khách Sạn/
    └── Đồ Án Quản Lý Khách Sạn/
-       ├── appsettings.json   # Cấu hình kết nối database
-       ├── Data/              # DbContext, DatabaseInitializer
-       ├── Models/            # Entity models
-       ├── ViewModels/        # MVVM ViewModels
-       ├── Views/             # XAML UI
-       └── Helpers/           # Utilities, AppConfig, Converters
+       ├── appsettings.json        # Cấu hình kết nối (dùng khi chạy từ source)
+       ├── Data/                   # DbContext, DatabaseInitializer
+       ├── Models/                 # Entity models
+       ├── ViewModels/             # MVVM ViewModels
+       ├── Views/                  # XAML UI
+       └── Helpers/                # AppConfig, SessionManager, Converters
 ```
 
 ---
 
 ## Công nghệ sử dụng
 
-- **UI:** WPF (Windows Presentation Foundation)
-- **Database:** SQL Server + Entity Framework Core 9
-- **Pattern:** MVVM
-- **Auth:** BCrypt password hashing
+| Thành phần | Chi tiết |
+|---|---|
+| **UI Framework** | WPF (Windows Presentation Foundation) |
+| **Database** | SQL Server + Entity Framework Core 9 |
+| **Architecture** | MVVM (Model-View-ViewModel) |
+| **Authentication** | BCrypt password hashing |
+| **Target OS** | Windows 10/11 x64 |
