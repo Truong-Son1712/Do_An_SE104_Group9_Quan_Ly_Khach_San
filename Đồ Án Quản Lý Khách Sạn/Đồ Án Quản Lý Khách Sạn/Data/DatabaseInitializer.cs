@@ -22,6 +22,23 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                     IsActive  BIT           NOT NULL DEFAULT 1
                 );");
 
+            // Migration: thêm các cột breakdown giá phòng vào HoaDons
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HoaDons' AND COLUMN_NAME='GiaPhongGoc')
+                ALTER TABLE HoaDons ADD GiaPhongGoc DECIMAL(18,2) NOT NULL DEFAULT 0;
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HoaDons' AND COLUMN_NAME='HeSoLoaiKhach')
+                ALTER TABLE HoaDons ADD HeSoLoaiKhach DECIMAL(10,4) NOT NULL DEFAULT 1;
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HoaDons' AND COLUMN_NAME='TenLoaiKhachMax')
+                ALTER TABLE HoaDons ADD TenLoaiKhachMax NVARCHAR(100) NULL;
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HoaDons' AND COLUMN_NAME='TiLePhuThuSucChua')
+                ALTER TABLE HoaDons ADD TiLePhuThuSucChua DECIMAL(5,4) NOT NULL DEFAULT 0;");
+
+            // Migration: thêm cột NguoiDatPhongOPhong vào DatPhongs nếu chưa có
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                               WHERE TABLE_NAME = 'DatPhongs' AND COLUMN_NAME = 'NguoiDatPhongOPhong')
+                ALTER TABLE DatPhongs ADD NguoiDatPhongOPhong BIT NOT NULL DEFAULT 1;");
+
             ctx.Database.ExecuteSqlRaw(@"
                 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DichVuPhongs')
                 CREATE TABLE DichVuPhongs (

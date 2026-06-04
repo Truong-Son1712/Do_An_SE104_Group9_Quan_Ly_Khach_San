@@ -18,10 +18,16 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
         private decimal _tienDichVu;
         private decimal _tienCoc;
         private decimal _tienGiam;
-        private decimal _vatPercent; // % VAT tại thời điểm lập HĐ
+        private decimal _vatPercent;
         private int? _maGG;
         private int _maLoaiPhong;
         private List<(int MaLoaiDV, decimal ThanhTien)> _dichVuItems = new();
+
+        // Breakdown giá phòng
+        private decimal _giaPhongGoc       = 0;
+        private decimal _heSoLoaiKhach     = 1;
+        private string  _tenLoaiKhachMax   = "";
+        private decimal _tiLePhuThuSucChua = 0;
 
         /// <summary>
         /// Khởi tạo màn hình lập hóa đơn dựa trên mã đặt phòng được chọn.
@@ -47,12 +53,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 .FirstOrDefault(d => d.MaDatPhong == _maDatPhong);
             if (dp == null) return;
 
-            // ── 1. Gom danh sách khách hàng thuê phòng ───────────────────────────
-            var allKhach = dp.DatPhongKhachHangs.Any()
-                ? dp.DatPhongKhachHangs.Select(x => x.KhachHang?.HoTen ?? "").Where(s => s.Length > 0).ToList()
-                : new List<string> { dp.KhachHang?.HoTen ?? "" };
-            TxtKhachHang.Text = string.Join(", ", allKhach);
-            TxtPhong.Text     = $"Phòng {dp.Phong?.SoPhong} – {dp.Phong?.LoaiPhong?.TenLoaiPhong}";
+            // ── 1. Hiển thị người đặt phòng và khách ở phòng riêng biệt ─────────
+            TxtNguoiDat.Text = dp.KhachHang?.HoTen ?? "—";
+            var stayingNames = dp.DatPhongKhachHangs
+                .Select(x => x.KhachHang?.HoTen ?? "")
+                .Where(s => s.Length > 0)
+                .ToList();
+            TxtKhachO.Text = stayingNames.Any() ? string.Join(", ", stayingNames) : "—";
+            TxtPhong.Text  = $"Phòng {dp.Phong?.SoPhong} – {dp.Phong?.LoaiPhong?.TenLoaiPhong}";
 
             // ── 2. Tính số ngày thuê phòng thực tế (tối thiểu là 1 đêm) ─────────
             var nhan   = dp.NgayNhanPhong;
@@ -60,31 +68,34 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             int soNgay = Math.Max(1, (tra.Date - nhan.Date).Days);
             decimal gia = AppConfig.GetGiaPhongHienTai(dp.Phong?.LoaiPhong?.GiaPhong ?? 0);
 
-            // ── 3. Lấy hệ số loại khách hàng (Tính theo quy định có khách nước ngoài) ──
-            // Lấy danh sách các mã loại khách hàng không trùng lặp trong phòng
+            // ── 3. Hệ số loại khách: chỉ tính khách thực sự ở phòng (DatPhongKhachHangs)
+            // Người đặt phòng không ở → không ảnh hưởng hệ số giá
             var allMaLKHs = dp.DatPhongKhachHangs
                 .Select(x => x.KhachHang?.MaLoaiKH ?? 0)
-                .Append(dp.KhachHang?.MaLoaiKH ?? 0)
                 .Where(id => id > 0)
                 .Distinct()
                 .ToList();
+            // Fallback khi chưa có DatPhongKhachHangs (dữ liệu cũ)
+            if (!allMaLKHs.Any() && (dp.KhachHang?.MaLoaiKH ?? 0) > 0)
+                allMaLKHs.Add(dp.KhachHang!.MaLoaiKH);
             
             // Lấy hệ số cao nhất trong các loại khách trong phòng (Ví dụ: nội địa=1.0, nước ngoài=1.2 → dùng 1.2)
             decimal heSo    = AppConfig.GetCombinedHeSo(allMaLKHs);
             bool    hasHeSo = heSo > 1m;
 
             // ── 4. Tính toán phụ thu khi số lượng khách vượt quá sức chứa phòng ───
-            int soKhach  = dp.SoKhach > 0 ? dp.SoKhach : allKhach.Count;
+            int soKhach  = dp.SoKhach > 0 ? dp.SoKhach : stayingNames.Count;
             int sucChua  = dp.Phong?.LoaiPhong?.SucChua ?? int.MaxValue;
             bool hasPhuThu     = soKhach > sucChua;
             decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
 
-            // ── 5. Công thức tính tiền phòng chung cuộc ────────────────────────
-            // Tiền phòng = Giá gốc × Số ngày × (Hệ số khách + Tỉ lệ phụ thu)
-            // Phụ thu tính trên giá gốc, độc lập với hệ số loại khách
-            _tienPhong = gia * soNgay * (heSo + tiLePhuThu);
-            _tienCoc    = dp.TienCoc;
-            _vatPercent = AppConfig.GetVAT();
+            // ── 5. Công thức tính tiền phòng ─────────────────────────────────
+            _giaPhongGoc       = gia * soNgay;
+            _heSoLoaiKhach     = heSo;
+            _tiLePhuThuSucChua = tiLePhuThu;
+            _tienPhong         = _giaPhongGoc * (heSo + tiLePhuThu);
+            _tienCoc           = dp.TienCoc;
+            _vatPercent        = AppConfig.GetVAT();
 
             _maLoaiPhong = dp.Phong?.MaLoaiPhong ?? 0;
 
@@ -98,8 +109,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             TxtSoNgay.Text  = $"{soNgay} đêm";
             TxtSoKhach.Text = $"{soKhach} khách  (sức chứa: {sucChua})";
 
-            // Hiển thị chi tiết hệ số giá nếu có phụ thu loại khách nước ngoài
-            string heSoText = "";
+            // ── 6. Lấy tên loại khách có hệ số cao nhất ────────────────────
             if (hasHeSo)
             {
                 using var hCtx = new HotelDbContext();
@@ -108,19 +118,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                     .OrderByDescending(l => l.HeSoGia)
                     .Select(l => new { l.TenLoai, l.HeSoGia })
                     .FirstOrDefault();
-                heSoText = maxPart != null
-                    ? $" × {maxPart.TenLoai}(×{maxPart.HeSoGia:0.####})"
-                    : $" ×{heSo:0.####}";
+                _tenLoaiKhachMax = maxPart?.TenLoai ?? "";
             }
-            TxtGiaPhong.Text = hasHeSo
-                ? $"{gia:N0} ₫/đêm{heSoText}"
-                : $"{gia:N0} ₫/đêm";
 
-            // Hiển thị thông tin phụ thu vượt sức chứa phòng (25%) nếu có
+            // Hiển thị giá phòng + breakdown trong right column
+            TxtSoNgay.Text  = $"{soNgay} đêm";
+            TxtGiaPhong.Text = $"{gia:N0} ₫/đêm × {soNgay} đêm = {_giaPhongGoc:N0} ₫";
+            if (hasHeSo)
+            {
+                TxtPhuThuInfo.Text       = $"+ Phụ thu {_tenLoaiKhachMax} (×{heSo:0.####}): +{_giaPhongGoc * (heSo - 1):N0} ₫";
+                TxtPhuThuInfo.Visibility = Visibility.Visible;
+            }
             if (hasPhuThu)
             {
-                TxtPhuThuInfo.Text       = $"Phụ thu {tiLePhuThu:P0} (vượt sức chứa {sucChua} người)";
-                TxtPhuThuInfo.Visibility = Visibility.Visible;
+                TxtPhuThuSucChuaInfo.Text       = $"+ Phụ thu vượt SC ({tiLePhuThu:P0}): +{_giaPhongGoc * tiLePhuThu:N0} ₫";
+                TxtPhuThuSucChuaInfo.Visibility = Visibility.Visible;
             }
 
             TxtTienPhong.Text       = $"{_tienPhong:N0} ₫";
@@ -171,7 +183,41 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
 
             TxtTienCocDisplay.Text = $"{_tienCoc:N0} ₫";
             RowTienCoc.Opacity     = _tienCoc > 0 ? 1.0 : 0.4;
+            ApplyRoomPriceBreakdown();
             UpdateTotals();
+        }
+
+        private void ApplyRoomPriceBreakdown()
+        {
+            bool hasLoai = _heSoLoaiKhach > 1m;
+            bool hasSC   = _tiLePhuThuSucChua > 0m;
+
+            TxtGiaPhongGoc.Text = $"{_giaPhongGoc:N0} ₫";
+
+            if (hasLoai)
+            {
+                RowPhuThuLoai.Visibility    = Visibility.Visible;
+                TxtLabelPhuThuLoai.Text     = $"+ Phụ thu {_tenLoaiKhachMax} (×{_heSoLoaiKhach:0.####}):";
+                TxtPhuThuLoai.Text          = $"+{_giaPhongGoc * (_heSoLoaiKhach - 1):N0} ₫";
+            }
+            if (hasSC)
+            {
+                RowPhuThuSC.Visibility      = Visibility.Visible;
+                TxtLabelPhuThuSC.Text       = $"+ Phụ thu vượt sức chứa ({_tiLePhuThuSucChua:P0}):";
+                TxtPhuThuSC.Text            = $"+{_giaPhongGoc * _tiLePhuThuSucChua:N0} ₫";
+            }
+            if (hasLoai || hasSC)
+            {
+                RowTienPhongTotal.Visibility = Visibility.Visible;
+                TxtTienPhongDetail.Text      = $"{_tienPhong:N0} ₫";
+            }
+            else
+            {
+                // Không có phụ thu → ẩn dòng tổng riêng, dùng TxtGiaPhongGoc làm dòng duy nhất
+                TxtLabelGiaGoc.Text          = "Tiền phòng:";
+                RowTienPhongTotal.Visibility  = Visibility.Collapsed;
+                TxtTienPhongDetail.Text       = $"{_tienPhong:N0} ₫"; // giữ để UpdateTotals dùng
+            }
         }
 
         private void UpdateTotals()
@@ -328,19 +374,23 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
 
                 var hd = new Models.HoaDon
                 {
-                    MaDatPhong      = _maDatPhong,
-                    MaNV            = SessionManager.CurrentUser!.MaNV,
-                    TienPhong       = _tienPhong,
-                    TienCoc         = _tienCoc,
-                    TongTien        = tongSauVAT,
-                    TienGiam        = _tienGiam,
-                    TienVAT         = tienVAT,
-                    VATPercent      = _vatPercent,
-                    MaGG            = _maGG,
-                    NgayTraPhongGoc = dp.NgayTraPhong,
-                    PhuongThucTT    = "TienMat",
-                    TrangThai       = "ChuaThanhToan",
-                    GhiChu          = TxtGhiChu.Text.Trim()
+                    MaDatPhong         = _maDatPhong,
+                    MaNV               = SessionManager.CurrentUser!.MaNV,
+                    TienPhong          = _tienPhong,
+                    TienCoc            = _tienCoc,
+                    TongTien           = tongSauVAT,
+                    TienGiam           = _tienGiam,
+                    TienVAT            = tienVAT,
+                    VATPercent         = _vatPercent,
+                    MaGG               = _maGG,
+                    NgayTraPhongGoc    = dp.NgayTraPhong,
+                    PhuongThucTT       = "TienMat",
+                    TrangThai          = "ChuaThanhToan",
+                    GhiChu             = TxtGhiChu.Text.Trim(),
+                    GiaPhongGoc        = _giaPhongGoc,
+                    HeSoLoaiKhach      = _heSoLoaiKhach,
+                    TenLoaiKhachMax    = _tenLoaiKhachMax,
+                    TiLePhuThuSucChua  = _tiLePhuThuSucChua
                 };
                 ctx.HoaDons.Add(hd);
 

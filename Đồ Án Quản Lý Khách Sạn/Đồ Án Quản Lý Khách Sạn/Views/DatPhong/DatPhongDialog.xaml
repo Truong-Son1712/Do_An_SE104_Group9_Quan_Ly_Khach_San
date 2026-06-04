@@ -1,7 +1,7 @@
 <Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong.DatPhongDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Đặt Phòng" Height="580" Width="540"
+        Title="Đặt Phòng" Height="640" Width="540"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" WindowStyle="None"
         AllowsTransparency="True" Background="Transparent">
@@ -32,15 +32,48 @@
 
             <ScrollViewer Grid.Row="1" Margin="24,16">
                 <StackPanel>
-                    <!-- Khách hàng – multi-select -->
-                    <StackPanel>
-                        <TextBlock Text="Khách Hàng *" Style="{StaticResource Label}"/>
-                        <Border BorderBrush="#BDBDBD" BorderThickness="1" CornerRadius="4">
+
+                    <!-- Người Đặt Phòng -->
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Style="{StaticResource Label}">
+                            <Run Text="Người Đặt Phòng *"/>
+                            <Run Text="  (người chịu trách nhiệm booking)" Foreground="#90A4AE" FontSize="10"/>
+                        </TextBlock>
+                        <ComboBox x:Name="CboNguoiDat" IsEditable="True" IsTextSearchEnabled="False"
+                                  SelectedValuePath="MaKH"
+                                  SelectionChanged="CboNguoiDat_SelectionChanged"
+                                  KeyUp="CboNguoiDat_KeyUp">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding HoTen}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="  "/>
+                                        <TextBlock Text="{Binding LoaiText}" Foreground="#78909C" FontSize="11"/>
+                                        <TextBlock Text="  "/>
+                                        <TextBlock Text="{Binding CMND}" Foreground="#90A4AE" FontSize="11"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Khách Ở Phòng -->
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Style="{StaticResource Label}">
+                            <Run Text="Khách Ở Phòng"/>
+                            <Run Text="  (những khách thực sự ngủ tại phòng, ngoài người đặt)" Foreground="#90A4AE" FontSize="10"/>
+                        </TextBlock>
+                        <!-- TextBox trong border riêng (bo góc trên) để tránh bị clip -->
+                        <Border BorderBrush="#BDBDBD" BorderThickness="1,1,1,0" CornerRadius="4,4,0,0"
+                                Background="White">
+                            <TextBox x:Name="TxtTimKiem" Tag="Tìm theo tên hoặc CCCD/CMND..."
+                                     BorderThickness="0" Background="Transparent"
+                                     Padding="8,0" Height="34"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="TxtTimKiem_Changed"/>
+                        </Border>
+                        <Border BorderBrush="#BDBDBD" BorderThickness="1,0,1,1" CornerRadius="0,0,4,4">
                             <StackPanel>
-                                <TextBox x:Name="TxtTimKiem" Tag="Tìm tên khách..."
-                                         BorderThickness="0,0,0,1" BorderBrush="#E0E0E0"
-                                         Padding="8,6" Margin="0"
-                                         TextChanged="TxtTimKiem_Changed"/>
                                 <ListBox x:Name="LstKhachHang" MaxHeight="110" BorderThickness="0"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          VirtualizingPanel.IsVirtualizing="False">
@@ -60,14 +93,17 @@
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                      IsEnabled="{Binding CanStay}"
                                                       Padding="8,5" Margin="0"
                                                       VerticalContentAlignment="Center"
+                                                      ToolTip="{Binding OccupiedInfo}"
                                                       Checked="KhachHang_CheckChanged"
                                                       Unchecked="KhachHang_CheckChanged">
                                                 <TextBlock>
                                                     <Run Text="{Binding HoTen, Mode=OneWay}" FontWeight="SemiBold"/>
                                                     <Run Text="  "/>
                                                     <Run Text="{Binding LoaiText, Mode=OneWay}" Foreground="#78909C" FontSize="11"/>
+                                                    <Run Text="{Binding OccupiedText, Mode=OneWay}" Foreground="#E57373" FontSize="10"/>
                                                 </TextBlock>
                                             </CheckBox>
                                         </DataTemplate>
@@ -77,24 +113,14 @@
                                         BorderBrush="#E0E0E0" Padding="8,5">
                                     <TextBlock x:Name="TxtKhachDaChon" Foreground="#78909C"
                                                FontSize="11" TextWrapping="Wrap"
-                                               Text="Chưa chọn khách hàng"/>
+                                               Text="Chưa chọn khách ở phòng (ngoài người đặt)"/>
                                 </Border>
                             </StackPanel>
                         </Border>
                     </StackPanel>
 
-                    <!-- Khách đặt chính -->
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource Label}">
-                            <Run Text="Khách Đặt Chính *"/>
-                            <Run Text="  (người chịu trách nhiệm booking)" Foreground="#90A4AE" FontSize="10"/>
-                        </TextBlock>
-                        <ComboBox x:Name="CboKhachChinh" DisplayMemberPath="HoTen"
-                                  SelectedValuePath="MaKH"/>
-                    </StackPanel>
-
                     <!-- Phòng -->
-                    <StackPanel>
+                    <StackPanel Margin="0,0,0,10">
                         <TextBlock Text="Phòng *" Style="{StaticResource Label}"/>
                         <ComboBox x:Name="CboPhong" SelectionChanged="CboPhong_SelectionChanged"
                                   SelectedValuePath="MaPhong">
@@ -117,7 +143,7 @@
                     </StackPanel>
 
                     <!-- Ngày -->
-                    <Grid>
+                    <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
                         </Grid.ColumnDefinitions>
@@ -132,7 +158,7 @@
                     </Grid>
 
                     <!-- Tiền cọc + Dự tính -->
-                    <Grid>
+                    <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
                         </Grid.ColumnDefinitions>

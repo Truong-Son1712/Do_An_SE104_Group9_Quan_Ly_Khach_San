@@ -13,6 +13,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private class KhachDisplay
         {
             public string TieuDe      { get; set; } = "";
+            // Badge "✓ Có sử dụng phòng" hoặc "Không ở phòng này"
+            public string BadgeText   { get; set; } = "";
+            public string BadgeColor  { get; set; } = "#2E7D32";
+            public Visibility BadgeVisibility => string.IsNullOrEmpty(BadgeText)
+                ? Visibility.Collapsed : Visibility.Visible;
             public string MaKH        { get; set; } = "";
             public string CMND        { get; set; } = "";
             public string GioiTinh    { get; set; } = "";
@@ -21,9 +26,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             public string QuocTich    { get; set; } = "";
             public string LoaiKhach   { get; set; } = "";
             public string DiaChi      { get; set; } = "";
-            public bool   IsPrimary   { get; set; }
-            // Màu header: vàng-cam cho khách đặt chính, xanh cho khách kèm
-            public string HeaderColor => IsPrimary ? "#E65100" : "#1565C0";
+            public bool   IsNguoiDat  { get; set; }
+            // Cam-đậm = người đặt phòng, xanh dương = khách ở
+            public string HeaderColor => IsNguoiDat ? "#BF360C" : "#1565C0";
         }
 
         public ChiTietDatPhongDialog(int maDatPhong)
@@ -68,45 +73,62 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             TxtTienCoc.Text = dp.TienCoc > 0 ? $"{dp.TienCoc:N0} ₫" : "Không có";
             TxtGhiChu.Text  = string.IsNullOrWhiteSpace(dp.GhiChu) ? "—" : dp.GhiChu;
 
-            var rawList = dp.DatPhongKhachHangs.Any()
-                ? dp.DatPhongKhachHangs.Select(x => x.KhachHang).Where(k => k != null).Cast<KhachHangModel>().ToList()
-                : dp.KhachHang != null ? new List<KhachHangModel> { dp.KhachHang } : new List<KhachHangModel>();
-
-            // Khách đặt chính lên đầu danh sách
-            var khachList = rawList
-                .OrderByDescending(k => k.MaKH == dp.MaKH)
-                .ToList();
-
-            // Tra cứu tên loại khách từ DB theo MaLKH (int)
             var loaiDict = ctx.LoaiKhachHangs.ToDictionary(l => l.MaLKH, l => l.TenLoai);
 
-            int soThuTu = 1;
             // Tải chi tiết thanh toán
             LoadThanhToan(ctx, dp);
 
-            IcKhachHang.ItemsSource = khachList.Select(k =>
-            {
-                bool isPrimary = k.MaKH == dp.MaKH;
-                string tieuDe  = isPrimary
-                    ? $"★ Đặt Chính:  {k.HoTen}"
-                    : $"Khách {soThuTu++}:  {k.HoTen}";
-                if (isPrimary) soThuTu = 2; // khách kèm bắt đầu từ số 2
+            var displayList = new List<KhachDisplay>();
 
-                return new KhachDisplay
-                {
-                    TieuDe    = tieuDe,
-                    IsPrimary = isPrimary,
-                    MaKH      = $"KH{k.MaKH:D4}",
-                    CMND      = string.IsNullOrWhiteSpace(k.CMND) ? "—" : k.CMND,
-                    GioiTinh  = k.GioiTinh == "Nu" ? "Nữ" : "Nam",
-                    NgaySinh  = k.NgaySinh.HasValue ? k.NgaySinh.Value.ToString("dd/MM/yyyy") : "—",
-                    SDT       = k.SDT ?? "—",
-                    QuocTich  = k.QuocTich,
-                    LoaiKhach = loaiDict.TryGetValue(k.MaLoaiKH, out var ten) ? ten : "—",
-                    DiaChi    = k.DiaChi ?? "—"
-                };
-            }).ToList();
+            // ── 1. Người đặt phòng (luôn hiển thị đầu tiên) ───────────────
+            if (dp.KhachHang != null)
+            {
+                bool coOPhong = dp.DatPhongKhachHangs.Any(x => x.MaKH == dp.MaKH);
+                displayList.Add(BuildDisplay(
+                    tieuDe:      $"Người Đặt Phòng:  {dp.KhachHang.HoTen}",
+                    badgeText:   coOPhong ? "✓ Có sử dụng phòng" : "Không ở phòng này",
+                    badgeColor:  coOPhong ? "#2E7D32" : "#78909C",
+                    isNguoiDat:  true,
+                    k:           dp.KhachHang,
+                    loaiDict:    loaiDict));
+            }
+
+            // ── 2. Khách ở phòng (loại trừ người đặt – đã hiển thị ở trên) ─
+            int idx = 1;
+            foreach (var x in dp.DatPhongKhachHangs
+                         .Where(x => x.MaKH != dp.MaKH && x.KhachHang != null)
+                         .OrderBy(x => x.KhachHang!.HoTen))
+            {
+                displayList.Add(BuildDisplay(
+                    tieuDe:      $"Khách {idx++}:  {x.KhachHang!.HoTen}",
+                    badgeText:   "",
+                    badgeColor:  "",
+                    isNguoiDat:  false,
+                    k:           x.KhachHang!,
+                    loaiDict:    loaiDict));
+            }
+
+            // Fallback dữ liệu cũ: nếu không có DatPhongKhachHangs và không có người đặt → không hiển thị thêm
+            IcKhachHang.ItemsSource = displayList;
         }
+
+        private static KhachDisplay BuildDisplay(
+            string tieuDe, string badgeText, string badgeColor, bool isNguoiDat,
+            KhachHangModel k, Dictionary<int, string> loaiDict) => new KhachDisplay
+        {
+            TieuDe    = tieuDe,
+            BadgeText = badgeText,
+            BadgeColor = badgeColor,
+            IsNguoiDat = isNguoiDat,
+            MaKH      = $"KH{k.MaKH:D4}",
+            CMND      = string.IsNullOrWhiteSpace(k.CMND) ? "—" : k.CMND,
+            GioiTinh  = k.GioiTinh == "Nu" ? "Nữ" : "Nam",
+            NgaySinh  = k.NgaySinh.HasValue ? k.NgaySinh.Value.ToString("dd/MM/yyyy") : "—",
+            SDT       = k.SDT ?? "—",
+            QuocTich  = k.QuocTich,
+            LoaiKhach = loaiDict.TryGetValue(k.MaLoaiKH, out var ten) ? ten : "—",
+            DiaChi    = k.DiaChi ?? "—"
+        };
 
         private void LoadThanhToan(HotelDbContext ctx, Models.DatPhong dp)
         {
@@ -125,9 +147,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (hd == null && !dichVus.Any()) return;
             PnlThanhToan.Visibility = Visibility.Visible;
 
-            // Tiền phòng
+            // Tiền phòng (với breakdown nếu có hóa đơn)
             decimal tienPhong = hd?.TienPhong ?? 0;
-            TxtTienPhongCT.Text = $"{tienPhong:N0} ₫";
+            if (hd != null)
+                ApplyRoomPriceBreakdown(hd);
+            else
+            {
+                TxtGiaPhongGoc.Text  = "— (chưa lập hóa đơn)";
+                TxtLabelGiaGoc.Text  = "Tiền phòng:";
+            }
 
             // Dịch vụ
             if (dichVus.Any())
@@ -168,11 +196,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             if (hd == null)
             {
-                // Chưa có hóa đơn: chỉ hiện dịch vụ, không hiện tổng
-                TxtTienPhongCT.Text = "— (chưa lập hóa đơn)";
-                TxtConLaiCT.Text    = "—";
-                TxtCocCT.Text       = $"{dp.TienCoc:N0} ₫";
-                TxtTongCT.Text      = "—";
+                TxtConLaiCT.Text = "—";
+                TxtCocCT.Text    = $"{dp.TienCoc:N0} ₫";
+                TxtTongCT.Text   = "—";
                 return;
             }
 
@@ -198,6 +224,40 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             TxtCocCT.Text     = $"{hd.TienCoc:N0} ₫";
             TxtConLaiCT.Text  = $"{conLai:N0} ₫";
             TxtTongCT.Text    = $"{hd.TongTien:N0} ₫";
+        }
+
+        private void ApplyRoomPriceBreakdown(Models.HoaDon hd)
+        {
+            bool hasLoai = hd.GiaPhongGoc > 0 && hd.HeSoLoaiKhach > 1m;
+            bool hasSC   = hd.GiaPhongGoc > 0 && hd.TiLePhuThuSucChua > 0m;
+
+            TxtGiaPhongGoc.Text = hd.GiaPhongGoc > 0
+                ? $"{hd.GiaPhongGoc:N0} ₫"
+                : $"{hd.TienPhong:N0} ₫";
+
+            if (hasLoai)
+            {
+                RowPhuThuLoai.Visibility = Visibility.Visible;
+                TxtLabelPhuThuLoai.Text  = $"+ Phụ thu {hd.TenLoaiKhachMax} (×{hd.HeSoLoaiKhach:0.####}):";
+                TxtPhuThuLoai.Text       = $"+{hd.GiaPhongGoc * (hd.HeSoLoaiKhach - 1):N0} ₫";
+            }
+            if (hasSC)
+            {
+                RowPhuThuSC.Visibility   = Visibility.Visible;
+                TxtLabelPhuThuSC.Text    = $"+ Phụ thu vượt sức chứa ({hd.TiLePhuThuSucChua:P0}):";
+                TxtPhuThuSC.Text         = $"+{hd.GiaPhongGoc * hd.TiLePhuThuSucChua:N0} ₫";
+            }
+            if (hasLoai || hasSC)
+            {
+                RowTienPhongTotal.Visibility = Visibility.Visible;
+                TxtTienPhongCT.Text          = $"{hd.TienPhong:N0} ₫";
+            }
+            else
+            {
+                TxtLabelGiaGoc.Text          = "Tiền phòng:";
+                RowTienPhongTotal.Visibility  = Visibility.Collapsed;
+                TxtTienPhongCT.Text           = $"{hd.TienPhong:N0} ₫";
+            }
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();

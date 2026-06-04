@@ -63,6 +63,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public decimal TienVAT { get; set; }
         public decimal VATPercent { get; set; }
 
+        // Phân rã tiền phòng để hiển thị chi tiết
+        public decimal GiaPhongGoc      { get; set; } = 0; // gia/dem × soNgay, trước mọi phụ thu
+        public decimal HeSoLoaiKhach    { get; set; } = 1; // hệ số khách nước ngoài (1.0 = nội địa)
+        public string? TenLoaiKhachMax  { get; set; }      // tên loại khách có hệ số cao nhất
+        public decimal TiLePhuThuSucChua{ get; set; } = 0; // tỉ lệ phụ thu vượt SC (0 hoặc 0.25)
+
         public int? MaGG { get; set; }
 
         /// <summary>

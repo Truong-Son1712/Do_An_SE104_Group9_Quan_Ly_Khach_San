@@ -19,6 +19,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public TrangThaiDatPhong TrangThai { get; set; } = TrangThaiDatPhong.DaDat;
         public decimal TienCoc { get; set; } = 0;
         public int SoKhach { get; set; } = 1;
+        public bool NguoiDatPhongOPhong { get; set; } = true;
         public string? GhiChu { get; set; }
 
         public virtual KhachHang? KhachHang { get; set; }
@@ -27,26 +28,26 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public virtual ICollection<DatPhongKhachHang> DatPhongKhachHangs { get; set; } = new List<DatPhongKhachHang>();
         public virtual ICollection<DichVuPhong>       DichVuPhongs       { get; set; } = new List<DichVuPhong>();
 
-        // Hiển thị danh sách khách trong DataGrid
-        // Khách đặt chính (MaKH) được đánh dấu ★ ở đầu, các khách kèm theo liệt kê sau
+        // Hiển thị trong DataGrid: người đặt phòng (ĐP) + danh sách khách ở phòng
         public string DanhSachKhachText
         {
             get
             {
+                string nguoiDat = KhachHang?.HoTen ?? "";
                 if (!DatPhongKhachHangs.Any())
-                    return KhachHang?.HoTen ?? "";
+                    return string.IsNullOrEmpty(nguoiDat) ? "" : $"{nguoiDat} (ĐP)";
 
-                // Khách đặt chính lên đầu, có dấu ★
-                var primary = DatPhongKhachHangs
-                    .Where(x => x.MaKH == MaKH && (x.KhachHang?.HoTen?.Length ?? 0) > 0)
-                    .Select(x => x.KhachHang!.HoTen + " ★")
-                    .FirstOrDefault() ?? (KhachHang?.HoTen + " ★");
+                // DatPhongKhachHangs chứa các khách thực sự ở phòng
+                bool nguoiDatOPhong = DatPhongKhachHangs.Any(x => x.MaKH == MaKH);
+                var parts = new List<string>();
 
-                var others = DatPhongKhachHangs
-                    .Where(x => x.MaKH != MaKH && (x.KhachHang?.HoTen?.Length ?? 0) > 0)
-                    .Select(x => x.KhachHang!.HoTen);
+                if (!string.IsNullOrEmpty(nguoiDat))
+                    parts.Add(nguoiDatOPhong ? nguoiDat + " ★" : nguoiDat + " (ĐP)");
 
-                return string.Join(", ", new[] { primary }.Concat(others).Where(s => s?.Length > 0));
+                foreach (var x in DatPhongKhachHangs.Where(x => x.MaKH != MaKH && (x.KhachHang?.HoTen?.Length ?? 0) > 0))
+                    parts.Add(x.KhachHang!.HoTen);
+
+                return string.Join(", ", parts);
             }
         }
     }

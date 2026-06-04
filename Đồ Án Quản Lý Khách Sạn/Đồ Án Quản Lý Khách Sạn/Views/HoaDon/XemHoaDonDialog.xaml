@@ -72,11 +72,27 @@
                             <StackPanel>
                                 <TextBlock Text="KHÁCH HÀNG" FontSize="9" FontWeight="Bold"
                                            Foreground="#90A4AE" Margin="0,0,0,10"/>
-                                <DockPanel Margin="0,0,0,7">
+                                <!-- Người đặt phòng -->
+                                <DockPanel Margin="0,0,0,3">
                                     <TextBlock DockPanel.Dock="Left" Text="👤" FontSize="13"
-                                               VerticalAlignment="Top" Margin="0,1,8,0"/>
-                                    <TextBlock x:Name="TxtKhach" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#1A237E" TextWrapping="Wrap" LineHeight="20"/>
+                                               VerticalAlignment="Top" Margin="0,1,6,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Người đặt phòng" FontSize="9" FontWeight="Bold"
+                                                   Foreground="#90A4AE" Margin="0,0,0,1"/>
+                                        <TextBlock x:Name="TxtNguoiDat" FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#1A237E" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <!-- Khách ở phòng -->
+                                <DockPanel Margin="0,0,0,7">
+                                    <TextBlock DockPanel.Dock="Left" Text="🛌" FontSize="13"
+                                               VerticalAlignment="Top" Margin="0,1,6,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Khách ở phòng" FontSize="9" FontWeight="Bold"
+                                                   Foreground="#90A4AE" Margin="0,0,0,1"/>
+                                        <TextBlock x:Name="TxtKhachO" FontSize="12"
+                                                   Foreground="#37474F" TextWrapping="Wrap" LineHeight="18"/>
+                                    </StackPanel>
                                 </DockPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
                                     <TextBlock Text="🛏" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
@@ -133,13 +149,37 @@
                             <TextBlock Text="CHI TIẾT THANH TOÁN" FontSize="9" FontWeight="Bold"
                                        Foreground="#90A4AE" Margin="0,0,0,12"/>
 
-                            <!-- Tiền phòng -->
-                            <DockPanel Margin="0,0,0,10">
+                            <!-- Giá phòng gốc -->
+                            <DockPanel Margin="0,0,0,4">
+                                <TextBlock x:Name="TxtGiaPhongGoc" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#546E7A" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtLabelGiaGoc" Text="Giá phòng gốc"
+                                           Foreground="#78909C" FontSize="12" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <!-- Phụ thu loại khách -->
+                            <DockPanel x:Name="RowPhuThuLoai" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuLoai" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#F57C00" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtLabelPhuThuLoai" Foreground="#F57C00"
+                                           FontSize="12" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <!-- Phụ thu vượt sức chứa -->
+                            <DockPanel x:Name="RowPhuThuSC" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuSC" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#E65100" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtLabelPhuThuSC" Foreground="#E65100"
+                                           FontSize="12" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <!-- Tổng tiền phòng (hiện khi có phụ thu) -->
+                            <DockPanel x:Name="RowTienPhongTotal" Margin="0,0,0,10" Visibility="Collapsed">
                                 <TextBlock x:Name="TxtTienPhong" DockPanel.Dock="Right"
-                                           FontSize="13" Foreground="#37474F" FontWeight="SemiBold"
+                                           FontSize="13" Foreground="#37474F" FontWeight="Bold"
                                            VerticalAlignment="Center"/>
-                                <TextBlock Text="Tiền phòng" Foreground="#78909C" FontSize="13"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="= Tổng tiền phòng" Foreground="#37474F"
+                                           FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </DockPanel>
 
                             <!-- Chi tiết dịch vụ -->

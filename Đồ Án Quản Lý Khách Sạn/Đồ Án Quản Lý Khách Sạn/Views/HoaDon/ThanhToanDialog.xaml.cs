@@ -38,10 +38,16 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             if (hd == null) return;
 
             var dp = hd.DatPhong;
-            TxtMaHD.Text      = $"Mã hóa đơn: #{hd.MaHD}";
-            TxtKhachHang.Text = BuildKhachText(dp);
-            TxtPhong.Text      = $"Phòng {dp?.Phong?.SoPhong} – {dp?.Phong?.LoaiPhong?.TenLoaiPhong}";
-            TxtTienPhong.Text = $"{hd.TienPhong:N0} ₫";
+            TxtMaHD.Text     = $"Mã hóa đơn: #{hd.MaHD}";
+            TxtNguoiDat.Text = dp?.KhachHang?.HoTen ?? "—";
+            var stayingNames = dp?.DatPhongKhachHangs
+                .Select(x => x.KhachHang?.HoTen ?? "")
+                .Where(s => s.Length > 0)
+                .ToList() ?? new List<string>();
+            TxtKhachO.Text   = stayingNames.Any() ? string.Join(", ", stayingNames) : "—";
+            TxtPhong.Text    = $"Phòng {dp?.Phong?.SoPhong} – {dp?.Phong?.LoaiPhong?.TenLoaiPhong}";
+            ApplyRoomPriceBreakdown(hd);
+
 
             // VAT
             if (hd.TienVAT > 0)
@@ -146,20 +152,37 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             }
         }
 
-        private static string BuildKhachText(Models.DatPhong? dp)
+        private void ApplyRoomPriceBreakdown(Models.HoaDon hd)
         {
-            if (dp == null) return "";
-            string primary = dp.KhachHang?.HoTen ?? "";
-            var others = dp.DatPhongKhachHangs
-                .Where(x => x.MaKH != dp.MaKH)
-                .Select(x => x.KhachHang?.HoTen ?? "")
-                .Where(s => s.Length > 0)
-                .ToList();
+            bool hasLoai = hd.GiaPhongGoc > 0 && hd.HeSoLoaiKhach > 1m;
+            bool hasSC   = hd.GiaPhongGoc > 0 && hd.TiLePhuThuSucChua > 0m;
 
-            var parts = new List<string>();
-            if (primary.Length > 0) parts.Add($"★ {primary}");
-            parts.AddRange(others);
-            return string.Join(", ", parts);
+            TxtGiaPhongGoc.Text = hd.GiaPhongGoc > 0
+                ? $"{hd.GiaPhongGoc:N0} ₫"
+                : $"{hd.TienPhong:N0} ₫";
+
+            if (hasLoai)
+            {
+                RowPhuThuLoai.Visibility = Visibility.Visible;
+                TxtLabelPhuThuLoai.Text  = $"+ Phụ thu {hd.TenLoaiKhachMax} (×{hd.HeSoLoaiKhach:0.####}):";
+                TxtPhuThuLoai.Text       = $"+{hd.GiaPhongGoc * (hd.HeSoLoaiKhach - 1):N0} ₫";
+            }
+            if (hasSC)
+            {
+                RowPhuThuSC.Visibility   = Visibility.Visible;
+                TxtLabelPhuThuSC.Text    = $"+ Phụ thu vượt sức chứa ({hd.TiLePhuThuSucChua:P0}):";
+                TxtPhuThuSC.Text         = $"+{hd.GiaPhongGoc * hd.TiLePhuThuSucChua:N0} ₫";
+            }
+            if (hasLoai || hasSC)
+            {
+                RowTienPhongTotal.Visibility = Visibility.Visible;
+                TxtTienPhong.Text            = $"{hd.TienPhong:N0} ₫";
+            }
+            else
+            {
+                TxtLabelGiaGoc.Text          = "Tiền phòng:";
+                RowTienPhongTotal.Visibility  = Visibility.Collapsed;
+            }
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e) => Close();

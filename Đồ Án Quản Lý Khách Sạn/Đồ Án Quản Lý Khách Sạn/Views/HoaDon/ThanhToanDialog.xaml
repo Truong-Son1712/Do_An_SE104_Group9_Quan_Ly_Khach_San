@@ -39,10 +39,17 @@
                         <StackPanel>
                             <TextBlock Text="THÔNG TIN HÓA ĐƠN" FontSize="10" FontWeight="Bold"
                                        Foreground="#1565C0" Margin="0,0,0,8"/>
-                            <TextBlock x:Name="TxtMaHD" FontSize="12" Foreground="#546E7A"/>
-                            <TextBlock x:Name="TxtKhachHang" FontWeight="SemiBold" FontSize="14"
-                                       Foreground="#1A237E" Margin="0,2,0,2"
-                                       TextWrapping="Wrap"/>
+                            <TextBlock x:Name="TxtMaHD" FontSize="12" Foreground="#546E7A" Margin="0,0,0,4"/>
+                            <StackPanel Margin="0,0,0,3">
+                                <TextBlock Text="Người đặt phòng" FontSize="10" Foreground="#5C8FBD"/>
+                                <TextBlock x:Name="TxtNguoiDat" FontWeight="SemiBold" FontSize="13"
+                                           Foreground="#1A237E" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,0,4">
+                                <TextBlock Text="Khách sử dụng" FontSize="10" Foreground="#5C8FBD"/>
+                                <TextBlock x:Name="TxtKhachO" FontSize="12"
+                                           Foreground="#37474F" TextWrapping="Wrap"/>
+                            </StackPanel>
                             <TextBlock x:Name="TxtPhong" Foreground="#546E7A" FontSize="12"/>
                         </StackPanel>
                     </Border>
@@ -53,11 +60,31 @@
                             <TextBlock Text="CHI TIẾT THANH TOÁN" FontSize="10" FontWeight="Bold"
                                        Foreground="#546E7A" Margin="0,0,0,12"/>
 
-                            <!-- Tiền phòng -->
-                            <DockPanel Margin="0,0,0,8">
+                            <!-- Giá phòng gốc -->
+                            <DockPanel Margin="0,0,0,4">
+                                <TextBlock x:Name="TxtGiaPhongGoc" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#546E7A" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelGiaGoc" Text="Giá phòng gốc:"
+                                           FontSize="12" Foreground="#546E7A"/>
+                            </DockPanel>
+                            <!-- Phụ thu loại khách -->
+                            <DockPanel x:Name="RowPhuThuLoai" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuLoai" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#F57C00" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelPhuThuLoai" FontSize="12" Foreground="#F57C00"/>
+                            </DockPanel>
+                            <!-- Phụ thu vượt sức chứa -->
+                            <DockPanel x:Name="RowPhuThuSC" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuSC" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#E65100" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelPhuThuSC" FontSize="12" Foreground="#E65100"/>
+                            </DockPanel>
+                            <!-- Tổng tiền phòng (hiện khi có phụ thu) -->
+                            <DockPanel x:Name="RowTienPhongTotal" Margin="0,0,0,8" Visibility="Collapsed">
                                 <TextBlock x:Name="TxtTienPhong" DockPanel.Dock="Right"
-                                           FontSize="14" Foreground="#37474F" FontWeight="SemiBold"/>
-                                <TextBlock Text="Tiền phòng:" FontSize="13" Foreground="#546E7A"/>
+                                           FontSize="13" Foreground="#37474F" FontWeight="Bold"/>
+                                <TextBlock Text="= Tổng tiền phòng:" FontSize="13"
+                                           Foreground="#37474F" FontWeight="SemiBold"/>
                             </DockPanel>
 
                             <!-- Dịch vụ đã sử dụng -->

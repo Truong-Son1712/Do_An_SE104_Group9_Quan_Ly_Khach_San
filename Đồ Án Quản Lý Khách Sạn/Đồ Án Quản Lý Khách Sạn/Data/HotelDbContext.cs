@@ -121,6 +121,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                 e.Property(x => x.TienGiam).HasColumnType("decimal(18,2)");
                 e.Property(x => x.TienVAT).HasColumnType("decimal(18,2)");
                 e.Property(x => x.VATPercent).HasColumnType("decimal(5,2)");
+                e.Property(x => x.GiaPhongGoc).HasColumnType("decimal(18,2)");
+                e.Property(x => x.HeSoLoaiKhach).HasColumnType("decimal(10,4)");
+                e.Property(x => x.TiLePhuThuSucChua).HasColumnType("decimal(5,4)");
                 e.HasOne(x => x.DatPhong).WithOne(x => x.HoaDon)
                  .HasForeignKey<HoaDon>(x => x.MaDatPhong).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(x => x.NhanVien).WithMany(x => x.HoaDons)

@@ -95,7 +95,7 @@
                     </Border>
 
                     <!-- Customer List -->
-                    <TextBlock Text="DANH SÁCH KHÁCH" FontSize="10" FontWeight="Bold"
+                    <TextBlock Text="NGƯỜI ĐẶT PHÒNG &amp; KHÁCH Ở PHÒNG" FontSize="10" FontWeight="Bold"
                                Foreground="#546E7A" Margin="0,0,0,8"/>
 
                     <ItemsControl x:Name="IcKhachHang">
@@ -104,10 +104,22 @@
                                 <Border Background="#F5F7FA" CornerRadius="8" Padding="14,12" Margin="0,0,0,10"
                                         BorderBrush="#E0E0E0" BorderThickness="1">
                                     <StackPanel>
-                                        <!-- Cam = đặt chính ★ | Xanh = khách kèm -->
-                                        <Border Background="{Binding HeaderColor}" CornerRadius="4" Padding="10,5" Margin="0,0,0,12">
-                                            <TextBlock Text="{Binding TieuDe}" FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="White"/>
+                                        <!-- Header: tên + badge trạng thái ở phòng -->
+                                        <Border Background="{Binding HeaderColor}" CornerRadius="4" Padding="10,6" Margin="0,0,0,12">
+                                            <DockPanel>
+                                                <!-- Badge "✓ Có sử dụng phòng" / "Không ở phòng này" -->
+                                                <Border DockPanel.Dock="Right"
+                                                        Background="{Binding BadgeColor}"
+                                                        CornerRadius="3" Padding="7,2" Margin="8,0,0,0"
+                                                        Visibility="{Binding BadgeVisibility}"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding BadgeText}"
+                                                               FontSize="10" FontWeight="SemiBold"
+                                                               Foreground="White"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding TieuDe}" FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="White" VerticalAlignment="Center"/>
+                                            </DockPanel>
                                         </Border>
 
                                         <!-- 2-column info grid -->
@@ -174,12 +186,31 @@
                             <TextBlock Text="CHI TIẾT THANH TOÁN" FontSize="10" FontWeight="Bold"
                                        Foreground="#546E7A" Margin="0,0,0,12"/>
 
-                            <!-- Tiền phòng -->
-                            <DockPanel Margin="0,0,0,8">
+                            <!-- Giá phòng gốc -->
+                            <DockPanel Margin="0,0,0,4">
+                                <TextBlock x:Name="TxtGiaPhongGoc" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#546E7A" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelGiaGoc" Text="Giá phòng gốc:"
+                                           FontSize="12" Foreground="#546E7A"/>
+                            </DockPanel>
+                            <!-- Phụ thu loại khách -->
+                            <DockPanel x:Name="RowPhuThuLoai" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuLoai" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#F57C00" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelPhuThuLoai" FontSize="12" Foreground="#F57C00"/>
+                            </DockPanel>
+                            <!-- Phụ thu vượt sức chứa -->
+                            <DockPanel x:Name="RowPhuThuSC" Margin="0,0,0,4" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtPhuThuSC" DockPanel.Dock="Right"
+                                           FontSize="12" Foreground="#E65100" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtLabelPhuThuSC" FontSize="12" Foreground="#E65100"/>
+                            </DockPanel>
+                            <!-- Tổng tiền phòng -->
+                            <DockPanel x:Name="RowTienPhongTotal" Margin="0,0,0,8" Visibility="Collapsed">
                                 <TextBlock x:Name="TxtTienPhongCT" DockPanel.Dock="Right"
-                                           FontSize="13" Foreground="#37474F" FontWeight="SemiBold"/>
-                                <TextBlock x:Name="TxtTienPhongLabel" Text="Tiền phòng:"
-                                           FontSize="13" Foreground="#546E7A"/>
+                                           FontSize="13" Foreground="#37474F" FontWeight="Bold"/>
+                                <TextBlock Text="= Tổng tiền phòng:" FontSize="13"
+                                           Foreground="#37474F" FontWeight="SemiBold"/>
                             </DockPanel>
 
                             <!-- Dịch vụ -->
