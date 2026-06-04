@@ -39,13 +39,18 @@ GO
 
 -- ── Xóa bảng cũ theo đúng thứ tự FK ─────────────────────────────────────
 -- (bảng con phải xóa trước bảng cha)
+IF OBJECT_ID('LichSuDungMaGiams',  'U') IS NOT NULL DROP TABLE LichSuDungMaGiams;
+IF OBJECT_ID('ChiTietMaGiamGias',  'U') IS NOT NULL DROP TABLE ChiTietMaGiamGias;
+IF OBJECT_ID('DichVuPhongs',       'U') IS NOT NULL DROP TABLE DichVuPhongs;
 IF OBJECT_ID('HoaDons',            'U') IS NOT NULL DROP TABLE HoaDons;
 IF OBJECT_ID('DatPhongKhachHangs', 'U') IS NOT NULL DROP TABLE DatPhongKhachHangs;
 IF OBJECT_ID('DatPhongs',          'U') IS NOT NULL DROP TABLE DatPhongs;
-IF OBJECT_ID('KhachHangs',         'U') IS NOT NULL DROP TABLE KhachHangs;   -- FK → LoaiKhachHangs
+IF OBJECT_ID('KhachHangs',         'U') IS NOT NULL DROP TABLE KhachHangs;
 IF OBJECT_ID('Phongs',             'U') IS NOT NULL DROP TABLE Phongs;
 IF OBJECT_ID('LoaiPhongs',         'U') IS NOT NULL DROP TABLE LoaiPhongs;
+IF OBJECT_ID('LoaiDichVus',        'U') IS NOT NULL DROP TABLE LoaiDichVus;
 IF OBJECT_ID('NhanViens',          'U') IS NOT NULL DROP TABLE NhanViens;
+IF OBJECT_ID('MaGiamGias',         'U') IS NOT NULL DROP TABLE MaGiamGias;
 IF OBJECT_ID('LoaiKhachHangs',     'U') IS NOT NULL DROP TABLE LoaiKhachHangs; -- cha của KhachHangs
 IF OBJECT_ID('CauHinhs',           'U') IS NOT NULL DROP TABLE CauHinhs;       -- standalone
 GO
@@ -66,6 +71,18 @@ CREATE TABLE LoaiKhachHangs (
     MaCode  NVARCHAR(100) NOT NULL UNIQUE,
     TenLoai NVARCHAR(200) NOT NULL,
     HeSoGia DECIMAL(10,4) NOT NULL DEFAULT 1.0
+);
+
+-- 3a. Mã giảm giá (sau NhanViens vì có FK → NhanViens)
+CREATE TABLE MaGiamGias (
+    MaGG        INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    TenMa       NVARCHAR(100) NOT NULL UNIQUE,
+    MoTa        NVARCHAR(500) NULL,
+    NgayBatDau  DATETIME2     NOT NULL,
+    NgayKetThuc DATETIME2     NOT NULL,
+    TrangThai   NVARCHAR(20)  NOT NULL DEFAULT 'Active', -- Active | Inactive
+    NgayTao     DATETIME2     NOT NULL DEFAULT GETDATE(),
+    MaNVTao     INT           NULL
 );
 
 -- 3. Nhân viên
@@ -149,7 +166,7 @@ CREATE TABLE DatPhongKhachHangs (
         REFERENCES KhachHangs(MaKH) ON DELETE NO ACTION
 );
 
--- 9. Hóa đơn → DatPhongs, NhanViens
+-- 9. Hóa đơn → DatPhongs, NhanViens, MaGiamGias
 CREATE TABLE HoaDons (
     MaHD          INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     MaDatPhong    INT           NOT NULL UNIQUE,
@@ -158,15 +175,71 @@ CREATE TABLE HoaDons (
     TienPhong     DECIMAL(18,2) NOT NULL DEFAULT 0,
     TienCoc       DECIMAL(18,2) NOT NULL DEFAULT 0,
     TongTien      DECIMAL(18,2) NOT NULL DEFAULT 0,
+    TienGiam      DECIMAL(18,2) NOT NULL DEFAULT 0,
+    MaGG          INT           NULL,
     PhuongThucTT  NVARCHAR(30)  NOT NULL DEFAULT 'TienMat',       -- TienMat | ChuyenKhoan | The
     TrangThai     NVARCHAR(30)  NOT NULL DEFAULT 'ChuaThanhToan', -- ChuaThanhToan | DaThanhToan
     NgayThanhToan DATETIME2     NULL,
     GhiChu        NVARCHAR(500) NULL,
-    CONSTRAINT FK_HoaDon_DatPhong FOREIGN KEY (MaDatPhong)
+    CONSTRAINT FK_HoaDon_DatPhong  FOREIGN KEY (MaDatPhong)
         REFERENCES DatPhongs(MaDatPhong) ON DELETE CASCADE,
-    CONSTRAINT FK_HoaDon_NhanVien FOREIGN KEY (MaNV)
-        REFERENCES NhanViens(MaNV) ON DELETE NO ACTION
+    CONSTRAINT FK_HoaDon_NhanVien  FOREIGN KEY (MaNV)
+        REFERENCES NhanViens(MaNV) ON DELETE NO ACTION,
+    CONSTRAINT FK_HoaDon_MaGiamGia FOREIGN KEY (MaGG)
+        REFERENCES MaGiamGias(MaGG) ON DELETE NO ACTION
 );
+
+-- 10. Loại dịch vụ (standalone)
+CREATE TABLE LoaiDichVus (
+    MaLoaiDV  INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    TenLoaiDV NVARCHAR(200) NOT NULL,
+    DonGia    DECIMAL(18,2) NOT NULL DEFAULT 0,
+    DonViTinh NVARCHAR(50)  NOT NULL DEFAULT '',
+    MoTa      NVARCHAR(500) NULL,
+    IsActive  BIT           NOT NULL DEFAULT 1
+);
+
+-- 10b. Chi tiết mã giảm giá (áp dụng cho loại phòng hoặc loại dịch vụ)
+CREATE TABLE ChiTietMaGiamGias (
+    MaChiTiet  INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    MaGG       INT           NOT NULL,
+    LoaiApDung NVARCHAR(20)  NOT NULL DEFAULT 'LoaiPhong', -- LoaiPhong | LoaiDichVu
+    MaLoai     INT           NOT NULL,
+    TiLeGiam   DECIMAL(5,2)  NOT NULL DEFAULT 0,           -- 0..100 (%)
+    CONSTRAINT FK_CTMGG_MaGiamGia FOREIGN KEY (MaGG)
+        REFERENCES MaGiamGias(MaGG) ON DELETE CASCADE
+);
+
+-- 10c. Lịch sử sử dụng mã giảm giá
+CREATE TABLE LichSuDungMaGiams (
+    MaSuDung   INT       NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    MaGG       INT       NOT NULL,
+    MaHD       INT       NOT NULL,
+    NgaySuDung DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_LSDMGG_MaGiamGia FOREIGN KEY (MaGG)
+        REFERENCES MaGiamGias(MaGG) ON DELETE NO ACTION,
+    CONSTRAINT FK_LSDMGG_HoaDon    FOREIGN KEY (MaHD)
+        REFERENCES HoaDons(MaHD) ON DELETE CASCADE
+);
+
+-- 11. Dịch vụ phòng → DatPhongs, LoaiDichVus
+CREATE TABLE DichVuPhongs (
+    MaDVP      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    MaDatPhong INT           NOT NULL,
+    MaLoaiDV   INT           NOT NULL,
+    SoLuong    INT           NOT NULL DEFAULT 1,
+    DonGia     DECIMAL(18,2) NOT NULL DEFAULT 0,
+    NgayThem   DATETIME2     NOT NULL DEFAULT GETDATE(),
+    GhiChu     NVARCHAR(500) NULL,
+    CONSTRAINT FK_DichVuPhong_DatPhong   FOREIGN KEY (MaDatPhong)
+        REFERENCES DatPhongs(MaDatPhong) ON DELETE CASCADE,
+    CONSTRAINT FK_DichVuPhong_LoaiDichVu FOREIGN KEY (MaLoaiDV)
+        REFERENCES LoaiDichVus(MaLoaiDV) ON DELETE NO ACTION
+);
+
+-- FK từ MaGiamGias → NhanViens (thêm sau vì NhanViens tạo sau MaGiamGias)
+ALTER TABLE MaGiamGias ADD CONSTRAINT FK_MGG_NhanVien
+    FOREIGN KEY (MaNVTao) REFERENCES NhanViens(MaNV) ON DELETE NO ACTION;
 GO
 
 -- ── Dữ liệu mẫu ──────────────────────────────────────────────────────────
@@ -183,10 +256,10 @@ INSERT INTO CauHinhs (ConfigKey, ConfigValue) VALUES
 
 -- Nhân viên (BCrypt cost=11 | admin/admin123, quanly/quanly123, letan/letan123)
 SET IDENTITY_INSERT NhanViens ON;
-INSERT INTO NhanViens (MaNV, HoTen, TaiKhoan, MatKhau, VaiTro, Email, SDT, NgayTao, IsActive) VALUES
-(1, N'Nguyễn Văn Admin', 'admin',  '$2a$11$oZyF2ESXb93yz/sAxfADQ.y8lY41GbJdxIIZr0VSD5y6Ad4sqfGva', 'Admin',  'admin@hotel.com',  '0901234560', '2026-05-25', 1),
-(2, N'Trần Thị Quản Lý', 'quanly', '$2a$11$tzwSrDi27V1nmndwgVZnKOoz/bG4ikNF6yuX2fxen6GgcmYdAt7y6', 'QuanLy', 'quanly@hotel.com', '0901234561', '2026-05-25', 1),
-(3, N'Lê Văn Lễ Tân',   'letan',  '$2a$11$3/IzprxXOgLMJFOl/sB8huLnqyRiQ.j63fNQulTEL47vNo2d/7PQa', 'LeTan',  'letan@hotel.com',  '0901234562', '2026-05-25', 1);
+INSERT INTO NhanViens (MaNV, HoTen, TaiKhoan, MatKhau, VaiTro, CCCD, Email, SDT, NgayTao, IsActive) VALUES
+(1, N'Nguyễn Văn Admin', 'admin',  '$2a$11$oZyF2ESXb93yz/sAxfADQ.y8lY41GbJdxIIZr0VSD5y6Ad4sqfGva', 'Admin',  '001085000001', 'admin@hotel.com',  '0901234560', '2026-05-25', 1),
+(2, N'Trần Thị Quản Lý', 'quanly', '$2a$11$tzwSrDi27V1nmndwgVZnKOoz/bG4ikNF6yuX2fxen6GgcmYdAt7y6', 'QuanLy', '001085000002', 'quanly@hotel.com', '0901234561', '2026-05-25', 1),
+(3, N'Lê Văn Lễ Tân',   'letan',  '$2a$11$3/IzprxXOgLMJFOl/sB8huLnqyRiQ.j63fNQulTEL47vNo2d/7PQa', 'LeTan',  '001085000003', 'letan@hotel.com',  '0901234562', '2026-05-25', 1);
 SET IDENTITY_INSERT NhanViens OFF;
 
 -- Loại phòng
@@ -226,6 +299,17 @@ INSERT INTO KhachHangs (MaKH, HoTen, CMND, SDT, Email, DiaChi, QuocTich, MaLoaiK
 ( 9, N'Đặng Văn Đức',    '025090045678', '0909999009', 'duc.dang@gmail.com',       N'34 Lê Lợi, Hải Phòng',      N'Việt Nam',   1, '1989-06-25', 'Nam', '2026-05-25'),
 (10, N'Tanaka Yuki',      'TK9876543',   '+81-90-1234-5678',  'tanaka.y@mail.jp',     'Tokyo, Japan',              N'Nhật Bản',   2, '1994-03-03', 'Nu',  '2026-05-25');
 SET IDENTITY_INSERT KhachHangs OFF;
+
+-- Loại dịch vụ mặc định (MaLoaiDV tự tăng)
+INSERT INTO LoaiDichVus (TenLoaiDV, DonGia, DonViTinh, MoTa, IsActive) VALUES
+(N'Bữa ăn sáng',   50000,  N'bữa',    N'Buffet sáng tại nhà hàng khách sạn', 1),
+(N'Bữa ăn trưa',   80000,  N'bữa',    N'Set menu trưa',                       1),
+(N'Bữa ăn tối',   100000,  N'bữa',    N'Set menu tối',                        1),
+(N'Nước suối',     15000,  N'chai',   N'Nước khoáng 500ml',                   1),
+(N'Nước ngọt',     20000,  N'lon',    N'Nước ngọt đóng lon',                  1),
+(N'Đặt xe taxi',  200000,  N'chuyến', N'Dịch vụ đặt taxi nội thành',          1),
+(N'Giặt ủi',       50000,  N'kg',     N'Giặt ủi quần áo',                     1),
+(N'Spa / Massage', 300000, N'giờ',    N'Dịch vụ spa và massage thư giãn',     1);
 GO
 
 PRINT '============================================';

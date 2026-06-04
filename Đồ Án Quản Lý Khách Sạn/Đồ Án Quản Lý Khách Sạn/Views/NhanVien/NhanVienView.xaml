@@ -51,6 +51,13 @@
                         <TextBlock Text="Đổi Trạng Thái" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Button Style="{StaticResource BtnDanger}" Command="{Binding XoaCommand}" Margin="8,0,0,0"
+                        ToolTip="Chỉ xóa được khi nhân viên chưa có lịch sử hóa đơn">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Xóa" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             <StackPanel>
                 <TextBlock Style="{StaticResource H1}" Text="Nhân Viên"/>
@@ -62,12 +69,13 @@
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
             <DataGrid ItemsSource="{Binding NhanViens}" SelectedItem="{Binding Selected}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã NV"     Binding="{Binding MaNV}"      Width="70"/>
+                    <DataGridTextColumn Header="Mã NV"      Binding="{Binding MaNV}"      Width="60"/>
                     <DataGridTextColumn Header="Họ Tên"    Binding="{Binding HoTen}"     Width="*"/>
-                    <DataGridTextColumn Header="Tài Khoản" Binding="{Binding TaiKhoan}"  Width="120"/>
-                    <DataGridTextColumn Header="Vai Trò"   Binding="{Binding VaiTro, Converter={StaticResource VaiTro}}" Width="130"/>
+                    <DataGridTextColumn Header="Tài Khoản" Binding="{Binding TaiKhoan}"  Width="110"/>
+                    <DataGridTextColumn Header="CCCD"      Binding="{Binding CCCD}"      Width="130"/>
+                    <DataGridTextColumn Header="Vai Trò"   Binding="{Binding VaiTro, Converter={StaticResource VaiTro}}" Width="120"/>
                     <DataGridTextColumn Header="Email"     Binding="{Binding Email}"     Width="*"/>
-                    <DataGridTextColumn Header="SĐT"       Binding="{Binding SDT}"       Width="120"/>
+                    <DataGridTextColumn Header="SĐT"       Binding="{Binding SDT}"       Width="110"/>
                     <DataGridTemplateColumn Header="Trạng Thái" Width="120" SortMemberPath="IsActive">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

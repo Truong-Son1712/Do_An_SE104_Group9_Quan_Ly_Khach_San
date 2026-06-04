@@ -9,8 +9,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
     {
         /// Khóa cấu hình cho sức chứa tối đa trong một phòng.
         private const string KEY_SUC_CHUA_MAX  = "SucChuaToiDa";
-        /// Khóa cấu hình cho tỉ lệ phụ thu khi vượt sức chứa.
         private const string KEY_TI_LE_PHU_THU = "TiLePhuThu";
+        private const string KEY_THUE_VAT      = "ThueSuatVAT";
 
         /// Lấy giá trị cấu hình kiểu decimal từ cơ sở dữ liệu.
         private static decimal GetDecimal(string key, decimal defaultVal)
@@ -67,8 +67,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         /// Lấy tỉ lệ phụ thu khi số lượng khách vượt quá sức chứa tiêu chuẩn của phòng.
         public static decimal GetTiLePhuThu() => GetDecimal(KEY_TI_LE_PHU_THU, 0.25m);
 
-        /// Thiết lập tỉ lệ phụ thu khi số lượng khách vượt quá sức chứa tiêu chuẩn của phòng.
         public static void SetTiLePhuThu(decimal v) =>
             SetValue(KEY_TI_LE_PHU_THU, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        /// Lấy thuế suất VAT (%). Mặc định 10.
+        public static decimal GetVAT() => GetDecimal(KEY_THUE_VAT, 10m);
+
+        /// Thiết lập thuế suất VAT (%).
+        public static void SetVAT(decimal v) =>
+            SetValue(KEY_THUE_VAT, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 }

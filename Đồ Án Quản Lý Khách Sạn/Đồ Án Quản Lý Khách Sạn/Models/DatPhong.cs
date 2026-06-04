@@ -25,6 +25,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public virtual Phong? Phong { get; set; }
         public virtual HoaDon? HoaDon { get; set; }
         public virtual ICollection<DatPhongKhachHang> DatPhongKhachHangs { get; set; } = new List<DatPhongKhachHang>();
+        public virtual ICollection<DichVuPhong>       DichVuPhongs       { get; set; } = new List<DichVuPhong>();
 
         // Hiển thị danh sách khách trong DataGrid
         // Khách đặt chính (MaKH) được đánh dấu ★ ở đầu, các khách kèm theo liệt kê sau

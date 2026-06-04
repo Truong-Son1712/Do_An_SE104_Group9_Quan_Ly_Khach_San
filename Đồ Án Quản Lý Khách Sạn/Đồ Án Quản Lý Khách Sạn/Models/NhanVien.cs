@@ -7,6 +7,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public string TaiKhoan { get; set; } = string.Empty;
         public string MatKhau { get; set; } = string.Empty;
         public string VaiTro { get; set; } = "LeTan"; // Admin | QuanLy | LeTan
+        public string? CCCD { get; set; }
         public string? Email { get; set; }
         public string? SDT { get; set; }
         public string? DiaChi { get; set; }

@@ -1,0 +1,81 @@
+<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon.LyDoHuyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Xác Nhận Hủy Hóa Đơn" Height="280" Width="460"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="64"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#B71C1C" Offset="0"/>
+                        <GradientStop Color="#E53935" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="16,0,8,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🚫" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Hủy Hóa Đơn" Foreground="White"
+                                   FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Style="{StaticResource BtnClose}" Content="✕"
+                            Foreground="#EF9A9A"
+                            Click="BtnCancel_Click" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <!-- Body -->
+            <StackPanel Grid.Row="1" Margin="24,20,24,8">
+
+                <!-- Cảnh báo -->
+                <Border x:Name="PnlWarning" Background="#FFF3E0" CornerRadius="8"
+                        Padding="12,10" Margin="0,0,0,14">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚠️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="TxtWarning"
+                                   Text="Thao tác này không thể hoàn tác. Hóa đơn sẽ bị xóa vĩnh viễn."
+                                   FontSize="12" Foreground="#E65100"
+                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Input lý do -->
+                <TextBlock Text="Lý do hủy *" Style="{StaticResource Label}"/>
+                <TextBox x:Name="TxtLyDo"
+                         Tag="Nhập lý do hủy hóa đơn..."
+                         Height="52" TextWrapping="Wrap" AcceptsReturn="False"
+                         VerticalContentAlignment="Top" Padding="10,8"/>
+
+                <!-- Lỗi -->
+                <Border x:Name="PnlError" Background="#FFEBEE" CornerRadius="6"
+                        Padding="10,6" Margin="0,8,0,0" Visibility="Collapsed">
+                    <TextBlock x:Name="TxtError" Foreground="#C62828"
+                               FontSize="12" TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#F8FAFD" BorderBrush="#E0E0E0"
+                    BorderThickness="0,1,0,0" CornerRadius="0,0,12,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Margin="24,0" VerticalAlignment="Center">
+                    <Button Content="Hủy bỏ" Style="{StaticResource BtnOutline}" Width="100"
+                            Click="BtnCancel_Click" Margin="0,0,8,0"/>
+                    <Button Content="🚫  Xác Nhận Hủy" Style="{StaticResource BtnDanger}"
+                            Width="150" Click="BtnConfirm_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

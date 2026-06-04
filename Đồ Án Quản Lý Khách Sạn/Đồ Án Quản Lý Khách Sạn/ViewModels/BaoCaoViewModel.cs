@@ -10,14 +10,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
     /// Lớp biểu diễn một dòng dữ liệu trong báo cáo doanh thu theo tháng
     public class BaoCaoDoanhThuItem
     {
-        /// Tên tháng hiển thị (Ví dụ: "T1", "T2")
-        public string  Thang     { get; set; } = string.Empty;
-        /// Số tiền doanh thu đạt được trong tháng
-        public decimal DoanhThu  { get; set; }
-        /// Tổng số lượng hóa đơn đã thanh toán trong tháng
-        public int     SoHoaDon  { get; set; }
-        /// Tỷ lệ phần trăm đóng góp doanh thu của tháng so với tháng cao nhất
-        public decimal TyLe      { get; set; }
+        public string  Thang      { get; set; } = string.Empty;
+        public decimal DoanhThu   { get; set; }
+        public int     SoHoaDon   { get; set; }
+        /// % so với tháng cao nhất — dùng để scale thanh bar
+        public decimal TyLe       { get; set; }
+        /// % so với tổng doanh thu cả năm — hiển thị trên chart
+        public decimal TyLeNam    { get; set; }
+        public string  TyLeNamText => TyLeNam > 0 ? $"{TyLeNam:0.#}%" : "—";
     }
 
     /// Lớp biểu diễn một dòng dữ liệu trong báo cáo doanh thu theo loại phòng
@@ -164,6 +164,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     if (dt > maxDt) maxDt = dt;
                 }
 
+                decimal tongNam = TongDoanhThuNam; // đã tính bên trên
                 for (int thang = 1; thang <= 12; thang++)
                 {
                     var dsHd = hdsNam.Where(h => h.NgayLap.Month == thang).ToList();
@@ -172,10 +173,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     decimal dt    = dtHd + dtCoc;
                     DoanhThuTheoThang.Add(new BaoCaoDoanhThuItem
                     {
-                        Thang    = $"T{thang}",
-                        DoanhThu = dt,
-                        SoHoaDon = dsHd.Count,
-                        TyLe     = maxDt > 0 ? Math.Round(dt / maxDt * 100, 1) : 0
+                        Thang     = $"T{thang}",
+                        DoanhThu  = dt,
+                        SoHoaDon  = dsHd.Count,
+                        TyLe      = maxDt > 0 ? Math.Round(dt / maxDt * 100, 1) : 0,
+                        TyLeNam   = tongNam > 0 ? Math.Round(dt / tongNam * 100, 1) : 0
                     });
                 }
 

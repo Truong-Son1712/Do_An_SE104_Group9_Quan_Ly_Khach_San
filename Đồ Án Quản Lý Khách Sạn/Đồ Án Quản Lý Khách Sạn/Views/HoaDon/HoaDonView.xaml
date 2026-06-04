@@ -4,6 +4,7 @@
              xmlns:conv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Helpers"
              Background="{StaticResource BgBrush}">
     <UserControl.Resources>
+        <conv:BoolToVisibilityConverter      x:Key="BoolVis"/>
         <conv:CurrencyConverter              x:Key="Currency"/>
         <conv:HoaDonTrangThaiColorConverter  x:Key="TTColor"/>
         <conv:HoaDonTrangThaiTextConverter   x:Key="TTText"/>
@@ -31,6 +32,15 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="👁" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock Text="Xem Chi Tiết" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource BtnDanger}" Command="{Binding HuyHoaDonCommand}"
+                        Margin="8,0,0,0"
+                        Visibility="{Binding IsQuanLy, Converter={StaticResource BoolVis}}"
+                        ToolTip="Hủy hóa đơn, phục hồi trạng thái đặt phòng (Admin/Quản Lý)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🚫" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Hủy HĐ" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

@@ -58,15 +58,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private decimal _tongDoanhThu;
         public decimal TongDoanhThu { get => _tongDoanhThu; set => Set(ref _tongDoanhThu, value); }
 
+        public bool IsQuanLy => SessionManager.IsQuanLy;
+
         public ICommand RefreshCommand    { get; }
         public ICommand XemChiTietCommand { get; }
         public ICommand ThanhToanCommand  { get; }
+        public ICommand HuyHoaDonCommand  { get; }
 
         public HoaDonViewModel()
         {
             RefreshCommand    = new RelayCommand(_ => LoadData());
             XemChiTietCommand = new RelayCommand(_ => XemChiTiet(), _ => Selected != null);
-            ThanhToanCommand  = new RelayCommand(_ => ThanhToan(), _ => Selected?.TrangThai == "ChuaThanhToan");
+            ThanhToanCommand  = new RelayCommand(_ => ThanhToan(),  _ => Selected?.TrangThai == "ChuaThanhToan");
+            HuyHoaDonCommand  = new RelayCommand(_ => HuyHoaDon(),  _ => Selected != null && IsQuanLy);
             LoadData();
         }
 
@@ -146,6 +150,57 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             var dlg = new Views.HoaDon.ThanhToanDialog(Selected.MaHD);
             if (dlg.ShowDialog() == true)
                 LoadData();
+        }
+
+        private void HuyHoaDon()
+        {
+            if (Selected == null) return;
+
+            // Dialog xác nhận + nhập lý do (gộp 1 bước)
+            bool daThanhToan = Selected.TrangThai == "DaThanhToan";
+            var dlgLyDo = new Views.HoaDon.LyDoHuyDialog(daThanhToan);
+            if (dlgLyDo.ShowDialog() != true) return;
+            string lyDo = dlgLyDo.LyDo;
+
+            try
+            {
+                using var ctx = new HotelDbContext();
+                var hd = ctx.HoaDons
+                    .Include(h => h.DatPhong).ThenInclude(d => d!.Phong)
+                    .Include(h => h.LichSuDungMaGiams)
+                    .FirstOrDefault(h => h.MaHD == Selected.MaHD);
+                if (hd == null) return;
+
+                var dp = hd.DatPhong;
+                if (dp == null) return;
+
+                // 1. Xóa lịch sử dùng mã giảm giá của hóa đơn này
+                ctx.LichSuDungMaGiams.RemoveRange(hd.LichSuDungMaGiams);
+
+                // 2. Phục hồi DatPhong → DaNhanPhong + khôi phục NgayTraPhong dự kiến
+                dp.TrangThai    = TrangThaiDatPhong.DaNhanPhong;
+                dp.NgayTraPhong = hd.NgayTraPhongGoc ?? dp.NgayTraPhong; // về ngày dự kiến ban đầu
+                dp.GhiChu       = $"[Hủy HĐ #{hd.MaHD} - {DateTime.Now:dd/MM/yyyy HH:mm}] {lyDo}";
+
+                // 3. Phục hồi Phòng → DangSuDung
+                if (dp.Phong != null)
+                    dp.Phong.TrangThai = TrangThaiPhong.DangSuDung;
+
+                // 4. Xóa hóa đơn
+                ctx.HoaDons.Remove(hd);
+
+                ctx.SaveChanges();
+
+                MessageBox.Show(
+                    $"Đã hủy hóa đơn #{hd.MaHD}.\nPhòng {dp.Phong?.SoPhong} đã trở về trạng thái Đang Nhận Phòng.",
+                    "Hủy Thành Công", MessageBoxButton.OK, MessageBoxImage.Information);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi hủy hóa đơn: {ex.Message}", "Lỗi",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

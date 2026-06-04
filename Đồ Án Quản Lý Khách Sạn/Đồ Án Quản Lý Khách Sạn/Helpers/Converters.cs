@@ -199,4 +199,23 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
     }
+
+    public class MaGiamGiaTrangThaiColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string hex = value?.ToString() switch
+            {
+                "Đang hoạt động" => "#27AE60",
+                "Vô hiệu"        => "#E74C3C",
+                "Hết hạn"        => "#7F8C8D",
+                "Chưa đến hạn"   => "#F39C12",
+                "Hết lượt"       => "#8E44AD",
+                _                => "#BDC3C7"
+            };
+            return new BrushConverter().ConvertFromString(hex) as SolidColorBrush ?? Brushes.Gray;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+            throw new NotImplementedException();
+    }
 }

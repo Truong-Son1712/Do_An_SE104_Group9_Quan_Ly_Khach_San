@@ -41,6 +41,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
         public DbSet<HoaDon>            HoaDons            { get; set; }
         public DbSet<CauHinh>           CauHinhs           { get; set; }
         public DbSet<LoaiKhachHang>     LoaiKhachHangs     { get; set; }
+        public DbSet<LoaiDichVu>        LoaiDichVus        { get; set; }
+        public DbSet<DichVuPhong>       DichVuPhongs       { get; set; }
+        public DbSet<MaGiamGia>         MaGiamGias         { get; set; }
+        public DbSet<ChiTietMaGiamGia>  ChiTietMaGiamGias  { get; set; }
+        public DbSet<LichSuDungMaGiam>  LichSuDungMaGiams  { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlServer(ConnectionString);
@@ -112,10 +117,43 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                 e.Property(x => x.TienPhong).HasColumnType("decimal(18,2)");
                 e.Property(x => x.TienCoc).HasColumnType("decimal(18,2)");
                 e.Property(x => x.TongTien).HasColumnType("decimal(18,2)");
+                e.Property(x => x.TienGiam).HasColumnType("decimal(18,2)");
+                e.Property(x => x.TienVAT).HasColumnType("decimal(18,2)");
+                e.Property(x => x.VATPercent).HasColumnType("decimal(5,2)");
                 e.HasOne(x => x.DatPhong).WithOne(x => x.HoaDon)
                  .HasForeignKey<HoaDon>(x => x.MaDatPhong).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(x => x.NhanVien).WithMany(x => x.HoaDons)
                  .HasForeignKey(x => x.MaNV).OnDelete(DeleteBehavior.Restrict);
+                e.HasOne(x => x.MaGiamGia).WithMany()
+                 .HasForeignKey(x => x.MaGG).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            m.Entity<MaGiamGia>(e =>
+            {
+                e.HasKey(x => x.MaGG);
+                e.Property(x => x.TenMa).IsRequired().HasMaxLength(100);
+                // Không dùng UNIQUE DB-level nữa; unique được kiểm tra ở application layer
+                // (cho phép trùng tên với mã đã tắt/hết hạn)
+                e.HasOne(x => x.NhanVien).WithMany()
+                 .HasForeignKey(x => x.MaNVTao).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            m.Entity<ChiTietMaGiamGia>(e =>
+            {
+                e.HasKey(x => x.MaChiTiet);
+                e.Property(x => x.TiLeGiam).HasColumnType("decimal(5,2)");
+                e.Ignore(x => x.TenLoai);
+                e.HasOne(x => x.MaGiamGia).WithMany(g => g.ChiTiets)
+                 .HasForeignKey(x => x.MaGG).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            m.Entity<LichSuDungMaGiam>(e =>
+            {
+                e.HasKey(x => x.MaSuDung);
+                e.HasOne(x => x.MaGiamGia).WithMany(g => g.LichSuDungs)
+                 .HasForeignKey(x => x.MaGG).OnDelete(DeleteBehavior.Restrict);
+                e.HasOne(x => x.HoaDon).WithMany(h => h.LichSuDungMaGiams)
+                 .HasForeignKey(x => x.MaHD).OnDelete(DeleteBehavior.Cascade);
             });
 
             m.Entity<LoaiKhachHang>(e =>
@@ -124,6 +162,23 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                 e.Property(x => x.MaCode).HasMaxLength(100).IsRequired();
                 e.HasIndex(x => x.MaCode).IsUnique();
                 e.Property(x => x.HeSoGia).HasColumnType("decimal(10,4)");
+            });
+
+            m.Entity<LoaiDichVu>(e =>
+            {
+                e.HasKey(x => x.MaLoaiDV);
+                e.Property(x => x.DonGia).HasColumnType("decimal(18,2)");
+            });
+
+            m.Entity<DichVuPhong>(e =>
+            {
+                e.HasKey(x => x.MaDVP);
+                e.Property(x => x.DonGia).HasColumnType("decimal(18,2)");
+                e.Ignore(x => x.ThanhTien);
+                e.HasOne(x => x.DatPhong).WithMany(d => d.DichVuPhongs)
+                 .HasForeignKey(x => x.MaDatPhong).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(x => x.LoaiDichVu).WithMany(l => l.DichVuPhongs)
+                 .HasForeignKey(x => x.MaLoaiDV).OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

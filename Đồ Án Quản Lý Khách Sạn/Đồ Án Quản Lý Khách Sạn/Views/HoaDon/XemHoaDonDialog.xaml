@@ -72,11 +72,12 @@
                             <StackPanel>
                                 <TextBlock Text="KHÁCH HÀNG" FontSize="9" FontWeight="Bold"
                                            Foreground="#90A4AE" Margin="0,0,0,10"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
-                                    <TextBlock Text="👤" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <DockPanel Margin="0,0,0,7">
+                                    <TextBlock DockPanel.Dock="Left" Text="👤" FontSize="13"
+                                               VerticalAlignment="Top" Margin="0,1,8,0"/>
                                     <TextBlock x:Name="TxtKhach" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#1A237E" TextWrapping="Wrap"/>
-                                </StackPanel>
+                                               Foreground="#1A237E" TextWrapping="Wrap" LineHeight="20"/>
+                                </DockPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
                                     <TextBlock Text="🛏" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <TextBlock x:Name="TxtPhong" FontSize="12" Foreground="#546E7A"
@@ -130,6 +131,48 @@
                         <StackPanel>
                             <TextBlock Text="CHI TIẾT THANH TOÁN" FontSize="9" FontWeight="Bold"
                                        Foreground="#90A4AE" Margin="0,0,0,12"/>
+
+                            <!-- Tiền phòng -->
+                            <DockPanel Margin="0,0,0,10">
+                                <TextBlock x:Name="TxtTienPhong" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#37474F" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Tiền phòng" Foreground="#78909C" FontSize="13"
+                                           VerticalAlignment="Center"/>
+                            </DockPanel>
+
+                            <!-- Chi tiết dịch vụ -->
+                            <StackPanel x:Name="PnlDichVu" Visibility="Collapsed" Margin="0,0,0,8">
+                                <TextBlock Text="DỊCH VỤ ĐÃ SỬ DỤNG" FontSize="9" FontWeight="Bold"
+                                           Foreground="#E65100" Margin="0,0,0,8"/>
+                                <StackPanel x:Name="PnlDichVuRows"/>
+                                <DockPanel Margin="0,6,0,2">
+                                    <TextBlock x:Name="TxtTienDichVu" DockPanel.Dock="Right"
+                                               FontSize="13" Foreground="#F57C00" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Tổng dịch vụ" Foreground="#F57C00"
+                                               FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <Rectangle Height="1" Fill="#FFE0B2" Margin="0,8,0,10"/>
+                            </StackPanel>
+
+                            <!-- VAT -->
+                            <DockPanel x:Name="RowVAT" Margin="0,0,0,10" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtTienVAT" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#E65100" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtVATLabel" Foreground="#E65100" FontSize="13"
+                                           VerticalAlignment="Center"/>
+                            </DockPanel>
+
+                            <!-- Mã giảm giá -->
+                            <DockPanel x:Name="RowGiamGia" Margin="0,0,0,10" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtTienGiam" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#2E7D32" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtMaGiamGiaHD" Foreground="#2E7D32" FontSize="13"
+                                           FontStyle="Italic" VerticalAlignment="Center"/>
+                            </DockPanel>
 
                             <!-- Tiền cọc -->
                             <DockPanel Margin="0,0,0,10" x:Name="RowCoc">

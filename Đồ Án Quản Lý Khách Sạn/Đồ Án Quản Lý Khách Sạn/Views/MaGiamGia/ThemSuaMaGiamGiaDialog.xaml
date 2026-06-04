@@ -1,0 +1,139 @@
+<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.MaGiamGia.ThemSuaMaGiamGiaDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mã Giảm Giá" Height="660" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="64"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#1565C0" Offset="0"/>
+                        <GradientStop Color="#1E88E5" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="16,0,8,0">
+                    <TextBlock x:Name="TxtTitle" Text="Thêm Mã Giảm Giá"
+                               Foreground="White" FontSize="15" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <Button Style="{StaticResource BtnClose}" Content="✕"
+                            Click="BtnCancel_Click" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <!-- Body -->
+            <ScrollViewer Grid.Row="1" Margin="24,16">
+                <StackPanel>
+
+                    <!-- Tên mã + Mô tả -->
+                    <TextBlock Text="Tên Mã Giảm Giá *" Style="{StaticResource Label}"/>
+                    <TextBox x:Name="TxtTenMa" Tag="VD: SUMMER2024, GIAM10, WEEKEND..." Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Mô Tả" Style="{StaticResource Label}"/>
+                    <TextBox x:Name="TxtMoTa" Tag="Mô tả ngắn về đợt khuyến mãi" Margin="0,0,0,10"/>
+
+                    <!-- Số lượng tối đa -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Số Lượt Sử Dụng Tối Đa" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="TxtSoLuong" Tag="Để trống = vô hạn"
+                                     VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                            <CheckBox x:Name="ChkVoHan" Content="Vô hạn lượt"
+                                      IsChecked="True" Checked="ChkVoHan_Changed" Unchecked="ChkVoHan_Changed"
+                                      FontSize="13"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Ngày hiệu lực -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Ngày Bắt Đầu *" Style="{StaticResource Label}"/>
+                            <DatePicker x:Name="DpkBatDau"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Ngày Kết Thúc *" Style="{StaticResource Label}"/>
+                            <DatePicker x:Name="DpkKetThuc"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Quy tắc giảm giá -->
+                    <Border Background="#F5F7FA" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,10">
+                                <Button DockPanel.Dock="Right" Content="+ Thêm quy tắc"
+                                        Style="{StaticResource BtnPrimary}"
+                                        Click="BtnThemQuyTac_Click" Padding="10,4"/>
+                                <TextBlock Text="QUY TẮC GIẢM GIÁ" FontSize="11" FontWeight="Bold"
+                                           Foreground="#1565C0" VerticalAlignment="Center"/>
+                            </DockPanel>
+
+                            <TextBlock Text="Mỗi quy tắc áp dụng giảm % cho một loại phòng hoặc loại dịch vụ."
+                                       FontSize="11" Foreground="#90A4AE" Margin="0,0,0,8" TextWrapping="Wrap"/>
+
+                            <!-- Header row -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="34"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Loại" FontSize="11" FontWeight="SemiBold" Foreground="#546E7A"/>
+                                <TextBlock Grid.Column="1" Text="Tên" FontSize="11" FontWeight="SemiBold" Foreground="#546E7A" Margin="6,0,0,0"/>
+                                <TextBlock Grid.Column="2" Text="Giảm (%)" FontSize="11" FontWeight="SemiBold" Foreground="#546E7A" Margin="6,0,0,0"
+                                           ToolTip="Nhập số % cần giảm. VD: 20 = giảm 20%, khách trả 80%"/>
+                            </Grid>
+
+                            <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,6"/>
+
+                            <!-- Dynamic rows -->
+                            <StackPanel x:Name="PnlQuyTacRows"/>
+
+                            <TextBlock x:Name="TxtEmptyRules" Text="Chưa có quy tắc nào. Nhấn '+ Thêm quy tắc' để thêm."
+                                       FontSize="12" Foreground="#90A4AE" TextAlignment="Center"
+                                       Margin="0,8,0,4" Visibility="Visible"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Error -->
+                    <Border x:Name="PnlError" Background="#FFEBEE" CornerRadius="6"
+                            Padding="10,6" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtError" Foreground="#C62828" FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#F8FAFD" BorderBrush="#E0E0E0"
+                    BorderThickness="0,1,0,0" CornerRadius="0,0,12,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Margin="24,0" VerticalAlignment="Center">
+                    <Button Content="Hủy" Style="{StaticResource BtnOutline}" Width="90"
+                            Click="BtnCancel_Click" Margin="0,0,8,0"/>
+                    <Button x:Name="BtnSave" Content="💾  Lưu" Style="{StaticResource BtnPrimary}"
+                            Width="110" Click="BtnSave_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

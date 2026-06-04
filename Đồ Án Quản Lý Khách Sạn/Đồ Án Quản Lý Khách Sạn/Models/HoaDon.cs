@@ -57,30 +57,33 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public DateTime? NgayThanhToan { get; set; }
 
         /// <summary>
+        /// Số tiền được giảm (do mã giảm giá).
+        /// </summary>
+        public decimal TienGiam { get; set; }
+        public decimal TienVAT { get; set; }
+        public decimal VATPercent { get; set; }
+
+        public int? MaGG { get; set; }
+
+        /// <summary>
+        /// Ngày trả phòng dự kiến ban đầu (lưu lại khi lập HĐ để phục hồi khi hủy).
+        /// </summary>
+        public DateTime? NgayTraPhongGoc { get; set; }
+
+        /// <summary>
         /// Ghi chú kèm theo hóa đơn.
         /// </summary>
         public string? GhiChu { get; set; }
 
-        /// <summary>
-        /// Đối tượng liên kết biểu diễn chi tiết đặt phòng tương ứng.
-        /// </summary>
         public virtual DatPhong? DatPhong { get; set; }
-
-        /// <summary>
-        /// Đối tượng liên kết biểu diễn nhân viên lập hóa đơn.
-        /// </summary>
         public virtual NhanVien? NhanVien { get; set; }
+        public virtual MaGiamGia? MaGiamGia { get; set; }
+        public virtual ICollection<LichSuDungMaGiam> LichSuDungMaGiams { get; set; } = new List<LichSuDungMaGiam>();
 
-        /// <summary>
-        /// Tính toán tổng số ngày thuê dựa trên ngày nhận và trả phòng thực tế.
-        /// </summary>
         public int SoNgay => DatPhong == null ? 1
             : Math.Max(1, (DatPhong.NgayTraPhong.Date - DatPhong.NgayNhanPhong.Date).Days);
 
-        /// <summary>
-        /// Số tiền còn lại mà khách hàng phải thanh toán sau khi trừ tiền cọc.
-        /// </summary>
-        public decimal ConLai => Math.Max(0, TienPhong - TienCoc);
+        public decimal ConLai => Math.Max(0, TongTien - TienCoc);
     }
 }
 

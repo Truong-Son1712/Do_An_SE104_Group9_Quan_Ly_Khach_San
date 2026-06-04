@@ -15,7 +15,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
     {
         private readonly int _maDatPhong;
         private decimal _tienPhong;
+        private decimal _tienDichVu;
         private decimal _tienCoc;
+        private decimal _tienGiam;
+        private decimal _vatPercent; // % VAT tại thời điểm lập HĐ
+        private int? _maGG;
+        private int _maLoaiPhong;
+        private List<(int MaLoaiDV, decimal ThanhTien)> _dichVuItems = new();
 
         /// <summary>
         /// Khởi tạo màn hình lập hóa đơn dựa trên mã đặt phòng được chọn.
@@ -77,7 +83,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
             // ── 5. Công thức tính tiền phòng chung cuộc ────────────────────────
             // Tiền phòng = (Giá phòng gốc * Số ngày) * Hệ số khách * (1 + Tỉ lệ phụ thu)
             _tienPhong = gia * soNgay * heSo * phuThuMul;
-            _tienCoc   = dp.TienCoc;
+            _tienCoc    = dp.TienCoc;
+            _vatPercent = AppConfig.GetVAT();
+
+            _maLoaiPhong = dp.Phong?.MaLoaiPhong ?? 0;
+
+            // ── 5b. Tính tiền dịch vụ đã dùng trong phòng ─────────────────
+            var dvRaw = ctx.DichVuPhongs.Where(d => d.MaDatPhong == _maDatPhong).ToList();
+            _tienDichVu = dvRaw.Sum(d => d.SoLuong * d.DonGia);
+            _dichVuItems = dvRaw.Select(d => (d.MaLoaiDV, d.SoLuong * d.DonGia)).ToList();
 
             // ── 6. Hiển thị thông tin chi tiết lên giao diện người dùng ─────────
             TxtNgay.Text    = $"{nhan:dd/MM/yyyy} → {tra:dd/MM/yyyy}";
@@ -109,19 +123,195 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 TxtPhuThuInfo.Visibility = Visibility.Visible;
             }
 
-            TxtTienPhong.Text = $"{_tienPhong:N0} ₫";
+            TxtTienPhong.Text       = $"{_tienPhong:N0} ₫";
+            TxtTienPhongDetail.Text = $"{_tienPhong:N0} ₫";
 
-            // Trừ đi số tiền khách đã đặt cọc trước
-            decimal thanhToanTraPhong     = Math.Max(0, _tienPhong - _tienCoc);
-            TxtTienCocDisplay.Text        = $"{_tienCoc:N0} ₫";
-            TxtThanhToanTraPhong.Text     = $"{thanhToanTraPhong:N0} ₫";
-            RowTienCoc.Opacity            = _tienCoc > 0 ? 1.0 : 0.4;
-            TxtConLai.Text                = $"{_tienPhong:N0} ₫";
+            // Hiển thị chi tiết từng dịch vụ
+            decimal tongTien = _tienPhong + _tienDichVu;
+            var dichVus = ctx.DichVuPhongs
+                .Include(d => d.LoaiDichVu)
+                .Where(d => d.MaDatPhong == _maDatPhong && d.SoLuong > 0)
+                .ToList();
+
+            if (dichVus.Any())
+            {
+                PnlDichVu.Visibility = Visibility.Visible;
+                PnlDichVuRows.Children.Clear();
+                foreach (var dv in dichVus)
+                {
+                    var row = new System.Windows.Controls.Grid();
+                    row.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    row.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = GridLength.Auto });
+                    row.Margin = new Thickness(0, 0, 0, 4);
+
+                    var lblTen = new System.Windows.Controls.TextBlock
+                    {
+                        Text = $"  • {dv.LoaiDichVu?.TenLoaiDV} × {dv.SoLuong} {dv.LoaiDichVu?.DonViTinh}",
+                        FontSize = 12,
+                        Foreground = System.Windows.Media.Brushes.DimGray
+                    };
+                    System.Windows.Controls.Grid.SetColumn(lblTen, 0);
+
+                    var lblGia = new System.Windows.Controls.TextBlock
+                    {
+                        Text = $"{dv.SoLuong * dv.DonGia:N0} ₫",
+                        FontSize = 12,
+                        Foreground = new System.Windows.Media.SolidColorBrush(
+                            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F57C00")),
+                        FontWeight = FontWeights.SemiBold
+                    };
+                    System.Windows.Controls.Grid.SetColumn(lblGia, 1);
+
+                    row.Children.Add(lblTen);
+                    row.Children.Add(lblGia);
+                    PnlDichVuRows.Children.Add(row);
+                }
+                TxtTienDichVu.Text = $"{_tienDichVu:N0} ₫";
+            }
+
+            TxtTienCocDisplay.Text = $"{_tienCoc:N0} ₫";
+            RowTienCoc.Opacity     = _tienCoc > 0 ? 1.0 : 0.4;
+            UpdateTotals();
         }
 
-        /// <summary>
-        /// Xử lý sự kiện khi nhân viên xác nhận hoàn tất thủ tục trả phòng (Lập hóa đơn chưa thanh toán).
-        /// </summary>
+        private void UpdateTotals()
+        {
+            decimal tamTinh       = _tienPhong + _tienDichVu - _tienGiam;
+            decimal tienVAT       = Math.Round(tamTinh * _vatPercent / 100, 0);
+            decimal tongSauVAT    = tamTinh + tienVAT;
+            decimal conPhai       = Math.Max(0, tongSauVAT - _tienCoc);
+
+            // Giảm giá
+            if (_tienGiam > 0)
+            {
+                RowTienGiam.Visibility  = Visibility.Visible;
+                TxtTenMaGiam.Text       = $"Giảm giá ({TxtMaGiamGia.Text.Trim()}):";
+                TxtTienGiamDisplay.Text = $"- {_tienGiam:N0} ₫";
+            }
+            else
+            {
+                RowTienGiam.Visibility = Visibility.Collapsed;
+            }
+
+            // VAT
+            RowVAT.Visibility    = Visibility.Visible;
+            TxtVATLabel.Text     = $"Thuế VAT ({_vatPercent:0.##}%):";
+            TxtTienVAT.Text      = $"{tienVAT:N0} ₫";
+
+            TxtThanhToanTraPhong.Text = $"{conPhai:N0} ₫";
+            TxtConLai.Text            = $"{tongSauVAT:N0} ₫";
+        }
+
+        private void BtnKiemTraMa_Click(object sender, RoutedEventArgs e)
+        {
+            string tenMa = TxtMaGiamGia.Text.Trim().ToUpper();
+            TxtKetQuaMa.Visibility = Visibility.Visible;
+
+            if (string.IsNullOrEmpty(tenMa))
+            {
+                TxtKetQuaMa.Text       = "Vui lòng nhập mã giảm giá.";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.OrangeRed;
+                return;
+            }
+
+            using var ctx = new HotelDbContext();
+            var mg = ctx.MaGiamGias
+                .Include(m => m.ChiTiets)
+                .FirstOrDefault(m => m.TenMa == tenMa);
+
+            if (mg == null)
+            {
+                TxtKetQuaMa.Text       = "❌  Mã giảm giá không tồn tại.";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.Crimson;
+                return;
+            }
+            if (mg.TrangThai == "Inactive")
+            {
+                TxtKetQuaMa.Text       = "❌  Mã giảm giá đã bị vô hiệu hóa.";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.Crimson;
+                return;
+            }
+
+            // Kiểm tra số lượt
+            if (mg.SoLuongToiDa.HasValue)
+            {
+                int daUsed = ctx.LichSuDungMaGiams.Count(l => l.MaGG == mg.MaGG);
+                if (daUsed >= mg.SoLuongToiDa.Value)
+                {
+                    TxtKetQuaMa.Text       = $"❌  Mã đã hết lượt sử dụng ({daUsed}/{mg.SoLuongToiDa}).";
+                    TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.Crimson;
+                    return;
+                }
+            }
+            var now = DateTime.Now;
+            if (now < mg.NgayBatDau)
+            {
+                TxtKetQuaMa.Text       = $"⏳  Mã chưa có hiệu lực (bắt đầu từ {mg.NgayBatDau:dd/MM/yyyy}).";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.OrangeRed;
+                return;
+            }
+            if (now > mg.NgayKetThuc)
+            {
+                TxtKetQuaMa.Text       = $"❌  Mã đã hết hạn (kết thúc {mg.NgayKetThuc:dd/MM/yyyy}).";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.Crimson;
+                return;
+            }
+
+            // Tính tiền giảm
+            decimal giamPhong = 0;
+            var ctPhong = mg.ChiTiets.FirstOrDefault(c => c.LoaiApDung == "LoaiPhong" && c.MaLoai == _maLoaiPhong);
+            if (ctPhong != null)
+                giamPhong = Math.Round(_tienPhong * ctPhong.TiLeGiam / 100, 0);
+
+            decimal giamDV = 0;
+            foreach (var (maLoaiDV, thanhTien) in _dichVuItems)
+            {
+                var ctDV = mg.ChiTiets.FirstOrDefault(c => c.LoaiApDung == "LoaiDichVu" && c.MaLoai == maLoaiDV);
+                if (ctDV != null)
+                    giamDV += Math.Round(thanhTien * ctDV.TiLeGiam / 100, 0);
+            }
+
+            _tienGiam = giamPhong + giamDV;
+            _maGG     = mg.MaGG;
+
+            if (_tienGiam == 0)
+            {
+                TxtKetQuaMa.Text       = "ℹ️  Mã hợp lệ nhưng không có quy tắc giảm giá nào áp dụng cho đặt phòng này.";
+                TxtKetQuaMa.Foreground = System.Windows.Media.Brushes.OrangeRed;
+                _maGG = null;
+            }
+            else
+            {
+                var parts = new List<string>();
+                if (ctPhong != null) parts.Add($"phòng -{ctPhong.TiLeGiam:0.##}%");
+                foreach (var (maLoaiDV, _) in _dichVuItems)
+                {
+                    var ctDV = mg.ChiTiets.FirstOrDefault(c => c.LoaiApDung == "LoaiDichVu" && c.MaLoai == maLoaiDV);
+                    if (ctDV != null)
+                    {
+                        string tenDV = ctx.LoaiDichVus.Find(maLoaiDV)?.TenLoaiDV ?? "";
+                        parts.Add($"{tenDV} -{ctDV.TiLeGiam:0.##}%");
+                    }
+                }
+                TxtKetQuaMa.Text       = $"✅  Mã hợp lệ! Giảm: {string.Join(", ", parts)}. Tiết kiệm: {_tienGiam:N0} ₫";
+                TxtKetQuaMa.Foreground = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2E7D32"));
+                BtnBoMa.Visibility = Visibility.Visible;
+            }
+
+            UpdateTotals();
+        }
+
+        private void BtnBoMa_Click(object sender, RoutedEventArgs e)
+        {
+            _tienGiam              = 0;
+            _maGG                  = null;
+            TxtMaGiamGia.Text      = "";
+            TxtKetQuaMa.Visibility = Visibility.Collapsed;
+            BtnBoMa.Visibility     = Visibility.Collapsed;
+            UpdateTotals();
+        }
+
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
             PnlError.Visibility = Visibility.Collapsed;
@@ -132,17 +322,25 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 var dp = ctx.DatPhongs.Include(d => d.Phong).FirstOrDefault(d => d.MaDatPhong == _maDatPhong);
                 if (dp == null) return;
 
-                // Tạo đối tượng hóa đơn lưu trữ thông tin tiền phòng, tiền cọc của đợt đặt phòng này
+                decimal tamTinh    = _tienPhong + _tienDichVu - _tienGiam;
+                decimal tienVAT    = Math.Round(tamTinh * _vatPercent / 100, 0);
+                decimal tongSauVAT = tamTinh + tienVAT;
+
                 var hd = new Models.HoaDon
                 {
-                    MaDatPhong   = _maDatPhong,
-                    MaNV         = SessionManager.CurrentUser!.MaNV,
-                    TienPhong    = _tienPhong,
-                    TienCoc      = _tienCoc,
-                    TongTien     = _tienPhong,
-                    PhuongThucTT = "TienMat",
-                    TrangThai    = "ChuaThanhToan",
-                    GhiChu       = TxtGhiChu.Text.Trim()
+                    MaDatPhong      = _maDatPhong,
+                    MaNV            = SessionManager.CurrentUser!.MaNV,
+                    TienPhong       = _tienPhong,
+                    TienCoc         = _tienCoc,
+                    TongTien        = tongSauVAT,
+                    TienGiam        = _tienGiam,
+                    TienVAT         = tienVAT,
+                    VATPercent      = _vatPercent,
+                    MaGG            = _maGG,
+                    NgayTraPhongGoc = dp.NgayTraPhong,
+                    PhuongThucTT    = "TienMat",
+                    TrangThai       = "ChuaThanhToan",
+                    GhiChu          = TxtGhiChu.Text.Trim()
                 };
                 ctx.HoaDons.Add(hd);
 
@@ -165,11 +363,26 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon
                 }
 
                 ctx.SaveChanges();
+
+                // Ghi lịch sử dùng mã giảm giá
+                if (_maGG.HasValue && _tienGiam > 0)
+                {
+                    ctx.LichSuDungMaGiams.Add(new Models.LichSuDungMaGiam
+                    {
+                        MaGG       = _maGG.Value,
+                        MaHD       = hd.MaHD,
+                        NgaySuDung = DateTime.Now
+                    });
+                    ctx.SaveChanges();
+                }
+
                 DialogResult = true;
+                decimal conPhai  = Math.Max(0, tongSauVAT - _tienCoc);
+                string giamInfo  = _tienGiam > 0 ? $"\nĐã giảm: {_tienGiam:N0} ₫" : "";
+                string vatInfo   = tienVAT > 0   ? $"\nThuế VAT ({_vatPercent:0.##}%): {tienVAT:N0} ₫" : "";
                 MessageBox.Show(
-                    $"Trả phòng thành công!\nTiền phòng: {_tienPhong:N0} ₫\nTiền cọc: {_tienCoc:N0} ₫\n" +
-                    $"Còn phải thu: {Math.Max(0, _tienPhong - _tienCoc):N0} ₫\n\n" +
-                    $"Vui lòng vào tab Hóa Đơn để hoàn tất thanh toán.",
+                    $"Trả phòng thành công!\nTiền phòng: {_tienPhong:N0} ₫{giamInfo}{vatInfo}\nTiền cọc: {_tienCoc:N0} ₫\n" +
+                    $"Còn phải thu: {conPhai:N0} ₫\n\nVui lòng vào tab Hóa Đơn để hoàn tất thanh toán.",
                     "Trả Phòng Thành Công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex) { ShowError(ex.Message); }

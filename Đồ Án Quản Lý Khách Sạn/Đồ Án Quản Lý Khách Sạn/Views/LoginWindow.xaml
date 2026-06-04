@@ -135,9 +135,36 @@
                         <!-- Mật khẩu -->
                         <TextBlock Text="MẬT KHẨU" Style="{StaticResource Label}"
                                    Foreground="#546E7A"/>
-                        <PasswordBox x:Name="PbMatKhau"
-                                     Margin="0,0,0,8"
+                        <Grid Margin="0,0,0,8">
+                            <!-- PasswordBox (mặc định hiển thị) -->
+                            <PasswordBox x:Name="PbMatKhau"
+                                         Padding="10,0,42,0"
+                                         KeyDown="Input_KeyDown"/>
+                            <!-- TextBox hiện mật khẩu dạng plain text -->
+                            <TextBox x:Name="TxtMatKhauRo"
+                                     Padding="10,0,42,0"
+                                     Visibility="Collapsed"
                                      KeyDown="Input_KeyDown"/>
+                            <!-- Nút con mắt -->
+                            <Button x:Name="BtnTogglePass"
+                                    Width="36" Height="36"
+                                    HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Margin="0,0,4,0"
+                                    Background="Transparent" BorderThickness="0"
+                                    Cursor="Hand" ToolTip="Hiện/Ẩn mật khẩu"
+                                    Click="BtnTogglePass_Click">
+                                <Grid Width="20" Height="20">
+                                    <TextBlock Text="👁" FontSize="15"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <!-- Gạch chéo: hiển thị khi đang ẩn MK -->
+                                    <Line x:Name="EyeSlash"
+                                          X1="2" Y1="17" X2="17" Y2="2"
+                                          Stroke="#546E7A" StrokeThickness="2.5"
+                                          Visibility="Visible"/>
+                                </Grid>
+                            </Button>
+                        </Grid>
 
                         <!-- Lỗi -->
                         <Border Background="#FFEBEE" CornerRadius="6" Padding="12,8"

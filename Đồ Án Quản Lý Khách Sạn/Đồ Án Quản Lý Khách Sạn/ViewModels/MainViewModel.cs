@@ -38,6 +38,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public ICommand NavBaoCaoCommand     { get; }
         public ICommand NavNhanVienCommand        { get; }
         public ICommand NavLoaiKhachHangCommand   { get; }
+        public ICommand NavLoaiDichVuCommand      { get; }
+        public ICommand NavDichVuCommand          { get; }
+        public ICommand NavMaGiamGiaCommand       { get; }
         public ICommand NavCaiDatCommand          { get; }
         public ICommand LogoutCommand        { get; }
 
@@ -52,8 +55,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             NavDatPhongCommand  = new RelayCommand(_ => Nav(new DatPhongViewModel(),  "Đặt Phòng"));
             NavHoaDonCommand    = new RelayCommand(_ => Nav(new HoaDonViewModel(),    "Hóa Đơn"));
             NavBaoCaoCommand    = new RelayCommand(_ => Nav(new BaoCaoViewModel(),    "Báo Cáo"),       _ => IsQuanLy);
-            NavNhanVienCommand       = new RelayCommand(_ => Nav(new NhanVienViewModel(),       "Nhân Viên"),          _ => IsAdmin);
+            NavNhanVienCommand       = new RelayCommand(_ => Nav(new NhanVienViewModel(),       "Nhân Viên"),          _ => IsQuanLy);
             NavLoaiKhachHangCommand  = new RelayCommand(_ => Nav(new LoaiKhachHangViewModel(),  "Loại Khách Hàng"),    _ => IsAdmin);
+            NavLoaiDichVuCommand     = new RelayCommand(_ => Nav(new LoaiDichVuViewModel(),     "Loại Dịch Vụ"),       _ => IsQuanLy);
+            NavDichVuCommand         = new RelayCommand(_ => Nav(new DichVuViewModel(),         "Dịch Vụ Phòng"));
+            NavMaGiamGiaCommand      = new RelayCommand(_ => Nav(new MaGiamGiaViewModel(),      "Mã Giảm Giá"),        _ => IsQuanLy);
             NavCaiDatCommand         = new RelayCommand(_ => Nav(new CaiDatViewModel(),         "Cài Đặt & Tài Khoản"));
             LogoutCommand       = new RelayCommand(_ => LogoutRequested?.Invoke());
 

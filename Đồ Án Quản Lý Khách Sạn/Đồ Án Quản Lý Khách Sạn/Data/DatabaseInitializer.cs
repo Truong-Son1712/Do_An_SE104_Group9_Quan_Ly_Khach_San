@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
@@ -8,6 +9,32 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
         {
             // Tạo database và tất cả bảng nếu chưa tồn tại (SQL Server)
             ctx.Database.EnsureCreated();
+
+            // Migration thủ công: thêm bảng mới nếu chưa tồn tại
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoaiDichVus')
+                CREATE TABLE LoaiDichVus (
+                    MaLoaiDV  INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                    TenLoaiDV NVARCHAR(200) NOT NULL,
+                    DonGia    DECIMAL(18,2) NOT NULL DEFAULT 0,
+                    DonViTinh NVARCHAR(50)  NOT NULL DEFAULT '',
+                    MoTa      NVARCHAR(500) NULL,
+                    IsActive  BIT           NOT NULL DEFAULT 1
+                );");
+
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DichVuPhongs')
+                CREATE TABLE DichVuPhongs (
+                    MaDVP      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                    MaDatPhong INT           NOT NULL,
+                    MaLoaiDV   INT           NOT NULL,
+                    SoLuong    INT           NOT NULL DEFAULT 1,
+                    DonGia     DECIMAL(18,2) NOT NULL DEFAULT 0,
+                    NgayThem   DATETIME2     NOT NULL DEFAULT GETDATE(),
+                    GhiChu     NVARCHAR(500) NULL,
+                    CONSTRAINT FK_DichVuPhong_DatPhong  FOREIGN KEY (MaDatPhong) REFERENCES DatPhongs(MaDatPhong)  ON DELETE CASCADE,
+                    CONSTRAINT FK_DichVuPhong_LoaiDichVu FOREIGN KEY (MaLoaiDV) REFERENCES LoaiDichVus(MaLoaiDV) ON DELETE NO ACTION
+                );");
 
             if (!ctx.NhanViens.Any())   SeedNhanVien(ctx);
             if (!ctx.LoaiPhongs.Any())  SeedLoaiPhong(ctx);
@@ -25,6 +52,21 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
                 ctx.LoaiKhachHangs.Add(new LoaiKhachHang { MaCode = "NoiDia",    TenLoai = "Nội địa",    HeSoGia = 1.0m });
             if (!ctx.LoaiKhachHangs.Any(l => l.MaCode == "NuocNgoai"))
                 ctx.LoaiKhachHangs.Add(new LoaiKhachHang { MaCode = "NuocNgoai", TenLoai = "Nước ngoài", HeSoGia = 1.2m });
+
+            // Seed loại dịch vụ mặc định
+            if (!ctx.LoaiDichVus.Any())
+            {
+                ctx.LoaiDichVus.AddRange(
+                    new LoaiDichVu { TenLoaiDV = "Bữa ăn sáng",  DonGia =  50_000, DonViTinh = "bữa",    MoTa = "Buffet sáng tại nhà hàng khách sạn" },
+                    new LoaiDichVu { TenLoaiDV = "Bữa ăn trưa",  DonGia =  80_000, DonViTinh = "bữa",    MoTa = "Set menu trưa" },
+                    new LoaiDichVu { TenLoaiDV = "Bữa ăn tối",   DonGia = 100_000, DonViTinh = "bữa",    MoTa = "Set menu tối" },
+                    new LoaiDichVu { TenLoaiDV = "Nước suối",    DonGia =  15_000, DonViTinh = "chai",   MoTa = "Nước khoáng 500ml" },
+                    new LoaiDichVu { TenLoaiDV = "Nước ngọt",    DonGia =  20_000, DonViTinh = "lon",    MoTa = "Nước ngọt đóng lon" },
+                    new LoaiDichVu { TenLoaiDV = "Đặt xe taxi",  DonGia = 200_000, DonViTinh = "chuyến", MoTa = "Dịch vụ đặt taxi nội thành" },
+                    new LoaiDichVu { TenLoaiDV = "Giặt ủi",      DonGia =  50_000, DonViTinh = "kg",     MoTa = "Giặt ủi quần áo" },
+                    new LoaiDichVu { TenLoaiDV = "Spa / Massage", DonGia = 300_000, DonViTinh = "giờ",   MoTa = "Dịch vụ spa và massage thư giãn" }
+                );
+            }
 
             ctx.SaveChanges();
         }

@@ -1,7 +1,7 @@
 <Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.HoaDon.ThanhToanDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Thanh Toán Hóa Đơn" Height="500" Width="480"
+        Title="Thanh Toán Hóa Đơn" Height="580" Width="480"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" WindowStyle="None"
         AllowsTransparency="True" Background="Transparent">
@@ -41,7 +41,8 @@
                                        Foreground="#1565C0" Margin="0,0,0,8"/>
                             <TextBlock x:Name="TxtMaHD" FontSize="12" Foreground="#546E7A"/>
                             <TextBlock x:Name="TxtKhachHang" FontWeight="SemiBold" FontSize="14"
-                                       Foreground="#1A237E" Margin="0,2,0,2"/>
+                                       Foreground="#1A237E" Margin="0,2,0,2"
+                                       TextWrapping="Wrap"/>
                             <TextBlock x:Name="TxtPhong" Foreground="#546E7A" FontSize="12"/>
                         </StackPanel>
                     </Border>
@@ -57,6 +58,34 @@
                                 <TextBlock x:Name="TxtTienPhong" DockPanel.Dock="Right"
                                            FontSize="14" Foreground="#37474F" FontWeight="SemiBold"/>
                                 <TextBlock Text="Tiền phòng:" FontSize="13" Foreground="#546E7A"/>
+                            </DockPanel>
+
+                            <!-- Dịch vụ đã sử dụng -->
+                            <StackPanel x:Name="PnlDichVu" Visibility="Collapsed" Margin="0,0,0,4">
+                                <TextBlock Text="DỊCH VỤ ĐÃ SỬ DỤNG" FontSize="10" FontWeight="Bold"
+                                           Foreground="#E65100" Margin="0,0,0,6"/>
+                                <StackPanel x:Name="PnlDichVuRows"/>
+                                <DockPanel Margin="0,4,0,8">
+                                    <TextBlock x:Name="TxtTienDichVu" DockPanel.Dock="Right"
+                                               FontSize="13" Foreground="#F57C00" FontWeight="Bold"/>
+                                    <TextBlock Text="Tổng dịch vụ:" FontSize="13"
+                                               Foreground="#F57C00" FontWeight="SemiBold"/>
+                                </DockPanel>
+                                <Rectangle Height="1" Fill="#FFE0B2" Margin="0,0,0,8"/>
+                            </StackPanel>
+
+                            <!-- VAT -->
+                            <DockPanel x:Name="RowVAT" Margin="0,0,0,8" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtTienVATHD" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#E65100" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtVATLabel" FontSize="13" Foreground="#E65100"/>
+                            </DockPanel>
+
+                            <!-- Tiền giảm giá (chỉ hiện khi có mã) -->
+                            <DockPanel x:Name="RowTienGiam" Margin="0,0,0,8" Visibility="Collapsed">
+                                <TextBlock x:Name="TxtTienGiamHD" DockPanel.Dock="Right"
+                                           FontSize="13" Foreground="#2E7D32" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="TxtTenMaHD" FontSize="13" Foreground="#2E7D32" FontStyle="Italic"/>
                             </DockPanel>
 
                             <!-- Tiền cọc -->

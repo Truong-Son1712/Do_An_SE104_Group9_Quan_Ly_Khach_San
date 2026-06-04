@@ -98,25 +98,63 @@
                         <ItemsControl ItemsSource="{Binding DoanhThuTheoThang}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,5">
+                                    <Grid Margin="0,4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="150"/>
-                                            <ColumnDefinition Width="44"/>
+                                            <ColumnDefinition Width="52"/>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="38"/>
                                         </Grid.ColumnDefinitions>
+
+                                        <!-- Tháng -->
                                         <TextBlock Grid.Column="0" Text="{Binding Thang}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11" VerticalAlignment="Center"/>
+
+                                        <!-- Thanh bar -->
                                         <ProgressBar Grid.Column="1" Margin="6,0"
                                                      Value="{Binding TyLe, Mode=OneWay}" Maximum="100"
-                                                     Height="16"/>
-                                        <TextBlock Grid.Column="2"
+                                                     Height="18"/>
+
+                                        <!-- % so với cả năm -->
+                                        <Border Grid.Column="2" Margin="6,0,4,0"
+                                                CornerRadius="10" Padding="6,2"
+                                                VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding TyLeNam}" Value="0">
+                                                            <Setter Property="Background" Value="#F5F5F5"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding TyLeNamText}"
+                                                       FontSize="11" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#1565C0"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding TyLeNam}" Value="0">
+                                                                <Setter Property="Foreground" Value="#BDBDBD"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <!-- Số tiền -->
+                                        <TextBlock Grid.Column="3"
                                                    Text="{Binding DoanhThu, Converter={StaticResource Currency}}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    FontWeight="SemiBold" FontSize="12"
                                                    VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                        <TextBlock Grid.Column="3"
+
+                                        <!-- Số HĐ -->
+                                        <TextBlock Grid.Column="4"
                                                    Text="{Binding SoHoaDon, StringFormat='({0})'}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11" VerticalAlignment="Center"

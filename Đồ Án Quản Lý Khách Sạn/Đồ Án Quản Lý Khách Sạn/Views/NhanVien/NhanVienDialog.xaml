@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien.NhanVienDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Thông Tin Nhân Viên" Height="500" Width="480"
+        Title="Thông Tin Nhân Viên" Height="560" Width="480"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" WindowStyle="None"
         AllowsTransparency="True" Background="Transparent">
@@ -37,6 +37,20 @@
                         <TextBox x:Name="TxtHoTen"/>
                     </StackPanel>
 
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="CCCD / CMND *" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="TxtCCCD" Tag="Số căn cước công dân"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Số Điện Thoại" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="TxtSDT"/>
+                        </StackPanel>
+                    </Grid>
+
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
@@ -70,19 +84,10 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Email" Style="{StaticResource Label}"/>
-                            <TextBox x:Name="TxtEmail"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Số Điện Thoại" Style="{StaticResource Label}"/>
-                            <TextBox x:Name="TxtSDT"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel>
+                        <TextBlock Text="Email" Style="{StaticResource Label}"/>
+                        <TextBox x:Name="TxtEmail"/>
+                    </StackPanel>
 
                     <StackPanel>
                         <TextBlock Text="Địa Chỉ" Style="{StaticResource Label}"/>

@@ -35,6 +35,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.Phong
             BtnLuuSucChua.IsEnabled   = isAdmin;
             BtnLuuSucChua.Opacity     = isAdmin ? 1.0 : 0.4;
             RefreshSucChuaNote(sucChuaMax, tiLePhuThu);
+
+            // ── Thuế VAT ─────────────────────────────────────────────────────
+            decimal vat = AppConfig.GetVAT();
+            TxtVAT.Text          = vat.ToString("0.##");
+            TxtVAT.IsReadOnly    = !isAdmin;
+            BtnLuuVAT.IsEnabled  = isAdmin;
+            BtnLuuVAT.Opacity    = isAdmin ? 1.0 : 0.4;
+            RefreshVATNote(vat);
         }
 
         private void LoadLoaiKhachCombo()
@@ -49,6 +57,25 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.Phong
         {
             TxtHeSoNote.Text =
                 $"Tiền phòng × {loai.HeSoGia:0.####} khi có khách loại \"{loai.TenLoai}\"";
+        }
+
+        private void RefreshVATNote(decimal vat) =>
+            TxtVATNote.Text = $"Áp dụng {vat:0.##}% VAT lên toàn bộ tiền phòng và dịch vụ khi lập hóa đơn";
+
+        private void BtnLuuVAT_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SessionManager.IsAdmin)
+            { MessageBox.Show("Chỉ Admin mới có quyền thay đổi thuế VAT.", "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+            if (!decimal.TryParse(TxtVAT.Text.Replace(',', '.'),
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal vat)
+                || vat < 0 || vat > 100)
+            { MessageBox.Show("Thuế suất VAT phải là số từ 0 đến 100.", "Giá trị không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+            AppConfig.SetVAT(vat);
+            RefreshVATNote(vat);
+            MessageBox.Show($"Đã lưu thuế suất VAT: {vat:0.##}%", "Lưu Thành Công", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void RefreshSucChuaNote(int sucChuaMax, decimal tiLePhuThu)

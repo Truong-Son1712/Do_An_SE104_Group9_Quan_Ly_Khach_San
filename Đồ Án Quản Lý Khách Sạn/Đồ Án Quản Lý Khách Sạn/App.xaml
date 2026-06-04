@@ -11,6 +11,8 @@
              xmlns:vnv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien"
              xmlns:vcd="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.CaiDat"
              xmlns:vdb="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.Dashboard"
+             xmlns:vdv="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.DichVu"
+             xmlns:vmgg="clr-namespace:Đồ_Án_Quản_Lý_Khách_Sạn.Views.MaGiamGia"
              ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -46,8 +48,17 @@
             <DataTemplate DataType="{x:Type vm:LoaiKhachHangViewModel}">
                 <vkh:LoaiKhachHangView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LoaiDichVuViewModel}">
+                <vdv:LoaiDichVuView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DichVuViewModel}">
+                <vdv:DichVuView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vm:CaiDatViewModel}">
                 <vcd:CaiDatView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:MaGiamGiaViewModel}">
+                <vmgg:MaGiamGiaView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

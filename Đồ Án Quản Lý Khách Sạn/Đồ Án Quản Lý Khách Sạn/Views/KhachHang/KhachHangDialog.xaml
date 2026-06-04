@@ -43,7 +43,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="CMND/CCCD *" Style="{StaticResource Label}"/>
-                            <TextBox x:Name="TxtCMND"/>
+                            <TextBox x:Name="TxtCMND" LostFocus="TxtCMND_LostFocus"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Giới Tính" Style="{StaticResource Label}"/>
@@ -94,6 +94,30 @@
                         <TextBox x:Name="TxtDiaChi" Height="60" AcceptsReturn="True"
                                  VerticalContentAlignment="Top" Padding="10,8" TextWrapping="Wrap"/>
                     </StackPanel>
+
+                    <!-- Cảnh báo trùng CMND (hiện ngay khi rời ô CMND) -->
+                    <Border x:Name="PnlDuplicate" Background="#FFF3E0" CornerRadius="6"
+                            Padding="12,10" Margin="0,0,0,8" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="⚠️  CMND/CCCD này đã tồn tại trong hệ thống"
+                                           FontWeight="SemiBold" FontSize="12"
+                                           Foreground="#E65100" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="TxtDuplicateInfo" FontSize="12"
+                                           Foreground="#BF360C" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" x:Name="BtnXemKhachCu"
+                                    Content="Xem hồ sơ"
+                                    Style="{StaticResource BtnOutline}"
+                                    Padding="10,4" Margin="8,0,0,0"
+                                    Click="BtnXemKhachCu_Click"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
 
                     <Border x:Name="PnlError" Background="#FFEBEE" CornerRadius="6"
                             Padding="12,8" Visibility="Collapsed">
