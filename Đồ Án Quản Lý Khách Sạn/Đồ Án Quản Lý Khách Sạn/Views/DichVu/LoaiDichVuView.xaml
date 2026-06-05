@@ -47,8 +47,9 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Mã"           Binding="{Binding MaLoaiDV}"   Width="60"/>
                     <DataGridTextColumn Header="Tên Dịch Vụ" Binding="{Binding TenLoaiDV}"  Width="*"/>
-                    <DataGridTextColumn Header="Đơn Giá"      Binding="{Binding DonGia, Converter={StaticResource Currency}}" Width="130"/>
-                    <DataGridTextColumn Header="Đơn Vị Tính" Binding="{Binding DonViTinh}"  Width="110"/>
+                    <DataGridTextColumn Header="Đơn Giá (gốc)" Binding="{Binding DonGia,        Converter={StaticResource Currency}}" Width="130"/>
+                    <DataGridTextColumn Header="Giá Hiện Tại"  Binding="{Binding DonGiaHienTai, Converter={StaticResource Currency}}" Width="130"/>
+                    <DataGridTextColumn Header="Đơn Vị Tính"   Binding="{Binding DonViTinh}"  Width="110"/>
                     <DataGridTextColumn Header="Mô Tả"        Binding="{Binding MoTa}"       Width="*"/>
                     <DataGridCheckBoxColumn Header="Hoạt Động" Binding="{Binding IsActive}"  Width="90"/>
                 </DataGrid.Columns>

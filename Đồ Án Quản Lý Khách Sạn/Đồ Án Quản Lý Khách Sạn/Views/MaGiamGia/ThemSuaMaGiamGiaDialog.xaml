@@ -68,11 +68,11 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Ngày Bắt Đầu *" Style="{StaticResource Label}"/>
-                            <DatePicker x:Name="DpkBatDau"/>
+                            <DatePicker x:Name="DpkBatDau" Language="vi-VN"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Ngày Kết Thúc *" Style="{StaticResource Label}"/>
-                            <DatePicker x:Name="DpkKetThuc"/>
+                            <DatePicker x:Name="DpkKetThuc" Language="vi-VN"/>
                         </StackPanel>
                     </Grid>
 
