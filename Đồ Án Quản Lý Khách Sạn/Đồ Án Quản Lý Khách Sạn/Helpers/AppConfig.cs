@@ -13,6 +13,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         private const string KEY_THUE_VAT      = "ThueSuatVAT";
         private const string KEY_TI_LE_BO_SUNG    = "TiLeBoSungGia";
         private const string KEY_TI_LE_BO_SUNG_DV = "TiLeBoSungGiaDV";
+        private const string KEY_TI_LE_COC        = "TiLeCoc";
 
         /// Lấy giá trị cấu hình kiểu decimal từ cơ sở dữ liệu.
         private static decimal GetDecimal(string key, decimal defaultVal)
@@ -105,5 +106,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
             decimal tiLe = GetTiLeBoSungGiaDV();
             return Math.Round(donGiaGoc * (1 + tiLe / 100), 0);
         }
+
+        /// Lấy tỉ lệ tiền cọc (%). Mặc định 30%.
+        public static decimal GetTiLeCoc() => GetDecimal(KEY_TI_LE_COC, 30m);
+
+        public static void SetTiLeCoc(decimal v) =>
+            SetValue(KEY_TI_LE_COC, v.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 }

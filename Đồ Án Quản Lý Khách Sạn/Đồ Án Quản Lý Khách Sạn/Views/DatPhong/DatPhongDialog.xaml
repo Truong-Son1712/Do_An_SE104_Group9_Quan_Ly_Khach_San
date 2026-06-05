@@ -163,8 +163,9 @@
                             <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Tiền Cọc (₫)" Style="{StaticResource Label}"/>
-                            <TextBox x:Name="TxtTienCoc" Text="0"/>
+                            <TextBlock x:Name="LblTienCoc" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="TxtTienCoc" IsReadOnly="True"
+                                     Background="#F5F7FA" Foreground="#37474F" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Dự Tính Tiền Phòng" Style="{StaticResource Label}"/>

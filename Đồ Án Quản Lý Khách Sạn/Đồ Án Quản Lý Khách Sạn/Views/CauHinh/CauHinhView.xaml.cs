@@ -24,6 +24,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
             TxtBoSungGia.IsReadOnly   = !SessionManager.IsAdmin;
             BtnLuuBoSung.IsEnabled    = SessionManager.IsAdmin;
             BtnLuuBoSung.Opacity      = SessionManager.IsAdmin ? 1.0 : 0.4;
+            TxtTiLeCoc.IsReadOnly     = !SessionManager.IsAdmin;
+            BtnLuuCoc.IsEnabled       = SessionManager.IsAdmin;
+            BtnLuuCoc.Opacity         = SessionManager.IsAdmin ? 1.0 : 0.4;
             TxtBoSungDV.IsReadOnly    = !SessionManager.IsAdmin;
             BtnLuuBoSungDV.IsEnabled  = SessionManager.IsAdmin;
             BtnLuuBoSungDV.Opacity    = SessionManager.IsAdmin ? 1.0 : 0.4;
@@ -50,6 +53,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
             decimal vat = AppConfig.GetVAT();
             TxtVAT.Text = vat.ToString("0.##");
             RefreshVATNote(vat);
+
+            decimal coc = AppConfig.GetTiLeCoc();
+            TxtTiLeCoc.Text = coc.ToString("0.##");
+            RefreshCocNote(coc);
         }
 
         private void LoadLoaiKhachCombo()
@@ -160,6 +167,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void RefreshVATNote(decimal vat) =>
             TxtVATNote.Text = $"Áp dụng {vat:0.##}% VAT lên toàn bộ tiền phòng và dịch vụ khi lập hóa đơn";
+
+        private void BtnLuuCoc_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền thay đổi tỉ lệ tiền cọc."); return; }
+            if (!decimal.TryParse(TxtTiLeCoc.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal coc) || coc < 0 || coc > 100)
+            { ShowWarn("Tỉ lệ tiền cọc phải trong khoảng từ 0% đến 100%."); return; }
+
+            AppConfig.SetTiLeCoc(coc);
+            RefreshCocNote(coc);
+            MessageBox.Show($"Đã lưu tỉ lệ tiền cọc: {coc:0.##}%", "Lưu Thành Công", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void RefreshCocNote(decimal coc) =>
+            TxtCocNote.Text = $"Tiền cọc tự động tính {coc:0.##}% giá phòng dự tính khi tạo đặt phòng";
 
         private static void ShowWarn(string msg) =>
             MessageBox.Show(msg, "Không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);

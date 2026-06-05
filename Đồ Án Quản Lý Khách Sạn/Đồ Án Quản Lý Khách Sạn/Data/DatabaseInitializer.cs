@@ -63,6 +63,8 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
                 ctx.CauHinhs.Add(new CauHinh { ConfigKey = "SucChuaToiDa",  ConfigValue = "4"   });
             if (ctx.CauHinhs.Find("TiLePhuThu") == null)
                 ctx.CauHinhs.Add(new CauHinh { ConfigKey = "TiLePhuThu",    ConfigValue = "0.25" });
+            if (ctx.CauHinhs.Find("TiLeCoc") == null)
+                ctx.CauHinhs.Add(new CauHinh { ConfigKey = "TiLeCoc",       ConfigValue = "30"   });
 
             // Seed loại khách hàng mặc định (tra theo MaCode vì MaLKH là auto-increment)
             if (!ctx.LoaiKhachHangs.Any(l => l.MaCode == "NoiDia"))

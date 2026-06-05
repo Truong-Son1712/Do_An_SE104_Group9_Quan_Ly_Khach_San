@@ -51,6 +51,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             DpNhan.SelectedDate = DateTime.Today;
             DpTra.SelectedDate  = DateTime.Today.AddDays(1);
+            decimal tiLeCocInit = AppConfig.GetTiLeCoc();
+            LblTienCoc.Text     = $"Tiền Cọc ({tiLeCocInit:0.##}% dự tính)";
+            TxtTienCoc.Text     = "0";
             _initialized = true;
 
             if (maDatPhong.HasValue) LoadData(maDatPhong.Value);
@@ -118,8 +121,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             TxtTitle.Text       = _readOnly ? "Chi Tiết Đặt Phòng" : "Chỉnh Sửa Đặt Phòng";
             DpNhan.SelectedDate = dp.NgayNhanPhong;
             DpTra.SelectedDate  = dp.NgayTraPhong;
-            TxtTienCoc.Text     = dp.TienCoc.ToString("N0");
-            TxtGhiChu.Text      = dp.GhiChu;
+            // Hiển thị tiền cọc đã lưu khi mở chỉnh sửa
+            decimal tiLeCoc = AppConfig.GetTiLeCoc();
+            LblTienCoc.Text = $"Tiền Cọc ({tiLeCoc:0.##}% dự tính)";
+            TxtTienCoc.Text = dp.TienCoc.ToString("N0");
+            TxtGhiChu.Text  = dp.GhiChu;
 
             // Khôi phục người đặt phòng
             var nguoiDat = _allKhachHangItems.FirstOrDefault(k => k.MaKH == dp.MaKH);
@@ -151,7 +157,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             CboNguoiDat.IsEnabled  = false;
             CboPhong.IsEnabled     = false;
             DpNhan.IsEnabled       = DpTra.IsEnabled = false;
-            TxtTienCoc.IsReadOnly  = TxtGhiChu.IsReadOnly = true;
+            TxtGhiChu.IsReadOnly   = true;
             TxtTimKiem.IsReadOnly  = true;
             LstKhachHang.IsEnabled = false;
         }
@@ -242,8 +248,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             bool    hasPhuThu  = soKhach > 0 && soKhach > p.LoaiPhong.SucChua;
             decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
 
-            decimal total = _giaPhong * soNgay * (heSo + tiLePhuThu);
-            TxtDuTinh.Text = $"{total:N0} ₫";
+            decimal total    = _giaPhong * soNgay * (heSo + tiLePhuThu);
+            decimal tiLeCoc  = AppConfig.GetTiLeCoc();
+            decimal tienCoc  = Math.Round(total * tiLeCoc / 100, 0);
+
+            TxtDuTinh.Text  = $"{total:N0} ₫";
+            TxtTienCoc.Text = $"{tienCoc:N0}";
+            LblTienCoc.Text = $"Tiền Cọc ({tiLeCoc:0.##}% dự tính)";
 
             if (hasHeSo)
             {
@@ -308,7 +319,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 return;
             }
 
-            decimal.TryParse(TxtTienCoc.Text.Replace(",", ""), out decimal tienCoc);
+            decimal.TryParse(TxtTienCoc.Text.Replace(",", "").Replace(".", ""),
+                             System.Globalization.NumberStyles.Any,
+                             System.Globalization.CultureInfo.InvariantCulture, out decimal tienCoc);
 
             // NguoiDatPhongOPhong: true nếu người đặt cũng nằm trong danh sách khách ở
             bool nguoiDatOPhong = stayingKhach.Any(k => k.MaKH == nguoiDat.MaKH);

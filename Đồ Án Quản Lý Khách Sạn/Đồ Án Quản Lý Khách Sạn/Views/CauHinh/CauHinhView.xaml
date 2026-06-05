@@ -175,6 +175,35 @@
                 </DockPanel>
             </Border>
 
+            <!-- Tỉ lệ tiền cọc -->
+            <Border Style="{StaticResource CardSmall}" Margin="0,0,0,12">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🔐" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Tiền Cọc Đặt Phòng" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock x:Name="TxtCocNote" FontSize="11"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Tỉ lệ cọc:" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtTiLeCoc" Width="65" TextAlignment="Center"
+                                 FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"
+                                 Height="34" Padding="6,0"/>
+                        <TextBlock Text="%" VerticalAlignment="Center" FontSize="14"
+                                   FontWeight="Bold" Margin="6,0,12,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button x:Name="BtnLuuCoc" Content="💾  Lưu"
+                                Style="{StaticResource BtnPrimary}" Height="34"
+                                Padding="12,0" Click="BtnLuuCoc_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
