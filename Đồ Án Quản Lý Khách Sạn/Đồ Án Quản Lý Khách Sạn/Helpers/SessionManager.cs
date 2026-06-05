@@ -55,6 +55,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Helpers
         /// Reload quyền từ DB (gọi sau khi admin phân quyền lại).
         public static void ReloadPermissions() => LoadPermissions();
 
+        /// Đọc lại thông tin CurrentUser từ DB (gọi sau khi nhân viên tự sửa hồ sơ của mình).
+        public static void RefreshCurrentUser()
+        {
+            if (CurrentUser == null) return;
+            try
+            {
+                using var ctx = new HotelDbContext();
+                var fresh = ctx.NhanViens.Find(CurrentUser.MaNV);
+                if (fresh != null) CurrentUser = fresh;
+            }
+            catch { /* giữ nguyên CurrentUser cũ nếu lỗi DB */ }
+        }
+
         private static void LoadPermissions()
         {
             _permissions.Clear();

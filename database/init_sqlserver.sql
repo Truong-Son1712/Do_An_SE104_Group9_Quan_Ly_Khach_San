@@ -27,20 +27,23 @@ USE QuanLyKhachSan;
 GO
 
 -- ── Xóa bảng cũ theo đúng thứ tự FK ─────────────────────────────────────
-IF OBJECT_ID('LichSuDungMaGiams',  'U') IS NOT NULL DROP TABLE LichSuDungMaGiams;
-IF OBJECT_ID('ChiTietMaGiamGias',  'U') IS NOT NULL DROP TABLE ChiTietMaGiamGias;
-IF OBJECT_ID('DichVuPhongs',       'U') IS NOT NULL DROP TABLE DichVuPhongs;
-IF OBJECT_ID('HoaDons',            'U') IS NOT NULL DROP TABLE HoaDons;
-IF OBJECT_ID('DatPhongKhachHangs', 'U') IS NOT NULL DROP TABLE DatPhongKhachHangs;
-IF OBJECT_ID('DatPhongs',          'U') IS NOT NULL DROP TABLE DatPhongs;
-IF OBJECT_ID('KhachHangs',         'U') IS NOT NULL DROP TABLE KhachHangs;
-IF OBJECT_ID('Phongs',             'U') IS NOT NULL DROP TABLE Phongs;
-IF OBJECT_ID('LoaiPhongs',         'U') IS NOT NULL DROP TABLE LoaiPhongs;
-IF OBJECT_ID('LoaiDichVus',        'U') IS NOT NULL DROP TABLE LoaiDichVus;
-IF OBJECT_ID('NhanViens',          'U') IS NOT NULL DROP TABLE NhanViens;
-IF OBJECT_ID('MaGiamGias',         'U') IS NOT NULL DROP TABLE MaGiamGias;
-IF OBJECT_ID('LoaiKhachHangs',     'U') IS NOT NULL DROP TABLE LoaiKhachHangs;
-IF OBJECT_ID('CauHinhs',           'U') IS NOT NULL DROP TABLE CauHinhs;
+IF OBJECT_ID('LichSuDungMaGiams',   'U') IS NOT NULL DROP TABLE LichSuDungMaGiams;
+IF OBJECT_ID('ChiTietMaGiamGias',   'U') IS NOT NULL DROP TABLE ChiTietMaGiamGias;
+IF OBJECT_ID('DichVuPhongs',        'U') IS NOT NULL DROP TABLE DichVuPhongs;
+IF OBJECT_ID('HoaDons',             'U') IS NOT NULL DROP TABLE HoaDons;
+IF OBJECT_ID('DatPhongKhachHangs',  'U') IS NOT NULL DROP TABLE DatPhongKhachHangs;
+IF OBJECT_ID('DatPhongs',           'U') IS NOT NULL DROP TABLE DatPhongs;
+IF OBJECT_ID('KhachHangs',          'U') IS NOT NULL DROP TABLE KhachHangs;
+IF OBJECT_ID('Phongs',              'U') IS NOT NULL DROP TABLE Phongs;
+IF OBJECT_ID('LoaiPhongs',          'U') IS NOT NULL DROP TABLE LoaiPhongs;
+IF OBJECT_ID('LoaiDichVus',         'U') IS NOT NULL DROP TABLE LoaiDichVus;
+IF OBJECT_ID('NhanVienQuyens',      'U') IS NOT NULL DROP TABLE NhanVienQuyens;
+IF OBJECT_ID('NhanViens',           'U') IS NOT NULL DROP TABLE NhanViens;
+IF OBJECT_ID('LoaiNhanVienQuyens',  'U') IS NOT NULL DROP TABLE LoaiNhanVienQuyens;
+IF OBJECT_ID('LoaiNhanViens',       'U') IS NOT NULL DROP TABLE LoaiNhanViens;
+IF OBJECT_ID('MaGiamGias',          'U') IS NOT NULL DROP TABLE MaGiamGias;
+IF OBJECT_ID('LoaiKhachHangs',      'U') IS NOT NULL DROP TABLE LoaiKhachHangs;
+IF OBJECT_ID('CauHinhs',            'U') IS NOT NULL DROP TABLE CauHinhs;
 GO
 
 -- ── Schema ─────────────────────────────────────────────────────────────────
@@ -59,22 +62,56 @@ CREATE TABLE LoaiKhachHangs (
     HeSoGia DECIMAL(10,4) NOT NULL DEFAULT 1.0
 );
 
--- 3. Nhân viên
-CREATE TABLE NhanViens (
-    MaNV     INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    HoTen    NVARCHAR(100) NOT NULL,
-    TaiKhoan NVARCHAR(50)  NOT NULL UNIQUE,
-    MatKhau  NVARCHAR(MAX) NOT NULL,
-    VaiTro   NVARCHAR(20)  NOT NULL DEFAULT 'LeTan',
-    CCCD     NVARCHAR(30)  NULL,
-    Email    NVARCHAR(200) NULL,
-    SDT      NVARCHAR(20)  NULL,
-    DiaChi   NVARCHAR(500) NULL,
-    NgayTao  DATETIME2     NOT NULL DEFAULT GETDATE(),
-    IsActive BIT           NOT NULL DEFAULT 1
+-- 3. Loại nhân viên (parent – phải tạo trước NhanViens)
+CREATE TABLE LoaiNhanViens (
+    MaLoaiNV   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    TenLoai    NVARCHAR(100) NOT NULL,
+    MoTa       NVARCHAR(500) NULL,
+    VaiTroCode NVARCHAR(50)  NOT NULL,
+    IsBuiltIn  BIT           NOT NULL DEFAULT 0,
+    CONSTRAINT UQ_LoaiNV_VaiTroCode UNIQUE (VaiTroCode)
 );
 
--- 4. Mã giảm giá (TenMa KHÔNG unique; SoLuongToiDa NULL = vô hạn)
+-- 4. Nhân viên (FK → LoaiNhanViens)
+CREATE TABLE NhanViens (
+    MaNV       INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    HoTen      NVARCHAR(100) NOT NULL,
+    TaiKhoan   NVARCHAR(50)  NOT NULL UNIQUE,
+    MatKhau    NVARCHAR(MAX) NOT NULL,
+    VaiTro     NVARCHAR(20)  NOT NULL DEFAULT 'LeTan',
+    MaLoaiNV   INT           NULL,
+    GioiTinh   NVARCHAR(10)  NOT NULL DEFAULT 'Nam',
+    NgaySinh   DATETIME2     NULL,
+    NgayVaoLam DATETIME2     NULL,
+    CCCD       NVARCHAR(30)  NULL,
+    Email      NVARCHAR(200) NULL,
+    SDT        NVARCHAR(20)  NULL,
+    DiaChi     NVARCHAR(500) NULL,
+    NgayTao    DATETIME2     NOT NULL DEFAULT GETDATE(),
+    IsActive   BIT           NOT NULL DEFAULT 1,
+    CONSTRAINT FK_NhanVien_LoaiNhanVien FOREIGN KEY (MaLoaiNV)
+        REFERENCES LoaiNhanViens(MaLoaiNV) ON DELETE NO ACTION
+);
+
+-- 5. Quyền nhân viên
+CREATE TABLE NhanVienQuyens (
+    MaNV    INT           NOT NULL,
+    MaQuyen NVARCHAR(100) NOT NULL,
+    CONSTRAINT PK_NhanVienQuyen PRIMARY KEY (MaNV, MaQuyen),
+    CONSTRAINT FK_NVQ_NhanVien FOREIGN KEY (MaNV)
+        REFERENCES NhanViens(MaNV) ON DELETE CASCADE
+);
+
+-- 6. Quyền loại nhân viên
+CREATE TABLE LoaiNhanVienQuyens (
+    MaLoaiNV INT           NOT NULL,
+    MaQuyen  NVARCHAR(100) NOT NULL,
+    CONSTRAINT PK_LoaiNVQuyen PRIMARY KEY (MaLoaiNV, MaQuyen),
+    CONSTRAINT FK_LNVQuyen_LoaiNV FOREIGN KEY (MaLoaiNV)
+        REFERENCES LoaiNhanViens(MaLoaiNV) ON DELETE CASCADE
+);
+
+-- 7. Mã giảm giá (TenMa KHÔNG unique; SoLuongToiDa NULL = vô hạn)
 CREATE TABLE MaGiamGias (
     MaGG         INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     TenMa        NVARCHAR(100) NOT NULL,
@@ -89,7 +126,7 @@ CREATE TABLE MaGiamGias (
         REFERENCES NhanViens(MaNV) ON DELETE NO ACTION
 );
 
--- 5. Loại phòng
+-- 8. Loại phòng
 CREATE TABLE LoaiPhongs (
     MaLoaiPhong  INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     TenLoaiPhong NVARCHAR(200) NOT NULL,
@@ -98,7 +135,7 @@ CREATE TABLE LoaiPhongs (
     MoTa         NVARCHAR(500) NULL
 );
 
--- 6. Phòng
+-- 9. Phòng
 CREATE TABLE Phongs (
     MaPhong     INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     SoPhong     NVARCHAR(20)  NOT NULL,
@@ -110,7 +147,7 @@ CREATE TABLE Phongs (
         REFERENCES LoaiPhongs(MaLoaiPhong) ON DELETE NO ACTION
 );
 
--- 7. Khách hàng
+-- 10. Khách hàng
 CREATE TABLE KhachHangs (
     MaKH      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     HoTen     NVARCHAR(100) NOT NULL,
@@ -127,7 +164,7 @@ CREATE TABLE KhachHangs (
         REFERENCES LoaiKhachHangs(MaLKH) ON DELETE NO ACTION
 );
 
--- 8. Đặt phòng
+-- 11. Đặt phòng
 --    NguoiDatPhongOPhong: 1 = người đặt cũng ở phòng, 0 = chỉ đặt hộ
 CREATE TABLE DatPhongs (
     MaDatPhong          INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -147,7 +184,7 @@ CREATE TABLE DatPhongs (
         REFERENCES Phongs(MaPhong) ON DELETE NO ACTION
 );
 
--- 9. Khách ở phòng (many-to-many; chỉ chứa người thực sự ngủ tại phòng)
+-- 12. Khách ở phòng (many-to-many; chỉ chứa người thực sự ngủ tại phòng)
 CREATE TABLE DatPhongKhachHangs (
     MaDatPhong INT NOT NULL,
     MaKH       INT NOT NULL,
@@ -251,11 +288,19 @@ INSERT INTO CauHinhs (ConfigKey, ConfigValue) VALUES
 ('TiLePhuThu',   '0.25'),
 ('ThueSuatVAT',  '10');
 
+-- Loại nhân viên (phải insert trước NhanViens vì NhanViens có FK → LoaiNhanViens)
+SET IDENTITY_INSERT LoaiNhanViens ON;
+INSERT INTO LoaiNhanViens (MaLoaiNV, TenLoai, MoTa, VaiTroCode, IsBuiltIn) VALUES
+(1, N'Quản Trị Viên', N'Toàn quyền hệ thống (không thể thay đổi)', 'Admin',  1),
+(2, N'Quản Lý',       N'Quản lý nghiệp vụ khách sạn',              'QuanLy', 1),
+(3, N'Lễ Tân',        N'Tiếp nhận và phục vụ khách',               'LeTan',  1);
+SET IDENTITY_INSERT LoaiNhanViens OFF;
+
 SET IDENTITY_INSERT NhanViens ON;
-INSERT INTO NhanViens (MaNV, HoTen, TaiKhoan, MatKhau, VaiTro, CCCD, Email, SDT, NgayTao, IsActive) VALUES
-(1, N'Nguyễn Văn Admin', 'admin',  '$2a$11$oZyF2ESXb93yz/sAxfADQ.y8lY41GbJdxIIZr0VSD5y6Ad4sqfGva', 'Admin',  '001085000001', 'admin@hotel.com',  '0901234560', '2026-05-25', 1),
-(2, N'Trần Thị Quản Lý', 'quanly', '$2a$11$tzwSrDi27V1nmndwgVZnKOoz/bG4ikNF6yuX2fxen6GgcmYdAt7y6', 'QuanLy', '001085000002', 'quanly@hotel.com', '0901234561', '2026-05-25', 1),
-(3, N'Lê Văn Lễ Tân',   'letan',  '$2a$11$3/IzprxXOgLMJFOl/sB8huLnqyRiQ.j63fNQulTEL47vNo2d/7PQa', 'LeTan',  '001085000003', 'letan@hotel.com',  '0901234562', '2026-05-25', 1);
+INSERT INTO NhanViens (MaNV, HoTen, TaiKhoan, MatKhau, VaiTro, MaLoaiNV, GioiTinh, NgaySinh, NgayVaoLam, CCCD, Email, SDT, NgayTao, IsActive) VALUES
+(1, N'Nguyễn Văn Admin', 'admin',  '$2a$11$oZyF2ESXb93yz/sAxfADQ.y8lY41GbJdxIIZr0VSD5y6Ad4sqfGva', 'Admin',  1, 'Nam', '1985-01-10', '2020-01-01', '001085000001', 'admin@hotel.com',  '0901234560', '2026-05-25', 1),
+(2, N'Trần Thị Quản Lý', 'quanly', '$2a$11$tzwSrDi27V1nmndwgVZnKOoz/bG4ikNF6yuX2fxen6GgcmYdAt7y6', 'QuanLy', 2, 'Nu',  '1990-06-15', '2021-03-01', '001085000002', 'quanly@hotel.com', '0901234561', '2026-05-25', 1),
+(3, N'Lê Văn Lễ Tân',   'letan',  '$2a$11$3/IzprxXOgLMJFOl/sB8huLnqyRiQ.j63fNQulTEL47vNo2d/7PQa', 'LeTan',  3, 'Nam', '1998-09-20', '2023-07-15', '001085000003', 'letan@hotel.com',  '0901234562', '2026-05-25', 1);
 SET IDENTITY_INSERT NhanViens OFF;
 
 SET IDENTITY_INSERT LoaiPhongs ON;

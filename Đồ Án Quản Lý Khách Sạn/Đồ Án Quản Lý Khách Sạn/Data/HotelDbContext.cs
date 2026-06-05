@@ -61,6 +61,10 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                 e.Property(x => x.HoTen).IsRequired().HasMaxLength(100);
                 e.Property(x => x.TaiKhoan).IsRequired().HasMaxLength(50);
                 e.HasIndex(x => x.TaiKhoan).IsUnique();
+                e.HasOne(x => x.LoaiNhanVien)
+                 .WithMany(l => l.NhanViens)
+                 .HasForeignKey(x => x.MaLoaiNV)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
 
             m.Entity<NhanVienQuyen>(e =>

@@ -40,6 +40,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                                WHERE TABLE_NAME = 'DatPhongs' AND COLUMN_NAME = 'NguoiDatPhongOPhong')
                 ALTER TABLE DatPhongs ADD NguoiDatPhongOPhong BIT NOT NULL DEFAULT 1;");
 
+            // Migration: thêm GioiTinh, NgaySinh, NgayVaoLam vào NhanViens
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='NhanViens' AND COLUMN_NAME='GioiTinh')
+                    ALTER TABLE NhanViens ADD GioiTinh NVARCHAR(10) NOT NULL DEFAULT 'Nam';
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='NhanViens' AND COLUMN_NAME='NgaySinh')
+                    ALTER TABLE NhanViens ADD NgaySinh DATETIME2 NULL;
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='NhanViens' AND COLUMN_NAME='NgayVaoLam')
+                    ALTER TABLE NhanViens ADD NgayVaoLam DATETIME2 NULL;");
+
             ctx.Database.ExecuteSqlRaw(@"
                 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DichVuPhongs')
                 CREATE TABLE DichVuPhongs (
@@ -54,7 +63,6 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                     CONSTRAINT FK_DichVuPhong_LoaiDichVu FOREIGN KEY (MaLoaiDV) REFERENCES LoaiDichVus(MaLoaiDV) ON DELETE NO ACTION
                 );");
 
-            if (!ctx.NhanViens.Any())   SeedNhanVien(ctx);
             if (!ctx.LoaiPhongs.Any())  SeedLoaiPhong(ctx);
             if (!ctx.Phongs.Any())      SeedPhong(ctx);
             if (!ctx.KhachHangs.Any())  SeedKhachHang(ctx);
@@ -90,17 +98,6 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
 
             ctx.SaveChanges();
 
-            // Migration: tạo bảng NhanVienQuyens nếu chưa có
-            ctx.Database.ExecuteSqlRaw(@"
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'NhanVienQuyens')
-                CREATE TABLE NhanVienQuyens (
-                    MaNV    INT           NOT NULL,
-                    MaQuyen NVARCHAR(100) NOT NULL,
-                    CONSTRAINT PK_NhanVienQuyen PRIMARY KEY (MaNV, MaQuyen),
-                    CONSTRAINT FK_NVQ_NhanVien FOREIGN KEY (MaNV)
-                        REFERENCES NhanViens(MaNV) ON DELETE CASCADE
-                );");
-
             // Migration: tạo bảng LoaiNhanViens và LoaiNhanVienQuyens nếu chưa có
             ctx.Database.ExecuteSqlRaw(@"
                 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoaiNhanViens')
@@ -122,8 +119,41 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
                         REFERENCES LoaiNhanViens(MaLoaiNV) ON DELETE CASCADE
                 );");
 
-            // Seed loại nhân viên tích hợp (built-in)
+            // Seed loại nhân viên tích hợp (built-in) – phải seed TRƯỚC NhanViens
             SeedLoaiNhanVien(ctx);
+
+            // Migration: thêm cột MaLoaiNV FK vào NhanViens (liên kết với LoaiNhanViens)
+            // Seed NhanViens sau khi đã có LoaiNhanViens
+            if (!ctx.NhanViens.Any()) SeedNhanVien(ctx);
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                               WHERE TABLE_NAME = 'NhanViens' AND COLUMN_NAME = 'MaLoaiNV')
+                    ALTER TABLE NhanViens ADD MaLoaiNV INT NULL;");
+
+            // Populate MaLoaiNV cho các bản ghi đã tồn tại dựa theo VaiTro = VaiTroCode
+            ctx.Database.ExecuteSqlRaw(@"
+                UPDATE n SET n.MaLoaiNV = l.MaLoaiNV
+                FROM NhanViens n
+                JOIN LoaiNhanViens l ON n.VaiTro = l.VaiTroCode
+                WHERE n.MaLoaiNV IS NULL;");
+
+            // Thêm FK constraint nếu chưa có
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                               WHERE CONSTRAINT_NAME = 'FK_NhanVien_LoaiNhanVien')
+                    ALTER TABLE NhanViens ADD CONSTRAINT FK_NhanVien_LoaiNhanVien
+                        FOREIGN KEY (MaLoaiNV) REFERENCES LoaiNhanViens(MaLoaiNV) ON DELETE NO ACTION;");
+
+            // Migration: tạo bảng NhanVienQuyens nếu chưa có
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'NhanVienQuyens')
+                CREATE TABLE NhanVienQuyens (
+                    MaNV    INT           NOT NULL,
+                    MaQuyen NVARCHAR(100) NOT NULL,
+                    CONSTRAINT PK_NhanVienQuyen PRIMARY KEY (MaNV, MaQuyen),
+                    CONSTRAINT FK_NVQ_NhanVien FOREIGN KEY (MaNV)
+                        REFERENCES NhanViens(MaNV) ON DELETE CASCADE
+                );");
 
             // Seed quyền mặc định cho nhân viên hiện có chưa có quyền nào
             SeedQuyenMacDinh(ctx);
@@ -174,10 +204,14 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
 
         private static void SeedNhanVien(HotelDbContext ctx)
         {
+            int? adminId  = ctx.LoaiNhanViens.FirstOrDefault(l => l.VaiTroCode == "Admin")?.MaLoaiNV;
+            int? quanLyId = ctx.LoaiNhanViens.FirstOrDefault(l => l.VaiTroCode == "QuanLy")?.MaLoaiNV;
+            int? leTanId  = ctx.LoaiNhanViens.FirstOrDefault(l => l.VaiTroCode == "LeTan")?.MaLoaiNV;
+
             ctx.NhanViens.AddRange(
-                new NhanVien { HoTen = "Nguyễn Văn Admin", TaiKhoan = "admin",  MatKhau = Hash("admin123"),  VaiTro = "Admin",  Email = "admin@hotel.com",  SDT = "0901234560", IsActive = true },
-                new NhanVien { HoTen = "Trần Thị Quản Lý",TaiKhoan = "quanly", MatKhau = Hash("quanly123"), VaiTro = "QuanLy", Email = "quanly@hotel.com", SDT = "0901234561", IsActive = true },
-                new NhanVien { HoTen = "Lê Văn Lễ Tân",   TaiKhoan = "letan",  MatKhau = Hash("letan123"),  VaiTro = "LeTan",  Email = "letan@hotel.com",  SDT = "0901234562", IsActive = true }
+                new NhanVien { HoTen = "Nguyễn Văn Admin", TaiKhoan = "admin",  MatKhau = Hash("admin123"),  VaiTro = "Admin",  MaLoaiNV = adminId,  Email = "admin@hotel.com",  SDT = "0901234560", IsActive = true },
+                new NhanVien { HoTen = "Trần Thị Quản Lý", TaiKhoan = "quanly", MatKhau = Hash("quanly123"), VaiTro = "QuanLy", MaLoaiNV = quanLyId, Email = "quanly@hotel.com", SDT = "0901234561", IsActive = true },
+                new NhanVien { HoTen = "Lê Văn Lễ Tân",    TaiKhoan = "letan",  MatKhau = Hash("letan123"),  VaiTro = "LeTan",  MaLoaiNV = leTanId,  Email = "letan@hotel.com",  SDT = "0901234562", IsActive = true }
             );
         }
 

@@ -14,7 +14,7 @@ Hệ thống quản lý khách sạn xây dựng bằng **WPF (.NET 9)** + **SQL
 | **Phòng** | Quản lý phòng, loại phòng, sức chứa, trạng thái |
 | **Dịch Vụ** | Ghi nhận và tính tiền dịch vụ phòng |
 | **Mã Giảm Giá** | Tạo / quản lý mã giảm giá theo loại phòng hoặc loại dịch vụ |
-| **Nhân Viên** | Phân quyền 3 cấp: Admin / Quản Lý / Lễ Tân |
+| **Nhân Viên** | Phân quyền 3 cấp: Admin / Quản Lý / Lễ Tân; quản lý hồ sơ (giới tính, ngày sinh, ngày vào làm) |
 | **Báo Cáo** | Thống kê doanh thu, công suất phòng |
 | **Cấu Hình** | Điều chỉnh hệ số giá loại khách, tỉ lệ phụ thu, VAT, sức chứa tối đa |
 
@@ -111,7 +111,7 @@ dotnet run
 📁 database/
    └── init_sqlserver.sql          # Script khởi tạo database (chạy 1 lần)
 📁 Release/
-   ├── Quản Lý Khách Sạn.exe       # File thực thi (self-contained, ~179 MB)
+   ├── Quản Lý Khách Sạn.exe       # File thực thi (self-contained, runtime + native libs đóng gói sẵn)
    └── appsettings.json            # Cấu hình kết nối database
 📁 Đồ Án Quản Lý Khách Sạn/
    └── Đồ Án Quản Lý Khách Sạn/

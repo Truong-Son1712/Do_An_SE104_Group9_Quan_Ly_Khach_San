@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien.NhanVienDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Thông Tin Nhân Viên" Height="560" Width="480"
+        Title="Thông Tin Nhân Viên" Height="660" Width="480"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" WindowStyle="None"
         AllowsTransparency="True" Background="Transparent">
@@ -83,6 +83,28 @@
                             <PasswordBox x:Name="PbXacNhan"/>
                         </StackPanel>
                     </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Giới Tính" Style="{StaticResource Label}"/>
+                            <ComboBox x:Name="CboGioiTinh">
+                                <ComboBoxItem Content="Nam" Tag="Nam" IsSelected="True"/>
+                                <ComboBoxItem Content="Nữ"  Tag="Nu"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Ngày Sinh" Style="{StaticResource Label}"/>
+                            <DatePicker x:Name="DpkNgaySinh" SelectedDateFormat="Short" Language="vi-VN"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel>
+                        <TextBlock Text="Ngày Vào Làm" Style="{StaticResource Label}"/>
+                        <DatePicker x:Name="DpkNgayVaoLam" SelectedDateFormat="Short" Language="vi-VN"/>
+                    </StackPanel>
 
                     <StackPanel>
                         <TextBlock Text="Email" Style="{StaticResource Label}"/>

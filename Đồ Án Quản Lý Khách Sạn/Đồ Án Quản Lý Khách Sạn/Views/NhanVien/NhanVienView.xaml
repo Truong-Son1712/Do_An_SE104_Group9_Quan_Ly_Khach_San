@@ -77,13 +77,16 @@
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
             <DataGrid ItemsSource="{Binding NhanViens}" SelectedItem="{Binding Selected}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Mã NV"      Binding="{Binding MaNV}"      Width="60"/>
-                    <DataGridTextColumn Header="Họ Tên"    Binding="{Binding HoTen}"     Width="*"/>
-                    <DataGridTextColumn Header="Tài Khoản" Binding="{Binding TaiKhoan}"  Width="110"/>
-                    <DataGridTextColumn Header="CCCD"      Binding="{Binding CCCD}"      Width="130"/>
-                    <DataGridTextColumn Header="Vai Trò"   Binding="{Binding VaiTro, Converter={StaticResource VaiTro}}" Width="120"/>
-                    <DataGridTextColumn Header="Email"     Binding="{Binding Email}"     Width="*"/>
-                    <DataGridTextColumn Header="SĐT"       Binding="{Binding SDT}"       Width="110"/>
+                    <DataGridTextColumn Header="Mã NV"        Binding="{Binding MaNV}"                                      Width="60"/>
+                    <DataGridTextColumn Header="Họ Tên"      Binding="{Binding HoTen}"                                    Width="*"/>
+                    <DataGridTextColumn Header="Tài Khoản"   Binding="{Binding TaiKhoan}"                                 Width="110"/>
+                    <DataGridTextColumn Header="Giới Tính"   Binding="{Binding GioiTinh}"                                 Width="80"/>
+                    <DataGridTextColumn Header="Ngày Sinh"   Binding="{Binding NgaySinh,   StringFormat=dd/MM/yyyy}"      Width="100"/>
+                    <DataGridTextColumn Header="Ngày Vào Làm" Binding="{Binding NgayVaoLam, StringFormat=dd/MM/yyyy}"     Width="110"/>
+                    <DataGridTextColumn Header="CCCD"        Binding="{Binding CCCD}"                                     Width="130"/>
+                    <DataGridTextColumn Header="Vai Trò"     Binding="{Binding VaiTro, Converter={StaticResource VaiTro}}" Width="120"/>
+                    <DataGridTextColumn Header="Email"       Binding="{Binding Email}"                                    Width="*"/>
+                    <DataGridTextColumn Header="SĐT"         Binding="{Binding SDT}"                                      Width="110"/>
                     <DataGridTemplateColumn Header="Trạng Thái" Width="120" SortMemberPath="IsActive">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

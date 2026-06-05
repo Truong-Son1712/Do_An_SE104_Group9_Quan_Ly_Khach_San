@@ -50,13 +50,14 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                 .ThenBy(l => l.MaLoaiNV)
                 .ToList();
 
-            // Tính số nhân viên cho từng loại
-            var counts = ctx.NhanViens
-                .GroupBy(n => n.VaiTro)
-                .ToDictionary(g => g.Key, g => g.Count());
+            // Tính số nhân viên cho từng loại qua FK MaLoaiNV
+            var nhanVienCounts = ctx.NhanViens
+                .Where(n => n.MaLoaiNV != null)
+                .GroupBy(n => n.MaLoaiNV)
+                .ToDictionary(g => g.Key!.Value, g => g.Count());
 
             foreach (var l in loais)
-                l.SoNhanVien = counts.TryGetValue(l.VaiTroCode, out var c) ? c : 0;
+                l.SoNhanVien = nhanVienCounts.TryGetValue(l.MaLoaiNV, out var c) ? c : 0;
 
             Items = new ObservableCollection<LoaiNhanVien>(loais);
         }
@@ -79,7 +80,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             if (Selected == null || Selected.VaiTroCode == "Admin") return;
 
             using var ctx = new HotelDbContext();
-            int soNV = ctx.NhanViens.Count(n => n.VaiTro == Selected.VaiTroCode);
+            int soNV = ctx.NhanViens.Count(n => n.MaLoaiNV == Selected.MaLoaiNV);
             if (soNV > 0)
             {
                 MessageBox.Show(

@@ -23,6 +23,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public string DiaChi         => SessionManager.CurrentUser?.DiaChi ?? "(chưa cập nhật)";
         public string CCCD           => string.IsNullOrWhiteSpace(SessionManager.CurrentUser?.CCCD)
                                             ? "(chưa cập nhật)" : SessionManager.CurrentUser!.CCCD;
+        public string GioiTinh       => SessionManager.CurrentUser?.GioiTinh == "Nu" ? "Nữ" : "Nam";
+        public string NgaySinh       => SessionManager.CurrentUser?.NgaySinh?.ToString("dd/MM/yyyy") ?? "(chưa cập nhật)";
+        public string NgayVaoLam     => SessionManager.CurrentUser?.NgayVaoLam?.ToString("dd/MM/yyyy") ?? "(chưa cập nhật)";
         #endregion
 
         #region 2. Commands - Các nút lệnh tương tác
@@ -42,6 +45,21 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             if (SessionManager.CurrentUser == null) return;
             var dlg = new Views.NhanVien.DoiMatKhauDialog(SessionManager.CurrentUser.MaNV);
             dlg.ShowDialog();
+        }
+
+        /// Raise PropertyChanged cho tất cả properties hiển thị (gọi khi view được mở lại).
+        public void Refresh()
+        {
+            OnPropertyChanged(nameof(TenNhanVien));
+            OnPropertyChanged(nameof(TaiKhoan));
+            OnPropertyChanged(nameof(VaiTro));
+            OnPropertyChanged(nameof(Email));
+            OnPropertyChanged(nameof(SDT));
+            OnPropertyChanged(nameof(DiaChi));
+            OnPropertyChanged(nameof(CCCD));
+            OnPropertyChanged(nameof(GioiTinh));
+            OnPropertyChanged(nameof(NgaySinh));
+            OnPropertyChanged(nameof(NgayVaoLam));
         }
         #endregion
     }

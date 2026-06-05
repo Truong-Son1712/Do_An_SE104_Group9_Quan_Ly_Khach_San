@@ -8,7 +8,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Models
         public string VaiTroCode { get; set; } = ""; // Khớp với NhanVien.VaiTro
         public bool   IsBuiltIn  { get; set; } = false; // Admin/QuanLy/LeTan không xóa được
 
-        public virtual ICollection<LoaiNhanVienQuyen> Quyens     { get; set; } = new List<LoaiNhanVienQuyen>();
+        public virtual ICollection<LoaiNhanVienQuyen> Quyens    { get; set; } = new List<LoaiNhanVienQuyen>();
+        public virtual ICollection<NhanVien>          NhanViens { get; set; } = new List<NhanVien>();
 
         // Số nhân viên thuộc loại này (computed, không lưu DB)
         public int SoNhanVien { get; set; }

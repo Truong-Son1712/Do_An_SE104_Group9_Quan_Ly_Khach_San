@@ -58,7 +58,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
             TxtSDT.Text           = nv.SDT ?? "";
             TxtEmail.Text         = nv.Email ?? "";
             TxtDiaChi.Text        = nv.DiaChi ?? "";
+            DpkNgaySinh.SelectedDate   = nv.NgaySinh;
+            DpkNgayVaoLam.SelectedDate = nv.NgayVaoLam;
             PnlMatKhau.Visibility = Visibility.Collapsed;
+
+            foreach (ComboBoxItem item in CboGioiTinh.Items)
+                if (item.Tag?.ToString() == nv.GioiTinh) { item.IsSelected = true; break; }
 
             // Nếu QuanLy đang sửa LeTan: chỉ cho giữ LeTan
             // Nếu Admin: chọn đúng vai trò hiện tại
@@ -81,7 +86,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
             if (string.IsNullOrWhiteSpace(TxtCCCD.Text))
             { ShowError("Vui lòng nhập CCCD/CMND. Đây là trường bắt buộc."); return; }
 
-            string vaiTro = (CboVaiTro.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "LeTan";
+            string vaiTro    = (CboVaiTro.SelectedItem   as ComboBoxItem)?.Tag?.ToString() ?? "LeTan";
+            string gioiTinh  = (CboGioiTinh.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Nam";
 
             // Kiểm tra phân quyền: QuanLy chỉ được thao tác với LeTan
             if (!SessionManager.IsAdmin && vaiTro != "LeTan")
@@ -100,20 +106,26 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                     { ShowError("Quản Lý chỉ được chỉnh sửa tài khoản Lễ Tân."); return; }
 
                     string oldVaiTro = nv.VaiTro;
-                    nv.HoTen  = TxtHoTen.Text.Trim();
-                    nv.CCCD   = TxtCCCD.Text.Trim();
-                    nv.VaiTro = vaiTro;
-                    nv.Email  = TxtEmail.Text.Trim();
-                    nv.SDT    = TxtSDT.Text.Trim();
-                    nv.DiaChi = TxtDiaChi.Text.Trim();
+                    nv.HoTen      = TxtHoTen.Text.Trim();
+                    nv.CCCD       = TxtCCCD.Text.Trim();
+                    nv.VaiTro     = vaiTro;
+                    nv.GioiTinh   = gioiTinh;
+                    nv.NgaySinh   = DpkNgaySinh.SelectedDate;
+                    nv.NgayVaoLam = DpkNgayVaoLam.SelectedDate;
+                    nv.Email      = TxtEmail.Text.Trim();
+                    nv.SDT        = TxtSDT.Text.Trim();
+                    nv.DiaChi     = TxtDiaChi.Text.Trim();
+
+                    // Cập nhật MaLoaiNV theo vai trò mới
+                    nv.MaLoaiNV = ctx.LoaiNhanViens
+                        .Where(l => l.VaiTroCode == vaiTro)
+                        .Select(l => (int?)l.MaLoaiNV)
+                        .FirstOrDefault();
 
                     // Nếu đổi vai trò → reset quyền về mặc định của loại mới
                     if (oldVaiTro != vaiTro)
                     {
-                        var maLoaiNV = ctx.LoaiNhanViens
-                            .Where(l => l.VaiTroCode == vaiTro)
-                            .Select(l => (int?)l.MaLoaiNV)
-                            .FirstOrDefault();
+                        var maLoaiNV = nv.MaLoaiNV;
                         var newQuyens = maLoaiNV.HasValue
                             ? ctx.LoaiNhanVienQuyens
                                 .Where(q => q.MaLoaiNV == maLoaiNV.Value)
@@ -139,26 +151,32 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                     if (ctx.NhanViens.Any(n => n.TaiKhoan == TxtTaiKhoan.Text.Trim()))
                     { ShowError("Tài khoản đã tồn tại."); return; }
 
+                    var maLoaiNVMoi = ctx.LoaiNhanViens
+                        .Where(l => l.VaiTroCode == vaiTro)
+                        .Select(l => (int?)l.MaLoaiNV)
+                        .FirstOrDefault();
+
                     var newNV = new Models.NhanVien
                     {
-                        HoTen    = TxtHoTen.Text.Trim(),
-                        TaiKhoan = TxtTaiKhoan.Text.Trim(),
-                        MatKhau  = BCrypt.Net.BCrypt.HashPassword(PbMatKhau.Password),
-                        VaiTro   = vaiTro,
-                        CCCD     = TxtCCCD.Text.Trim(),
-                        Email    = TxtEmail.Text.Trim(),
-                        SDT      = TxtSDT.Text.Trim(),
-                        DiaChi   = TxtDiaChi.Text.Trim(),
-                        IsActive = true
+                        HoTen      = TxtHoTen.Text.Trim(),
+                        TaiKhoan   = TxtTaiKhoan.Text.Trim(),
+                        MatKhau    = BCrypt.Net.BCrypt.HashPassword(PbMatKhau.Password),
+                        VaiTro     = vaiTro,
+                        MaLoaiNV   = maLoaiNVMoi,
+                        GioiTinh   = gioiTinh,
+                        NgaySinh   = DpkNgaySinh.SelectedDate,
+                        NgayVaoLam = DpkNgayVaoLam.SelectedDate,
+                        CCCD       = TxtCCCD.Text.Trim(),
+                        Email      = TxtEmail.Text.Trim(),
+                        SDT        = TxtSDT.Text.Trim(),
+                        DiaChi     = TxtDiaChi.Text.Trim(),
+                        IsActive   = true
                     };
                     ctx.NhanViens.Add(newNV);
                     ctx.SaveChanges();
 
                     // Cấp quyền mặc định theo LoaiNhanVienQuyen (dùng FK trực tiếp, không dùng navigation)
-                    var maLoaiNV = ctx.LoaiNhanViens
-                        .Where(l => l.VaiTroCode == vaiTro)
-                        .Select(l => (int?)l.MaLoaiNV)
-                        .FirstOrDefault();
+                    var maLoaiNV = maLoaiNVMoi;
                     var loaiDefaults = maLoaiNV.HasValue
                         ? ctx.LoaiNhanVienQuyens
                             .Where(q => q.MaLoaiNV == maLoaiNV.Value)
@@ -172,6 +190,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                         ctx.NhanVienQuyens.Add(new Models.NhanVienQuyen { MaNV = newNV.MaNV, MaQuyen = q });
                 }
                 ctx.SaveChanges();
+
+                // Nếu vừa sửa chính mình → refresh SessionManager để Tài Khoản hiện đúng
+                if (_maNV.HasValue && _maNV.Value == Helpers.SessionManager.CurrentUser?.MaNV)
+                    Helpers.SessionManager.RefreshCurrentUser();
+
                 DialogResult = true;
             }
             catch (Exception ex) { ShowError(ex.Message); }

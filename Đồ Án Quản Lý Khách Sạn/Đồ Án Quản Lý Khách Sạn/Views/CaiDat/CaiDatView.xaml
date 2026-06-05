@@ -55,6 +55,10 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="14"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Tài Khoản -->
@@ -85,8 +89,29 @@
                                            Foreground="{StaticResource TextSecondaryBrush}"/>
                             </StackPanel>
 
+                            <!-- Giới Tính -->
+                            <StackPanel Grid.Row="4" Grid.Column="0">
+                                <TextBlock Text="Giới Tính" Style="{StaticResource Label}" Margin="0,0,0,3"/>
+                                <TextBlock Text="{Binding GioiTinh}" FontSize="13"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Ngày Sinh -->
+                            <StackPanel Grid.Row="4" Grid.Column="2">
+                                <TextBlock Text="Ngày Sinh" Style="{StaticResource Label}" Margin="0,0,0,3"/>
+                                <TextBlock Text="{Binding NgaySinh}" FontSize="13"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Ngày Vào Làm -->
+                            <StackPanel Grid.Row="6" Grid.Column="0">
+                                <TextBlock Text="Ngày Vào Làm" Style="{StaticResource Label}" Margin="0,0,0,3"/>
+                                <TextBlock Text="{Binding NgayVaoLam}" FontSize="13"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+
                             <!-- Địa Chỉ -->
-                            <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
+                            <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3">
                                 <TextBlock Text="Địa Chỉ" Style="{StaticResource Label}" Margin="0,0,0,3"/>
                                 <TextBlock Text="{Binding DiaChi}" FontSize="13"
                                            Foreground="{StaticResource TextSecondaryBrush}"
