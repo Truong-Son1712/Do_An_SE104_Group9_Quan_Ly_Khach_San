@@ -105,7 +105,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavLoaiPhongCommand}"
-                                    IsEnabled="{Binding IsQuanLy}">
+                                    IsEnabled="{Binding CanQuanLyLoaiPhong}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📋" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Loại Phòng" VerticalAlignment="Center"/>
@@ -158,7 +158,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavLoaiDichVuCommand}"
-                                    IsEnabled="{Binding IsQuanLy}">
+                                    IsEnabled="{Binding CanQuanLyDichVu}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📋" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Loại Dịch Vụ" VerticalAlignment="Center"/>
@@ -167,7 +167,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavBaoCaoCommand}"
-                                    IsEnabled="{Binding IsQuanLy}">
+                                    IsEnabled="{Binding CanXemBaoCao}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📈" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Báo Cáo" VerticalAlignment="Center"/>
@@ -176,7 +176,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavNhanVienCommand}"
-                                    IsEnabled="{Binding IsQuanLy}">
+                                    IsEnabled="{Binding CanQuanLyNhanVien}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="👤" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Nhân Viên" VerticalAlignment="Center"/>
@@ -185,7 +185,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavLoaiKhachHangCommand}"
-                                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolVis}}">
+                                    Visibility="{Binding CanQuanLyLoaiKH, Converter={StaticResource BoolVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🏷" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Loại Khách Hàng" VerticalAlignment="Center"/>
@@ -194,7 +194,7 @@
 
                             <Button Style="{StaticResource NavButton}"
                                     Command="{Binding NavMaGiamGiaCommand}"
-                                    IsEnabled="{Binding IsQuanLy}">
+                                    IsEnabled="{Binding CanQuanLyMaGiamGia}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🎫" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Mã Giảm Giá" VerticalAlignment="Center"/>
@@ -202,8 +202,17 @@
                             </Button>
 
                             <Button Style="{StaticResource NavButton}"
-                                    Command="{Binding NavCauHinhCommand}"
+                                    Command="{Binding NavLoaiNhanVienCommand}"
                                     Visibility="{Binding IsAdmin, Converter={StaticResource BoolVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🏷" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Loại Nhân Viên" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource NavButton}"
+                                    Command="{Binding NavCauHinhCommand}"
+                                    Visibility="{Binding CanCauHinh, Converter={StaticResource BoolVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="⚙" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBlock Text="Cấu Hình" VerticalAlignment="Center"/>

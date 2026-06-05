@@ -45,6 +45,14 @@
                         <TextBlock Text="Đổi Mật Khẩu" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Button Style="{StaticResource BtnSuccess}" Command="{Binding PhanQuyenCommand}" Margin="8,0,0,0"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolVis}}"
+                        ToolTip="Cấp / thu hồi quyền cho nhân viên được chọn">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🛡" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Phân Quyền" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
                 <Button Style="{StaticResource BtnDanger}" Command="{Binding DoiTrangThaiCommand}" Margin="8,0,0,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⊘" VerticalAlignment="Center" Margin="0,0,6,0"/>

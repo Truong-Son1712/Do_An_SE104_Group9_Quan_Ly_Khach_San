@@ -12,27 +12,28 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // Tất cả cài đặt chỉ Admin mới được sửa
-            TxtHeSo.IsReadOnly        = !SessionManager.IsAdmin;
-            CboLoaiKhach.IsEnabled    = SessionManager.IsAdmin;
-            BtnLuuHeSo.IsEnabled      = SessionManager.IsAdmin;
-            BtnLuuHeSo.Opacity        = SessionManager.IsAdmin ? 1.0 : 0.4;
-            TxtSucChuaMax.IsReadOnly  = !SessionManager.IsAdmin;
-            TxtTiLePhuThu.IsReadOnly  = !SessionManager.IsAdmin;
-            BtnLuuSucChua.IsEnabled   = SessionManager.IsAdmin;
-            BtnLuuSucChua.Opacity     = SessionManager.IsAdmin ? 1.0 : 0.4;
-            TxtBoSungGia.IsReadOnly   = !SessionManager.IsAdmin;
-            BtnLuuBoSung.IsEnabled    = SessionManager.IsAdmin;
-            BtnLuuBoSung.Opacity      = SessionManager.IsAdmin ? 1.0 : 0.4;
-            TxtTiLeCoc.IsReadOnly     = !SessionManager.IsAdmin;
-            BtnLuuCoc.IsEnabled       = SessionManager.IsAdmin;
-            BtnLuuCoc.Opacity         = SessionManager.IsAdmin ? 1.0 : 0.4;
-            TxtBoSungDV.IsReadOnly    = !SessionManager.IsAdmin;
-            BtnLuuBoSungDV.IsEnabled  = SessionManager.IsAdmin;
-            BtnLuuBoSungDV.Opacity    = SessionManager.IsAdmin ? 1.0 : 0.4;
-            TxtVAT.IsReadOnly         = !SessionManager.IsAdmin;
-            BtnLuuVAT.IsEnabled       = SessionManager.IsAdmin;
-            BtnLuuVAT.Opacity         = SessionManager.IsAdmin ? 1.0 : 0.4;
+            // Cấu hình: Admin hoặc ai có quyền CauHinhHeThong mới được sửa
+            bool canEdit = SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong);
+            TxtHeSo.IsReadOnly        = !canEdit;
+            CboLoaiKhach.IsEnabled    = canEdit;
+            BtnLuuHeSo.IsEnabled      = canEdit;
+            BtnLuuHeSo.Opacity        = canEdit ? 1.0 : 0.4;
+            TxtSucChuaMax.IsReadOnly  = !canEdit;
+            TxtTiLePhuThu.IsReadOnly  = !canEdit;
+            BtnLuuSucChua.IsEnabled   = canEdit;
+            BtnLuuSucChua.Opacity     = canEdit ? 1.0 : 0.4;
+            TxtBoSungGia.IsReadOnly   = !canEdit;
+            BtnLuuBoSung.IsEnabled    = canEdit;
+            BtnLuuBoSung.Opacity      = canEdit ? 1.0 : 0.4;
+            TxtTiLeCoc.IsReadOnly     = !canEdit;
+            BtnLuuCoc.IsEnabled       = canEdit;
+            BtnLuuCoc.Opacity         = canEdit ? 1.0 : 0.4;
+            TxtBoSungDV.IsReadOnly    = !canEdit;
+            BtnLuuBoSungDV.IsEnabled  = canEdit;
+            BtnLuuBoSungDV.Opacity    = canEdit ? 1.0 : 0.4;
+            TxtVAT.IsReadOnly         = !canEdit;
+            BtnLuuVAT.IsEnabled       = canEdit;
+            BtnLuuVAT.Opacity         = canEdit ? 1.0 : 0.4;
 
             LoadLoaiKhachCombo();
 
@@ -76,7 +77,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuHeSo_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền thay đổi hệ số."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền thay đổi hệ số."); return; }
             if (CboLoaiKhach.SelectedItem is not LoaiKhachHang loai) { ShowWarn("Vui lòng chọn loại khách."); return; }
             if (!decimal.TryParse(TxtHeSo.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal heSo) || heSo < 1m || heSo > 2m)
@@ -95,7 +96,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuSucChua_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền thay đổi cài đặt này."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền thay đổi cài đặt này."); return; }
             if (!int.TryParse(TxtSucChuaMax.Text.Trim(), out int sc) || sc < 1 || sc > 20) { ShowWarn("Sức chứa tối đa phải trong khoảng từ 1 đến 20 người."); return; }
             if (!decimal.TryParse(TxtTiLePhuThu.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal pct) || pct < 0 || pct > 100)
@@ -114,7 +115,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuBoSung_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền điều chỉnh giá."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền điều chỉnh giá."); return; }
             if (!decimal.TryParse(TxtBoSungGia.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal tiLe) || tiLe < -100 || tiLe > 100)
             { ShowWarn("Tỉ lệ điều chỉnh giá phòng phải trong khoảng từ -100% đến 100%."); return; }
@@ -127,7 +128,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuVAT_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền thay đổi thuế VAT."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền thay đổi thuế VAT."); return; }
             if (!decimal.TryParse(TxtVAT.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal vat) || vat < 0 || vat > 20)
             { ShowWarn("Thuế suất VAT phải trong khoảng từ 0% đến 20%."); return; }
@@ -152,7 +153,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuBoSungDV_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền điều chỉnh giá dịch vụ."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền điều chỉnh giá dịch vụ."); return; }
             if (!decimal.TryParse(TxtBoSungDV.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal tiLe) || tiLe < -100 || tiLe > 100)
             { ShowWarn("Tỉ lệ điều chỉnh giá dịch vụ phải trong khoảng từ -100% đến 100%."); return; }
@@ -170,7 +171,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.CauHinh
 
         private void BtnLuuCoc_Click(object sender, RoutedEventArgs e)
         {
-            if (!SessionManager.IsAdmin) { ShowWarn("Chỉ Admin mới có quyền thay đổi tỉ lệ tiền cọc."); return; }
+            if (!SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong)) { ShowWarn("Bạn không có quyền thay đổi tỉ lệ tiền cọc."); return; }
             if (!decimal.TryParse(TxtTiLeCoc.Text.Replace(',', '.'), System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out decimal coc) || coc < 0 || coc > 100)
             { ShowWarn("Tỉ lệ tiền cọc phải trong khoảng từ 0% đến 100%."); return; }

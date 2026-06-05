@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Đồ_Án_Quản_Lý_Khách_Sạn.Helpers;
 using Đồ_Án_Quản_Lý_Khách_Sạn.Models;
 
 namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
@@ -88,6 +89,85 @@ if (ctx.CauHinhs.Find("SucChuaToiDa") == null)
             }
 
             ctx.SaveChanges();
+
+            // Migration: tạo bảng NhanVienQuyens nếu chưa có
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'NhanVienQuyens')
+                CREATE TABLE NhanVienQuyens (
+                    MaNV    INT           NOT NULL,
+                    MaQuyen NVARCHAR(100) NOT NULL,
+                    CONSTRAINT PK_NhanVienQuyen PRIMARY KEY (MaNV, MaQuyen),
+                    CONSTRAINT FK_NVQ_NhanVien FOREIGN KEY (MaNV)
+                        REFERENCES NhanViens(MaNV) ON DELETE CASCADE
+                );");
+
+            // Migration: tạo bảng LoaiNhanViens và LoaiNhanVienQuyens nếu chưa có
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoaiNhanViens')
+                CREATE TABLE LoaiNhanViens (
+                    MaLoaiNV   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                    TenLoai    NVARCHAR(100) NOT NULL,
+                    MoTa       NVARCHAR(500) NULL,
+                    VaiTroCode NVARCHAR(50)  NOT NULL,
+                    IsBuiltIn  BIT           NOT NULL DEFAULT 0,
+                    CONSTRAINT UQ_LoaiNV_VaiTroCode UNIQUE (VaiTroCode)
+                );");
+            ctx.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoaiNhanVienQuyens')
+                CREATE TABLE LoaiNhanVienQuyens (
+                    MaLoaiNV INT           NOT NULL,
+                    MaQuyen  NVARCHAR(100) NOT NULL,
+                    CONSTRAINT PK_LoaiNVQuyen PRIMARY KEY (MaLoaiNV, MaQuyen),
+                    CONSTRAINT FK_LNVQuyen_LoaiNV FOREIGN KEY (MaLoaiNV)
+                        REFERENCES LoaiNhanViens(MaLoaiNV) ON DELETE CASCADE
+                );");
+
+            // Seed loại nhân viên tích hợp (built-in)
+            SeedLoaiNhanVien(ctx);
+
+            // Seed quyền mặc định cho nhân viên hiện có chưa có quyền nào
+            SeedQuyenMacDinh(ctx);
+        }
+
+        private static void SeedLoaiNhanVien(HotelDbContext ctx)
+        {
+            // Seed 3 loại tích hợp nếu chưa có
+            void EnsureBuiltIn(string vaiTroCode, string tenLoai, string moTa, IEnumerable<string> quyens)
+            {
+                if (ctx.LoaiNhanViens.Any(l => l.VaiTroCode == vaiTroCode)) return;
+                var loai = new LoaiNhanVien
+                    { TenLoai = tenLoai, MoTa = moTa, VaiTroCode = vaiTroCode, IsBuiltIn = true };
+                ctx.LoaiNhanViens.Add(loai);
+                ctx.SaveChanges();
+                foreach (var q in quyens)
+                    ctx.LoaiNhanVienQuyens.Add(new LoaiNhanVienQuyen { MaLoaiNV = loai.MaLoaiNV, MaQuyen = q });
+                ctx.SaveChanges();
+            }
+
+            EnsureBuiltIn("Admin",  "Quản Trị Viên", "Toàn quyền hệ thống (không thể thay đổi)",
+                Array.Empty<string>()); // Admin bypass tất cả, không cần lưu quyền
+
+            EnsureBuiltIn("QuanLy", "Quản Lý", "Quản lý nghiệp vụ khách sạn",
+                Quyen.MacDinhQuanLy);
+
+            EnsureBuiltIn("LeTan",  "Lễ Tân",  "Tiếp nhận và phục vụ khách",
+                Quyen.MacDinhLeTan);
+        }
+
+        private static void SeedQuyenMacDinh(HotelDbContext ctx)
+        {
+            // Với mỗi nhân viên không phải Admin và chưa có bất kỳ quyền nào → cấp quyền mặc định theo vai trò
+            var nvChuaCoQuyen = ctx.NhanViens
+                .Where(n => n.VaiTro != "Admin" && !ctx.NhanVienQuyens.Any(q => q.MaNV == n.MaNV))
+                .ToList();
+
+            foreach (var nv in nvChuaCoQuyen)
+            {
+                var defaults = nv.VaiTro == "QuanLy" ? Quyen.MacDinhQuanLy : Quyen.MacDinhLeTan;
+                foreach (var q in defaults)
+                    ctx.NhanVienQuyens.Add(new NhanVienQuyen { MaNV = nv.MaNV, MaQuyen = q });
+            }
+            if (nvChuaCoQuyen.Any()) ctx.SaveChanges();
         }
 
         private static string Hash(string pw) => BCrypt.Net.BCrypt.HashPassword(pw);

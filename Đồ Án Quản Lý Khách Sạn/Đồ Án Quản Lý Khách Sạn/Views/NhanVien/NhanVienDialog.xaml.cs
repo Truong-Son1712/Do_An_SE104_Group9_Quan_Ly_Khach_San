@@ -19,20 +19,29 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
             else PnlMatKhau.Visibility = Visibility.Visible;
         }
 
-        // Xây dựng danh sách vai trò theo quyền của người đang đăng nhập
+        // Load danh sách loại nhân viên từ DB
         private void BuildVaiTroCombo()
         {
             CboVaiTro.Items.Clear();
-            CboVaiTro.Items.Add(new ComboBoxItem { Content = "Lễ Tân",        Tag = "LeTan" });
+            using var ctx = new HotelDbContext();
 
-            if (SessionManager.IsAdmin)
-            {
-                // Admin thấy cả 3 vai trò
-                CboVaiTro.Items.Add(new ComboBoxItem { Content = "Quản Lý",       Tag = "QuanLy" });
-                CboVaiTro.Items.Add(new ComboBoxItem { Content = "Quản Trị Viên", Tag = "Admin"  });
-            }
-            // QuanLy chỉ thấy LeTan (đã thêm ở trên)
-            CboVaiTro.SelectedIndex = 0;
+            // Admin thấy tất cả loại (trừ Admin); QuanLy chỉ thấy loại không phải Admin/QuanLy
+            var loais = ctx.LoaiNhanViens
+                .OrderBy(l => l.MaLoaiNV)
+                .ToList()
+                .Where(l => SessionManager.IsAdmin
+                    ? true                                            // Admin thấy tất cả kể cả Admin
+                    : l.VaiTroCode != "Admin" && l.VaiTroCode != "QuanLy") // QuanLy chỉ tạo LeTan/custom
+                .ToList();
+
+            foreach (var loai in loais)
+                CboVaiTro.Items.Add(new ComboBoxItem
+                {
+                    Content = loai.TenLoai,
+                    Tag     = loai.VaiTroCode
+                });
+
+            CboVaiTro.SelectedIndex = CboVaiTro.Items.Count > 0 ? 0 : -1;
         }
 
         private void LoadData(int id)
@@ -90,12 +99,34 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                     if (!SessionManager.IsAdmin && nv.VaiTro != "LeTan")
                     { ShowError("Quản Lý chỉ được chỉnh sửa tài khoản Lễ Tân."); return; }
 
+                    string oldVaiTro = nv.VaiTro;
                     nv.HoTen  = TxtHoTen.Text.Trim();
                     nv.CCCD   = TxtCCCD.Text.Trim();
                     nv.VaiTro = vaiTro;
                     nv.Email  = TxtEmail.Text.Trim();
                     nv.SDT    = TxtSDT.Text.Trim();
                     nv.DiaChi = TxtDiaChi.Text.Trim();
+
+                    // Nếu đổi vai trò → reset quyền về mặc định của loại mới
+                    if (oldVaiTro != vaiTro)
+                    {
+                        var maLoaiNV = ctx.LoaiNhanViens
+                            .Where(l => l.VaiTroCode == vaiTro)
+                            .Select(l => (int?)l.MaLoaiNV)
+                            .FirstOrDefault();
+                        var newQuyens = maLoaiNV.HasValue
+                            ? ctx.LoaiNhanVienQuyens
+                                .Where(q => q.MaLoaiNV == maLoaiNV.Value)
+                                .Select(q => q.MaQuyen).ToList()
+                            : new List<string>();
+                        if (!newQuyens.Any() && vaiTro == "QuanLy")
+                            newQuyens = Helpers.Quyen.MacDinhQuanLy.ToList();
+
+                        var oldQ = ctx.NhanVienQuyens.Where(q => q.MaNV == nv.MaNV).ToList();
+                        ctx.NhanVienQuyens.RemoveRange(oldQ);
+                        foreach (var q in newQuyens)
+                            ctx.NhanVienQuyens.Add(new Models.NhanVienQuyen { MaNV = nv.MaNV, MaQuyen = q });
+                    }
                 }
                 else
                 {
@@ -108,7 +139,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                     if (ctx.NhanViens.Any(n => n.TaiKhoan == TxtTaiKhoan.Text.Trim()))
                     { ShowError("Tài khoản đã tồn tại."); return; }
 
-                    ctx.NhanViens.Add(new Models.NhanVien
+                    var newNV = new Models.NhanVien
                     {
                         HoTen    = TxtHoTen.Text.Trim(),
                         TaiKhoan = TxtTaiKhoan.Text.Trim(),
@@ -119,7 +150,26 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.NhanVien
                         SDT      = TxtSDT.Text.Trim(),
                         DiaChi   = TxtDiaChi.Text.Trim(),
                         IsActive = true
-                    });
+                    };
+                    ctx.NhanViens.Add(newNV);
+                    ctx.SaveChanges();
+
+                    // Cấp quyền mặc định theo LoaiNhanVienQuyen (dùng FK trực tiếp, không dùng navigation)
+                    var maLoaiNV = ctx.LoaiNhanViens
+                        .Where(l => l.VaiTroCode == vaiTro)
+                        .Select(l => (int?)l.MaLoaiNV)
+                        .FirstOrDefault();
+                    var loaiDefaults = maLoaiNV.HasValue
+                        ? ctx.LoaiNhanVienQuyens
+                            .Where(q => q.MaLoaiNV == maLoaiNV.Value)
+                            .Select(q => q.MaQuyen)
+                            .ToList()
+                        : new List<string>();
+                    // Fallback cứng nếu DB chưa có dữ liệu
+                    if (!loaiDefaults.Any() && vaiTro == "QuanLy")
+                        loaiDefaults = Helpers.Quyen.MacDinhQuanLy.ToList();
+                    foreach (var q in loaiDefaults)
+                        ctx.NhanVienQuyens.Add(new Models.NhanVienQuyen { MaNV = newNV.MaNV, MaQuyen = q });
                 }
                 ctx.SaveChanges();
                 DialogResult = true;

@@ -55,6 +55,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public ICommand XoaCommand          { get; }
         public ICommand DoiTrangThaiCommand { get; }
         public ICommand DoiMatKhauCommand   { get; }
+        public ICommand PhanQuyenCommand    { get; }
 
         public NhanVienViewModel()
         {
@@ -64,6 +65,8 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
             XoaCommand          = new RelayCommand(_ => Xoa(),         _ => CanActOnOther);
             DoiTrangThaiCommand = new RelayCommand(_ => DoiTrangThai(), _ => CanActOnOther);
             DoiMatKhauCommand   = new RelayCommand(_ => DoiMatKhau(),   _ => CanEdit);
+            PhanQuyenCommand    = new RelayCommand(_ => PhanQuyen(),
+                _ => IsAdmin && Selected != null && Selected.VaiTro != "Admin");
             LoadData();
         }
 
@@ -166,6 +169,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         {
             if (Selected == null) return;
             var dlg = new Views.NhanVien.DoiMatKhauDialog(Selected.MaNV);
+            dlg.ShowDialog();
+        }
+
+        private void PhanQuyen()
+        {
+            if (Selected == null || Selected.VaiTro == "Admin") return;
+            var dlg = new Views.NhanVien.PhanQuyenDialog(Selected.MaNV, Selected.HoTen, Selected.VaiTro);
             dlg.ShowDialog();
         }
     }

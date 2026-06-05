@@ -33,6 +33,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
         }
 
         public DbSet<NhanVien>          NhanViens          { get; set; }
+        public DbSet<NhanVienQuyen>     NhanVienQuyens     { get; set; }
+        public DbSet<LoaiNhanVien>      LoaiNhanViens      { get; set; }
+        public DbSet<LoaiNhanVienQuyen> LoaiNhanVienQuyens { get; set; }
         public DbSet<LoaiPhong>         LoaiPhongs         { get; set; }
         public DbSet<Phong>             Phongs             { get; set; }
         public DbSet<KhachHang>         KhachHangs         { get; set; }
@@ -58,6 +61,31 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Data
                 e.Property(x => x.HoTen).IsRequired().HasMaxLength(100);
                 e.Property(x => x.TaiKhoan).IsRequired().HasMaxLength(50);
                 e.HasIndex(x => x.TaiKhoan).IsUnique();
+            });
+
+            m.Entity<NhanVienQuyen>(e =>
+            {
+                e.HasKey(x => new { x.MaNV, x.MaQuyen });
+                e.Property(x => x.MaQuyen).HasMaxLength(100);
+                e.HasOne(x => x.NhanVien).WithMany(n => n.Quyens)
+                 .HasForeignKey(x => x.MaNV).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            m.Entity<LoaiNhanVien>(e =>
+            {
+                e.HasKey(x => x.MaLoaiNV);
+                e.Property(x => x.TenLoai).IsRequired().HasMaxLength(100);
+                e.Property(x => x.VaiTroCode).IsRequired().HasMaxLength(50);
+                e.HasIndex(x => x.VaiTroCode).IsUnique();
+                e.Ignore(x => x.SoNhanVien);
+            });
+
+            m.Entity<LoaiNhanVienQuyen>(e =>
+            {
+                e.HasKey(x => new { x.MaLoaiNV, x.MaQuyen });
+                e.Property(x => x.MaQuyen).HasMaxLength(100);
+                e.HasOne(x => x.LoaiNhanVien).WithMany(l => l.Quyens)
+                 .HasForeignKey(x => x.MaLoaiNV).OnDelete(DeleteBehavior.Cascade);
             });
 
             m.Entity<LoaiPhong>(e =>

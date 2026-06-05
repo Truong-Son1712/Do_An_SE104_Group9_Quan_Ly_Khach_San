@@ -210,7 +210,7 @@
                             Margin="24,0" VerticalAlignment="Center">
                     <Button Content="Hủy" Style="{StaticResource BtnOutline}" Width="90" Click="BtnCancel_Click" Margin="0,0,8,0"/>
                     <Button x:Name="BtnSave" Content="📅  Đặt Phòng" Style="{StaticResource BtnPrimary}"
-                            Width="130" Click="BtnSave_Click"/>
+                            MinWidth="150" Padding="16,0" Click="BtnSave_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

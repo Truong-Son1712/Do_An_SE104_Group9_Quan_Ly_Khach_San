@@ -28,6 +28,15 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public bool IsAdmin   => SessionManager.IsAdmin;
         public bool IsQuanLy  => SessionManager.IsQuanLy;
 
+        // Permission-based — dùng cho từng mục sidebar
+        public bool CanXemBaoCao      => SessionManager.HasPermission(Helpers.Quyen.XemBaoCao);
+        public bool CanQuanLyLoaiPhong => SessionManager.HasPermission(Helpers.Quyen.QuanLyLoaiPhong);
+        public bool CanQuanLyDichVu   => SessionManager.HasPermission(Helpers.Quyen.QuanLyDichVu);
+        public bool CanQuanLyNhanVien => SessionManager.HasPermission(Helpers.Quyen.QuanLyNhanVien);
+        public bool CanQuanLyMaGiamGia=> SessionManager.HasPermission(Helpers.Quyen.QuanLyMaGiamGia);
+        public bool CanQuanLyLoaiKH   => SessionManager.HasPermission(Helpers.Quyen.QuanLyLoaiKH);
+        public bool CanCauHinh        => SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong);
+
         // Navigation Commands
         public ICommand NavDashboardCommand  { get; }
         public ICommand NavPhongCommand      { get; }
@@ -42,6 +51,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         public ICommand NavDichVuCommand          { get; }
         public ICommand NavMaGiamGiaCommand       { get; }
         public ICommand NavCauHinhCommand         { get; }
+        public ICommand NavLoaiNhanVienCommand    { get; }
         public ICommand NavCaiDatCommand          { get; }
         public ICommand LogoutCommand        { get; }
 
@@ -51,17 +61,18 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         {
             NavDashboardCommand = new RelayCommand(_ => Nav(new DashboardViewModel(), "Tổng Quan"));
             NavPhongCommand     = new RelayCommand(_ => Nav(new PhongViewModel(),     "Quản Lý Phòng"));
-            NavLoaiPhongCommand = new RelayCommand(_ => Nav(new LoaiPhongViewModel(), "Loại Phòng"),   _ => IsQuanLy);
+            NavLoaiPhongCommand = new RelayCommand(_ => Nav(new LoaiPhongViewModel(), "Loại Phòng"),   _ => SessionManager.HasPermission(Helpers.Quyen.QuanLyLoaiPhong));
             NavKhachHangCommand = new RelayCommand(_ => Nav(new KhachHangViewModel(), "Khách Hàng"));
             NavDatPhongCommand  = new RelayCommand(_ => Nav(new DatPhongViewModel(),  "Đặt Phòng"));
             NavHoaDonCommand    = new RelayCommand(_ => Nav(new HoaDonViewModel(),    "Hóa Đơn"));
-            NavBaoCaoCommand    = new RelayCommand(_ => Nav(new BaoCaoViewModel(),    "Báo Cáo"),       _ => IsQuanLy);
-            NavNhanVienCommand       = new RelayCommand(_ => Nav(new NhanVienViewModel(),       "Nhân Viên"),          _ => IsQuanLy);
-            NavLoaiKhachHangCommand  = new RelayCommand(_ => Nav(new LoaiKhachHangViewModel(),  "Loại Khách Hàng"),    _ => IsAdmin);
-            NavLoaiDichVuCommand     = new RelayCommand(_ => Nav(new LoaiDichVuViewModel(),     "Loại Dịch Vụ"),       _ => IsQuanLy);
+            NavBaoCaoCommand    = new RelayCommand(_ => Nav(new BaoCaoViewModel(),    "Báo Cáo"),       _ => SessionManager.HasPermission(Helpers.Quyen.XemBaoCao));
+            NavNhanVienCommand       = new RelayCommand(_ => Nav(new NhanVienViewModel(),       "Nhân Viên"),          _ => SessionManager.HasPermission(Helpers.Quyen.QuanLyNhanVien));
+            NavLoaiKhachHangCommand  = new RelayCommand(_ => Nav(new LoaiKhachHangViewModel(),  "Loại Khách Hàng"),    _ => SessionManager.HasPermission(Helpers.Quyen.QuanLyLoaiKH));
+            NavLoaiDichVuCommand     = new RelayCommand(_ => Nav(new LoaiDichVuViewModel(),     "Loại Dịch Vụ"),       _ => SessionManager.HasPermission(Helpers.Quyen.QuanLyDichVu));
             NavDichVuCommand         = new RelayCommand(_ => Nav(new DichVuViewModel(),         "Dịch Vụ Phòng"));
-            NavMaGiamGiaCommand      = new RelayCommand(_ => Nav(new MaGiamGiaViewModel(),      "Mã Giảm Giá"),        _ => IsQuanLy);
-            NavCauHinhCommand        = new RelayCommand(_ => Nav(new CauHinhHeThongViewModel(), "Cấu Hình Hệ Thống"),  _ => IsAdmin);
+            NavMaGiamGiaCommand      = new RelayCommand(_ => Nav(new MaGiamGiaViewModel(),      "Mã Giảm Giá"),        _ => SessionManager.HasPermission(Helpers.Quyen.QuanLyMaGiamGia));
+            NavCauHinhCommand        = new RelayCommand(_ => Nav(new CauHinhHeThongViewModel(), "Cấu Hình Hệ Thống"),  _ => SessionManager.HasPermission(Helpers.Quyen.CauHinhHeThong));
+            NavLoaiNhanVienCommand   = new RelayCommand(_ => Nav(new LoaiNhanVienViewModel(),   "Loại Nhân Viên"),     _ => IsAdmin);
             NavCaiDatCommand         = new RelayCommand(_ => Nav(new CaiDatViewModel(),         "Cài Đặt & Tài Khoản"));
             LogoutCommand       = new RelayCommand(_ => LogoutRequested?.Invoke());
 

@@ -14,6 +14,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
         private readonly bool _readOnly;
         private decimal _giaPhong;
         private bool _initialized;
+        private bool _isEditMode = false; // true khi đang chỉnh sửa (tiền cọc đã thu)
 
         private List<KhachHangItem> _allKhachHangItems = new();
 
@@ -118,12 +119,12 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                 .FirstOrDefault(d => d.MaDatPhong == id);
             if (dp == null) return;
 
+            _isEditMode = !_readOnly; // đang chỉnh sửa → giữ tiền cọc
             TxtTitle.Text       = _readOnly ? "Chi Tiết Đặt Phòng" : "Chỉnh Sửa Đặt Phòng";
             DpNhan.SelectedDate = dp.NgayNhanPhong;
             DpTra.SelectedDate  = dp.NgayTraPhong;
-            // Hiển thị tiền cọc đã lưu khi mở chỉnh sửa
-            decimal tiLeCoc = AppConfig.GetTiLeCoc();
-            LblTienCoc.Text = $"Tiền Cọc ({tiLeCoc:0.##}% dự tính)";
+            // Tiền cọc đã thu → hiển thị cố định, không tính lại
+            LblTienCoc.Text = dp.TienCoc > 0 ? "Tiền Cọc (đã thu, không đổi)" : "Tiền Cọc";
             TxtTienCoc.Text = dp.TienCoc.ToString("N0");
             TxtGhiChu.Text  = dp.GhiChu;
 
@@ -141,11 +142,18 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
             UpdateKhachSummary();
 
+            // Cho phép đổi sang phòng cùng loại (phòng trống hoặc chính phòng hiện tại)
             using var ctx2 = new HotelDbContext();
-            var phongs = ctx2.Phongs.Include(p => p.LoaiPhong).OrderBy(p => p.SoPhong).ToList();
-            CboPhong.ItemsSource  = phongs;
-            CboPhong.SelectedItem = phongs.FirstOrDefault(p => p.MaPhong == dp.MaPhong);
-            CboPhong.IsEnabled    = false;
+            int maLoaiPhong = dp.Phong?.MaLoaiPhong ?? 0;
+            var phongsCungLoai = ctx2.Phongs
+                .Include(p => p.LoaiPhong)
+                .Where(p => p.MaLoaiPhong == maLoaiPhong &&
+                            (p.TrangThai == TrangThaiPhong.TrongSach || p.MaPhong == dp.MaPhong))
+                .OrderBy(p => p.SoPhong)
+                .ToList();
+            CboPhong.ItemsSource  = phongsCungLoai;
+            CboPhong.SelectedItem = phongsCungLoai.FirstOrDefault(p => p.MaPhong == dp.MaPhong);
+            CboPhong.IsEnabled    = !_readOnly; // cho phép sửa khi không ở chế độ xem
 
             if (!_readOnly) BtnSave.Content = "💾  Lưu Thay Đổi";
         }
@@ -248,13 +256,19 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             bool    hasPhuThu  = soKhach > 0 && soKhach > p.LoaiPhong.SucChua;
             decimal tiLePhuThu = hasPhuThu ? AppConfig.GetTiLePhuThu() : 0m;
 
-            decimal total    = _giaPhong * soNgay * (heSo + tiLePhuThu);
-            decimal tiLeCoc  = AppConfig.GetTiLeCoc();
-            decimal tienCoc  = Math.Round(total * tiLeCoc / 100, 0);
-
+            decimal total   = _giaPhong * soNgay * (heSo + tiLePhuThu);
             TxtDuTinh.Text  = $"{total:N0} ₫";
-            TxtTienCoc.Text = $"{tienCoc:N0}";
-            LblTienCoc.Text = $"Tiền Cọc ({tiLeCoc:0.##}% dự tính)";
+
+            // Chỉ tự tính tiền cọc khi TẠO MỚI; khi CHỈNH SỬA giữ nguyên tiền cọc đã thu
+            if (!_isEditMode)
+            {
+                decimal tiLeCoc    = AppConfig.GetTiLeCoc();
+                // Cọc tính trên GIÁ PHÒNG GỐC (sau điều chỉnh đồng loạt), không tính phụ thu
+                decimal giaPhongGoc = _giaPhong * soNgay;
+                decimal tienCoc    = Math.Round(giaPhongGoc * tiLeCoc / 100, 0);
+                TxtTienCoc.Text    = $"{tienCoc:N0}";
+                LblTienCoc.Text    = $"Tiền Cọc ({tiLeCoc:0.##}% giá phòng)";
+            }
 
             if (hasHeSo)
             {
@@ -302,7 +316,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
             if (conflict != null)
             { ShowError($"Khách '{conflict.HoTen}' {conflict.OccupiedInfo}. Không thể thêm vào phòng này."); return; }
 
-            if (!_maDatPhong.HasValue && CboPhong.SelectedItem is not Models.Phong)
+            if (CboPhong.SelectedItem is not Models.Phong)
             { ShowError("Vui lòng chọn phòng."); return; }
             var phong = CboPhong.SelectedItem as Models.Phong;
 
@@ -332,8 +346,13 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
 
                 if (_maDatPhong.HasValue)
                 {
-                    var dp = ctx.DatPhongs.FirstOrDefault(d => d.MaDatPhong == _maDatPhong.Value);
+                    var dp = ctx.DatPhongs
+                        .Include(d => d.Phong)
+                        .FirstOrDefault(d => d.MaDatPhong == _maDatPhong.Value);
                     if (dp == null) return;
+
+                    int oldMaPhong = dp.MaPhong;
+                    int newMaPhong = (phong ?? ctx.Phongs.Find(dp.MaPhong))!.MaPhong;
 
                     dp.MaKH                = nguoiDat.MaKH;
                     dp.NguoiDatPhongOPhong = nguoiDatOPhong;
@@ -342,6 +361,16 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.Views.DatPhong
                     dp.TienCoc             = tienCoc;
                     dp.SoKhach             = stayingKhach.Count;
                     dp.GhiChu              = TxtGhiChu.Text.Trim();
+                    dp.MaPhong             = newMaPhong;
+
+                    // Nếu đổi phòng → giải phóng phòng cũ, cập nhật trạng thái phòng mới
+                    if (oldMaPhong != newMaPhong)
+                    {
+                        var oldPhong = ctx.Phongs.Find(oldMaPhong);
+                        if (oldPhong != null) oldPhong.TrangThai = TrangThaiPhong.TrongSach;
+                        var newPhong = ctx.Phongs.Find(newMaPhong);
+                        if (newPhong != null) newPhong.TrangThai = TrangThaiPhong.DaDat;
+                    }
 
                     var hd = ctx.HoaDons.FirstOrDefault(h => h.MaDatPhong == dp.MaDatPhong);
                     if (hd != null) hd.TienCoc = tienCoc;

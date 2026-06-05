@@ -98,7 +98,7 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private decimal _tongDoanhThu;
         public decimal TongDoanhThu { get => _tongDoanhThu; set => Set(ref _tongDoanhThu, value); }
 
-        public bool IsQuanLy => SessionManager.IsQuanLy;
+        public bool IsQuanLy => SessionManager.HasPermission(Helpers.Quyen.HuyHoaDon);
 
         public ICommand RefreshCommand    { get; }
         public ICommand XemChiTietCommand { get; }
