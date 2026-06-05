@@ -144,14 +144,30 @@
         <!-- Total -->
         <Border Grid.Row="3" Style="{StaticResource CardSmall}" Margin="0,12,0,0">
             <DockPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <TextBlock Text="Tổng Đã Thanh Toán + Cọc:" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" FontSize="15"
-                               VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="{Binding TongDoanhThu, Converter={StaticResource Currency}}"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="{StaticResource SuccessBrush}"
-                               VerticalAlignment="Center"/>
+                <!-- Cột phải: 2 dòng tổng -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Chưa thanh toán -->
+                    <Border Background="#FFF3E0" CornerRadius="8" Padding="16,6" Margin="0,0,16,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Còn Phải Thu:" FontWeight="SemiBold"
+                                       Foreground="#E65100" FontSize="13"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding TongChuaThanhToan, Converter={StaticResource Currency}}"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="#E65100" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Đã thanh toán -->
+                    <Border Background="#E8F5E9" CornerRadius="8" Padding="16,6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Tổng Đã Thu:" FontWeight="SemiBold"
+                                       Foreground="{StaticResource SuccessBrush}" FontSize="13"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding TongDoanhThu, Converter={StaticResource Currency}}"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource SuccessBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </DockPanel>
         </Border>

@@ -98,6 +98,9 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
         private decimal _tongDoanhThu;
         public decimal TongDoanhThu { get => _tongDoanhThu; set => Set(ref _tongDoanhThu, value); }
 
+        private decimal _tongChuaThanhToan;
+        public decimal TongChuaThanhToan { get => _tongChuaThanhToan; set => Set(ref _tongChuaThanhToan, value); }
+
         public bool IsQuanLy => SessionManager.HasPermission(Helpers.Quyen.HuyHoaDon);
 
         public ICommand RefreshCommand    { get; }
@@ -229,6 +232,11 @@ namespace Đồ_Án_Quản_Lý_Khách_Sạn.ViewModels
                     .Sum(d => d.TienCoc);
 
                 TongDoanhThu = dtHoaDon + dtCoc;
+
+                // Tổng tiền chưa thu = sum TongTien các HĐ ChuaThanhToan trong khoảng lọc
+                TongChuaThanhToan = list
+                    .Where(h => h.TrangThai == "ChuaThanhToan")
+                    .Sum(h => h.ConLai); // ConLai = TongTien - TienCoc (số tiền thực còn phải thu)
             }
             catch (Exception ex)
             {
